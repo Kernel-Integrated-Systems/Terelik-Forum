@@ -1,8 +1,5 @@
 from fastapi import FastAPI
-
+from routers.router_topics import topics_router
 app = FastAPI()
 
-@app.get('/')
-def get_main(sort: str | None):
-    pass
-    return sort
+app.include_router(topics_router)
