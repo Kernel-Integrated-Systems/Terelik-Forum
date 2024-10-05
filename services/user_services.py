@@ -27,7 +27,8 @@ def get_user_by_username(username: str) -> Optional[User]:
 
 def create_user(user_data: User) -> User:
     new_id = max(user.id for user in users) + 1 if users else 1
-    new_user = User(id=new_id, **user_data.dict())
+    print(new_id)
+    new_user = User(id=new_id, **user_data.dict(exclude={'id'}))
     users.append(new_user)
     return new_user
 
