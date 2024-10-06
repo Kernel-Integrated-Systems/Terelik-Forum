@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
 
 from services.topic_services import (view_topics, create_topic, find_topic_by_id,
-                                     find_topic_by_title, find_topic_by_category)
+                                     find_topic_by_title_f, find_topic_by_category)
 from percistance.data import topics
 
 topics_router = APIRouter(prefix='/topics')
@@ -20,7 +20,7 @@ def get_topic_by_id(topic_id: int):
     return topic
 
 
-@topics_router.get('/category/{category_id}')
+@topics_router.get('/{category_id}')
 def get_topic_by_category(category_id: int):
     topic_category = find_topic_by_category(category_id)
     if not topic_category:
@@ -44,3 +44,9 @@ def delete_topic(topic_id: int):
     topics.remove(topic)
 
     return Response(status_code=204)
+
+
+@topics_router.get('/title')
+def find_topic_by_title(title: str):
+    topic = find_topic_by_title_f(title)
+    return topic

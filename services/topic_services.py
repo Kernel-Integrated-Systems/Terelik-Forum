@@ -19,7 +19,7 @@ def find_topic_by_id(id: int):
             return topic
 
 
-def find_topic_by_title(title: str):
+def find_topic_by_title_f(title: str):
     for topic in topics:
         if title.lower() in topic.title.lower():
             return topic
