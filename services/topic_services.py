@@ -2,9 +2,9 @@ from modules.topics import Topics
 from percistance.data import topics
 
 
-def create_topic(title: str, category: str):
+def create_topic(title: str, content: str, user_id: int, category: int):
     new_id = max(topic.topic_id for topic in topics) + 1 if topics else 1
-    new_topic = Topics(topic_id=new_id, title=title, category=category)
+    new_topic = Topics(topic_id=new_id, title=title, content=content, user_id=user_id, category_id=category)
     topics.append(new_topic)
     return new_topic
 
@@ -25,8 +25,6 @@ def find_topic_by_title(title: str):
             return topic
 
 
-def find_topic_by_category(category: str):
-    for topic in topics:
-        if topic.category.lower() == category.lower():
-            return topic
-    return None
+def find_topic_by_category(category_id: int):
+    topic_l = [t for t in topics if t.category_id == category_id]
+    return topic_l

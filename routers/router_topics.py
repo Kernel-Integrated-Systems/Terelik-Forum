@@ -20,30 +20,19 @@ def get_topic_by_id(topic_id: int):
     return topic
 
 
-@topics_router.get('/{title}')
-def get_topic_by_title(title: str):
-    topic = find_topic_by_title(title)
-    if not topic:
-        raise HTTPException(status_code=404, detail='Topic not found')
-    return {topic.topic_id,
-            topic.title,
-            topic.category}
-
-
-@topics_router.get('/{category}')
-def get_topic_by_category(category: str):
-    topic = find_topic_by_category(category)
-    if topic is None:
+@topics_router.get('/category/{category_id}')
+def get_topic_by_category(category_id: int):
+    topic_category = find_topic_by_category(category_id)
+    if not topic_category:
         return Response(status_code=404, content='Topic not found')
-    return topic
+    return topic_category
 
 
 @topics_router.post('/new_topic')
-def create_new_topic(title: str, category: str):
-    new_topic = create_topic(title, category)
+def create_new_topic(title: str, content: str, user_id: int, category_id: int):
+    new_topic = create_topic(title, content, user_id, category_id)
 
     return new_topic
-
 
 
 @topics_router.delete('/{topic_id}')

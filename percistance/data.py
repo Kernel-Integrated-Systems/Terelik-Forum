@@ -7,6 +7,7 @@ users = [
 ]
 
 topics = [
-    Topics(topic_id=1, title='New Topic', category='1st Category'),
-    Topics(topic_id=2, title='Another Topic', category='2st Category')
+    Topics(topic_id=1, title='New Topic', content='alabalaportokala', user_id=1, category_id=1),
+    Topics(topic_id=2, title='Another Topic', content='babanana', user_id=2, category_id=2),
+    Topics(topic_id=3, title='New Topic2', content='balabala', user_id=3, category_id=1)
 ]

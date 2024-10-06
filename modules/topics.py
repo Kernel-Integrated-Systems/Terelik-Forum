@@ -3,5 +3,7 @@ from pydantic import BaseModel
 class Topics(BaseModel):
     topic_id: int
     title: str
-    category: str
+    content: str
+    user_id: int
+    category_id: int
 
