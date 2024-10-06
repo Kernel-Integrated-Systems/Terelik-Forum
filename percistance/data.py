@@ -1,3 +1,4 @@
+from modules.messages import Message
 from modules.users import User
 from modules.topics import Topics
 from modules.categories import Category
@@ -16,4 +17,8 @@ categories = [
     Category(category_id=1, category_name="Category1"),
     Category(category_id=2, category_name="Category2"),
     Category(category_id=3, category_name="Category3")
+]
+messages = [
+    Message(message_id=1, sender_id=2, receiver_id=1, content="Hello there! How are you?"),
+    Message(message_id=2, sender_id=1, receiver_id=2, content="Hello, I'm fine, what about you?")
 ]
