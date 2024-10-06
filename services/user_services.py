@@ -1,3 +1,4 @@
+
 from modules.users import User
 from percistance.data import users
 from typing import Optional
@@ -53,3 +54,4 @@ def authenticate_user(email: str, password: str) -> Optional[User]:
         return None
 
     return user
+

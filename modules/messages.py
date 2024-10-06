@@ -7,3 +7,8 @@ class Message(BaseModel):
     receiver_id: int
     content: str
 
+
+class NewMessage(BaseModel):
+    sender_id: int
+    receiver_id: int
+    content: str
