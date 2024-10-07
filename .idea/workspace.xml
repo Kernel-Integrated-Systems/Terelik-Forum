@@ -5,15 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cf509125-790c-4544-9ee8-de8d62f76429" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/modules/replies.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/replies.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/topics.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/topics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/percistance/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/percistance/data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/router_replies.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router_replies.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/router_topics.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router_topics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/router_users.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router_users.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/replies_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/replies_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/topic_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/topic_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user_services.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,6 +72,12 @@
       <workItem from="1728228770857" duration="7000" />
       <workItem from="1728228785939" duration="5000" />
       <workItem from="1728228799724" duration="23000" />
+      <workItem from="1728248253311" duration="53000" />
+      <workItem from="1728282478535" duration="7000" />
+      <workItem from="1728282493504" duration="4000" />
+      <workItem from="1728282504060" duration="6000" />
+      <workItem from="1728282518240" duration="6000" />
+      <workItem from="1728282529905" duration="3000" />
     </task>
     <servers />
   </component>

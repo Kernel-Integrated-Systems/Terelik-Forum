@@ -8,6 +8,13 @@ from services.topic_services import find_topic_by_id
 def find_reply_by_id(reply_id):
     reply = next((r for r in replies if r.reply_id == reply_id), None)
     return reply
+def get_votes_for_reply(reply_id: int):
+    reply_votes = [vote for vote in votes if vote.reply_id == reply_id]
+    return reply_votes
+
+def get_replies_for_topic(topic_id: int):
+    topic_replies = [reply for reply in replies if reply.topic_id == topic_id]
+    return topic_replies
 
 
 def create_reply(content: str, user_id: int, topic_id: int):
@@ -41,7 +48,6 @@ def vote_reply(reply_id: int, user_id: int, vote_type: str):
 
 
 
-
 def choose_best_reply(topic_id: int, reply_id: int, user_id: int):
     topic = find_topic_by_id(topic_id)
     reply = find_reply_by_id(reply_id)
@@ -56,11 +62,29 @@ def choose_best_reply(topic_id: int, reply_id: int, user_id: int):
     topic.best_reply_id = reply_id
     return "Best reply selected successfully."
 
-def get_votes_for_reply(reply_id: int):
-    reply_votes = [vote for vote in votes if vote.reply_id == reply_id]
-    return reply_votes
 
-def get_replies_for_topic(topic_id: int):
-    topic_replies = [reply for reply in replies if reply.topic_id == topic_id]
-    return topic_replies
+def get_best_reply_for_topic(topic_id: int):
+    topic = find_topic_by_id(topic_id)
+    if not topic:
+        raise ValueError("Topic not found.")
 
+    if not topic.best_reply_id or topic.best_reply_id is None:
+        return None
+
+    best_reply = find_reply_by_id(topic.best_reply_id)
+    return best_reply
+
+
+def get_all_topics_with_best_replies():
+    topics_with_best_replies = []
+
+    for topic in topics:
+        if topic.best_reply_id:
+            best_reply = find_reply_by_id(topic.best_reply_id)
+            topics_with_best_replies.append({
+                "topic_id": topic.topic_id,
+                "title": topic.title,
+                "best_reply": best_reply
+            })
+
+    return topics_with_best_replies
