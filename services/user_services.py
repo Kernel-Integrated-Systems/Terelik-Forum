@@ -27,8 +27,7 @@ def get_user_by_username(username: str) -> Optional[User]:
 
 def create_user(user_data: User) -> User:
     new_id = max(user.id for user in users) + 1 if users else 1
-    print(new_id)
-    new_user = User(id=new_id, **user_data.dict(exclude={'id'}))
+    new_user = User(id=new_id, **user_data.dict())
     users.append(new_user)
     return new_user
 
@@ -53,5 +52,3 @@ def authenticate_user(email: str, password: str) -> Optional[User]:
         return None
 
     return user
-
-
