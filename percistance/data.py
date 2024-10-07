@@ -19,7 +19,6 @@ topics = [
 ]
 
 
-
 replies = [
     Reply(reply_id=1, content='I prefer Python for backend, easier to write.', user_id=2, topic_id=1),
     Reply(reply_id=2, content='Java has better performance for large-scale systems.', user_id=3, topic_id=1),
@@ -41,6 +40,7 @@ votes = [
     Vote(vote_id=8, user_id=2, reply_id=6, vote_type='downvote', created_at=datetime(2024, 10, 1, 12, 35)),
     Vote(vote_id=9, user_id=3, reply_id=7, vote_type='upvote', created_at=datetime(2024, 10, 1, 12, 40)),
     Vote(vote_id=10, user_id=4, reply_id=7, vote_type='upvote', created_at=datetime(2024, 10, 1, 12, 45)),
+]
 
 messages = [
     Message(message_id=1, sender_id=2, receiver_id=1, content="Hello there! How are you?"),

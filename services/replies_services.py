@@ -47,7 +47,6 @@ def vote_reply(reply_id: int, user_id: int, vote_type: str):
     return f"Reply {vote_type}d successfully."
 
 
-
 def choose_best_reply(topic_id: int, reply_id: int, user_id: int):
     topic = find_topic_by_id(topic_id)
     reply = find_reply_by_id(reply_id)

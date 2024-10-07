@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
-
+from routers.router_replies import replies_router, votes_router
+from routers.router_topics import topics_router
 from routers.router_messages import messages_router
 from routers.router_users import users_router
 
@@ -11,11 +12,8 @@ DEFAULT_TOKEN_EXPIRY_TIME = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-from routers.router_replies import replies_router, votes_router
-from routers.router_topics import topics_router
-from routers.router_users import users_router
-
 app = FastAPI()
+
 
 @app.get('/')
 def get_main(sort: str | None):

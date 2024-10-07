@@ -27,7 +27,6 @@ def register_user_route(user: UserRegistrationRequest):
         raise HTTPException(status_code=400, detail=str(err))
 
 
-
 @users_router.post('/login')
 def login_user_route(user_login: UserLoginRequest):
     try:

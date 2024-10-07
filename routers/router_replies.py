@@ -6,18 +6,17 @@ from services.replies_services import create_reply, vote_reply, choose_best_repl
 from services.topic_services import find_topic_by_id
 
 replies_router = APIRouter(prefix='/replies')
+votes_router = APIRouter(prefix='/votes')
+best_reply_router = APIRouter(prefix='/best_replies')
 
-@replies_router.post('/create_reply')  #tested
+
+@replies_router.post('/create_reply')
 def create_reply_route(reply: Reply):
     try:
         reply_obj = create_reply(reply.content, reply.user_id, reply.topic_id)
         return reply_obj
     except ValueError as err:
         raise HTTPException(status_code=400, detail=str(err))
-
-
-
-votes_router = APIRouter(prefix='/votes')
 
 
 @votes_router.post('/reply/{reply_id}')
@@ -30,8 +29,6 @@ def vote_reply_route(reply_id: int, vote: Vote):
         return result
     except ValueError as err:
         raise HTTPException(status_code=404, detail=str(err))
-
-best_reply_router = APIRouter(prefix='/best_replies')
 
 
 @best_reply_router.patch('/{topic_id}/best_reply/{reply_id}')
@@ -62,6 +59,7 @@ def get_replies_by_topic(topic_id: int):
     except Exception as err:
         raise HTTPException(status_code=400, detail=str(err))
 
+
 @votes_router.get('/reply/{reply_id}')
 def get_votes_by_reply(reply_id: int):
     try:
@@ -80,6 +78,7 @@ def get_best_reply_route(topic_id: int):
         return best_reply
     except ValueError as err:
         raise HTTPException(status_code=404, detail=str(err))
+
 
 @best_reply_router.get('/')
 def get_all_topics_with_best_replies_route():
