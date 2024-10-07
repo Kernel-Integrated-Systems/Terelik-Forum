@@ -1,6 +1,6 @@
 from modules.topics import Topics
 from percistance.data import topics
-
+from percistance.data import categories
 
 def create_topic(title: str, content: str, user_id: int, category: int):
     new_id = max(topic.topic_id for topic in topics) + 1 if topics else 1
