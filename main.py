@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
-from routers.router_replies import replies_router, votes_router
+from routers.router_replies import replies_router, votes_router, best_reply_router
 from routers.router_topics import topics_router
 from routers.router_messages import messages_router
 from routers.router_users import users_router
@@ -26,4 +26,4 @@ app.include_router(votes_router)
 app.include_router(topics_router)
 app.include_router(users_router)
 app.include_router(messages_router)
-
+app.include_router(best_reply_router)
