@@ -6,4 +6,4 @@ class Topics(BaseModel):
     content: str
     user_id: int
     category_id: int
-    best_reply_id: int or None=None
+

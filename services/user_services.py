@@ -53,5 +53,3 @@ def authenticate_user(email: str, password: str) -> Optional[User]:
         return None
 
     return user
-
-
