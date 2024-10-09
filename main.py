@@ -7,5 +7,4 @@ app = FastAPI()
 
 app.include_router(topics_router)
 app.include_router(categories_router)
-
 app.include_router(users_router)
