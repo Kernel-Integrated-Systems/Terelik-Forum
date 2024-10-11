@@ -37,5 +37,5 @@ def _conn_to_db():
         host="127.0.0.1",
         port=3306,
         user="root",
-        password="YOUR PASSWORD!",
+        password="idanqmapatshteprokarame",
         database='forum_api_db')
