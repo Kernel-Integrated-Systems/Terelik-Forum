@@ -1,97 +1,105 @@
--- MAPS user_role int with user_role name
-CREATE TABLE Roles (
-    user_role INT PRIMARY KEY,   -- Primary key for user_role
-    role_name VARCHAR(45) NOT NULL  -- Name of the role
-);
+-- MySQL Workbench Forward Engineering
 
--- MAPS access_level int with access_level name
-CREATE TABLE UserAccessLevel (
-    user_access_id INT PRIMARY KEY,   -- Primary key for access_level
-    access_level VARCHAR(45) NOT NULL  -- Name of the access level: read / write / edit etc.
-);
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
--- STORES Users data
-CREATE TABLE Users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    user_role INT,  -- references the user_role in Roles table
-    is_active TINYINT(1) DEFAULT 1,
-    created_at DATE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_role) REFERENCES Roles(user_role)
-);
+-- -----------------------------------------------------
+-- Schema ordering_api_db_v2
+-- -----------------------------------------------------
 
--- STORES Categories
-CREATE TABLE Categories (
-    category_id INT AUTO_INCREMENT PRIMARY KEY,
-    category_name VARCHAR(100) UNIQUE NOT NULL,
-    is_private TINYINT(1) DEFAULT 0,
-    is_locked TINYINT(1) DEFAULT 0,
-    created_at DATE DEFAULT CURRENT_TIMESTAMP
-);
+-- -----------------------------------------------------
+-- Schema ordering_api_db_v2
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `ordering_api_db_v2` ;
+USE `ordering_api_db_v2` ;
 
--- MAPS relationship between Users and Categories
-CREATE TABLE CategoryAccess (
-    user_id INT,
-    category_id INT,
-    access_level INT,
-    PRIMARY KEY (user_id, category_id),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (category_id) REFERENCES Categories(category_id),
-    FOREIGN KEY (access_level) REFERENCES UserAccessLevel(user_access_id)
-);
+-- -----------------------------------------------------
+-- Table `ordering_api_db_v2`.`categories`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ordering_api_db_v2`.`categories` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 4;
 
--- STORES Topics details
-CREATE TABLE Topics (
-    topic_id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    user_id INT,
-    category_id INT,
-    is_locked TINYINT(1) DEFAULT 0,
-    created_at DATE DEFAULT CURRENT_TIMESTAMP,
-    best_reply_id INT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (category_id) REFERENCES Categories(category_id)
-);
 
--- STORES Replies on Topics
-CREATE TABLE Replies (
-    reply_id INT AUTO_INCREMENT PRIMARY KEY,
-    content TEXT NOT NULL,
-    user_id INT,
-    topic_id INT,
-    created_at DATE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (topic_id) REFERENCES Topics(topic_id)
-);
+-- -----------------------------------------------------
+-- Table `ordering_api_db_v2`.`users`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ordering_api_db_v2`.`users` (
+  `user_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(45) NULL DEFAULT NULL,
+  `password` VARCHAR(45) NULL DEFAULT NULL,
+  `role` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`user_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2;
 
--- STORES Message details
-CREATE TABLE Messages (
-    message_id INT AUTO_INCREMENT PRIMARY KEY,
-    sender_id INT,
-    recipient_id INT,
-    content TEXT NOT NULL,
-    created_at DATE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (sender_id) REFERENCES Users(user_id),
-    FOREIGN KEY (recipient_id) REFERENCES Users(user_id)
-);
 
--- MAPS Vote Types
-CREATE TABLE VoteTypes (
-    vote_id INT PRIMARY KEY,
-    vote_name VARCHAR(45) NOT NULL
-);
+-- -----------------------------------------------------
+-- Table `ordering_api_db_v2`.`orders`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ordering_api_db_v2`.`orders` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `delivery_date` DATE NOT NULL,
+  `delivery_address` VARCHAR(128) NULL DEFAULT NULL,
+  `user_id` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_orders_users1_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_orders_users1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `ordering_api_db_v2`.`users` (`user_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+AUTO_INCREMENT = 9;
 
--- STORES Votes details
-CREATE TABLE Votes (
-    vote_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    reply_id INT,
-    vote_type INT,  -- References vote_id in VoteTypes
-    UNIQUE (user_id, reply_id),  -- Prevent multiple votes by same user on the same reply
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (reply_id) REFERENCES Replies(reply_id),
-    FOREIGN KEY (vote_type) REFERENCES VoteTypes(vote_id)
-);
+
+-- -----------------------------------------------------
+-- Table `ordering_api_db_v2`.`products`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ordering_api_db_v2`.`products` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(128) NOT NULL,
+  `description` VARCHAR(2048) NOT NULL,
+  `price` FLOAT NOT NULL,
+  `category_id` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_products_categories_idx` (`category_id` ASC) VISIBLE,
+  CONSTRAINT `fk_products_categories`
+    FOREIGN KEY (`category_id`)
+    REFERENCES `ordering_api_db_v2`.`categories` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+AUTO_INCREMENT = 9;
+
+
+-- -----------------------------------------------------
+-- Table `ordering_api_db_v2`.`orders_products`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ordering_api_db_v2`.`orders_products` (
+  `order_id` INT(11) NOT NULL,
+  `product_id` INT(11) NOT NULL,
+  PRIMARY KEY (`order_id`, `product_id`),
+  INDEX `fk_orders_has_products_products1_idx` (`product_id` ASC) VISIBLE,
+  INDEX `fk_orders_has_products_orders1_idx` (`order_id` ASC) VISIBLE,
+  CONSTRAINT `fk_orders_has_products_orders1`
+    FOREIGN KEY (`order_id`)
+    REFERENCES `ordering_api_db_v2`.`orders` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_orders_has_products_products1`
+    FOREIGN KEY (`product_id`)
+    REFERENCES `ordering_api_db_v2`.`products` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
