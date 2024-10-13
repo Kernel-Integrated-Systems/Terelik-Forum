@@ -11,7 +11,6 @@ topics_router = APIRouter(prefix='/topics')
 def get_topics():
 
 
-
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(topic_id: int):
     topic = find_topic_by_id(topic_id)
