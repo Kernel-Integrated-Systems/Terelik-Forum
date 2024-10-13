@@ -7,7 +7,7 @@ from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_US
 
 def get_all_users():
     data = read_query(ALL_USERS)
-    return next((User.from_query_result(*row) for row in data), None)
+    return (User.from_query_result(*row) for row in data)
 
 
 def get_user_by_id(user_id: int):

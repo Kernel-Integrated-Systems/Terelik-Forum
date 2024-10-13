@@ -8,6 +8,7 @@ from services.topic_services import find_topic_by_id
 def find_reply_by_id(reply_id):
     reply = next((r for r in replies if r.reply_id == reply_id), None)
     return reply
+
 def get_votes_for_reply(reply_id: int):
     reply_votes = [vote for vote in votes if vote.reply_id == reply_id]
     return reply_votes
