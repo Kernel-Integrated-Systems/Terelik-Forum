@@ -1,9 +1,11 @@
+from uuid import uuid4
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
-
 from percistance.connections import read_query, insert_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER
 
+
+session_store = {}
 
 def get_all_users():
     data = read_query(ALL_USERS)
@@ -60,7 +62,7 @@ def register_user(username: str, email: str, password: str) -> User:
     )
 
 
-def authenticate_user(email: str, password: str) -> Optional[User]:
+def authenticate_user(email: str, password: str):
     user = get_user_by_email(email)
     if not user:
         raise ValueError(f'User with email {email} does not exist.')
@@ -68,12 +70,19 @@ def authenticate_user(email: str, password: str) -> Optional[User]:
     if user.password != password:
         raise ValueError('The provided password is incorrect! Please try again.')
 
-    return User(
-        id=user.id,
-        username=user.username,
-        email=user.email,
-        role=user.role,
-        is_active=user.is_active
-    )
+    token = str(uuid4())
+
+    session_store[token] = user
+    return {"token": token, "token_type": "bearer"}
 
 
+def create_session_token(user: User):
+    token = str(uuid4())
+    session_store[token] = user
+    return token
+
+def authorise_user(token: str):
+    user = session_store.get(token)
+    if not user:
+        raise ValueError("Invalid session or expired token")
+    return user

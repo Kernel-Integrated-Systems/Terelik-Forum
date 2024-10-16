@@ -28,10 +28,9 @@ def register_user_route(user: UserRegistrationRequest):
 
 
 @users_router.post('/login')
-def login_user_route(user_login: UserLoginRequest):
+def login_user_route(username: str, password: str):
     try:
-        access_token = authenticate_user(**user_login.dict())
-        return {"access token": access_token, "token_type": "bearer"}
+        return authenticate_user(username, password)
     except ValueError as err:
         raise HTTPException(status_code=400, detail=str(err))
 
