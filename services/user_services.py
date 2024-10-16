@@ -1,9 +1,9 @@
+import base64
 from uuid import uuid4
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
 from percistance.connections import read_query, insert_query
-from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER
-
+from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
 
 session_store = {}
 
@@ -46,10 +46,12 @@ def create_user(user_data: UserRegistrationRequest):
 
 
 def register_user(username: str, email: str, password: str) -> User:
-    if get_user_by_username(username):
-        raise ValueError('Username is already taken!')
-    if get_user_by_email(email):
-        raise ValueError('Email is already registered!')
+    usernm = read_query(USER_BY_USERNAME, (username,))
+    userem = read_query(USER_BY_EMAIL, (email,))
+    if usernm:
+        raise ValueError(f'Username {username} is already taken!')
+    if userem:
+        raise ValueError(f'Email is {email} already registered!')
 
     user_data = UserRegistrationRequest(username=username, email=email, password=password)
     new_user_id = create_user(user_data)
@@ -57,22 +59,22 @@ def register_user(username: str, email: str, password: str) -> User:
         id=new_user_id,
         username=username,
         email=email,
-        role='user',
+        role=1,
         is_active=True
     )
 
 
-def authenticate_user(email: str, password: str):
-    user = get_user_by_email(email)
+def authenticate_user(username: str, password: str):
+    user = read_query(LOGIN_USERNAME_PASS, (username, password))
     if not user:
-        raise ValueError(f'User with email {email} does not exist.')
+        raise ValueError(f'User with email {username} does not exist.')
 
-    if user.password != password:
+    if user[0][2] != password:
         raise ValueError('The provided password is incorrect! Please try again.')
+    # assign user_id, username and user_role
+    token = encode(user[0][0], user[0][1], user[0][3])
+    session_store["bearer"] = token
 
-    token = str(uuid4())
-
-    session_store[token] = user
     return {"token": token, "token_type": "bearer"}
 
 
@@ -85,4 +87,22 @@ def authorise_user(token: str):
     user = session_store.get(token)
     if not user:
         raise ValueError("Invalid session or expired token")
-    return user
+    _, username, user_role = decode(token)
+    return user_role
+
+
+def encode(user_id: int, username: str, user_role: int) -> str:
+    user_string = f"{user_id}_{username}_{user_role}"
+    encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
+
+    return encoded_bytes.decode('utf-8')
+
+def decode(encoded_value: str):
+    decoded_string = base64.b64decode(encoded_value).decode('utf-8')
+    user_id, username, user_role = decoded_string.split('_')
+
+    return {
+        "user_id": int(user_id),
+        "username": username,
+        "user_role": int(user_role)
+    }

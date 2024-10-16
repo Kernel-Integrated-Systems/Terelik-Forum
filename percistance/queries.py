@@ -6,7 +6,8 @@ USER_BY_EMAIL = """SELECT user_id, username, email, user_role, is_active FROM us
 USER_BY_USERNAME = """SELECT user_id, username, email, user_role, is_active FROM users WHERE username = ?"""
 NEW_USER = """INSERT INTO Users (username, email, password_hash, user_role)
             VALUES (?, ?, ?, ?)"""
-
+LOGIN_USERNAME_PASS = """SELECT user_id, username, password_hash, user_role FROM users
+            WHERE username = ? AND password_hash = ?"""
 
 # TOPICS QUERIES
 

@@ -27,3 +27,15 @@ class UserRegistrationRequest(BaseModel):
 class UserLoginRequest(BaseModel):
     email: str
     password: str
+
+
+class UserTokenResponse(BaseModel):
+    id: int
+    username: str
+    password: str
+
+
+class TokenData(BaseModel):
+    user_id: int
+    username: str
+    role: int
