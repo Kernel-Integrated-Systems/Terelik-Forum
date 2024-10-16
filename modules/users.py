@@ -11,7 +11,7 @@ class User(BaseModel):
     created_at: datetime
 
     @classmethod
-    def get_user(cls, user_id: int, username: str, email, password, role, is_active, created_at):
+    def from_query_result(cls, user_id: int, username: str, email, password, role, is_active, created_at):
         return cls(
             user_id=user_id,
             username=username,

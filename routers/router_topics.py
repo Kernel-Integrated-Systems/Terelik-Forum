@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Response
 
 from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic)
-from percistance.data import topics
 
 topics_router = APIRouter(prefix='/topics', tags=['Topics'])
 
