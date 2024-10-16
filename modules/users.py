@@ -1,25 +1,21 @@
 from pydantic import BaseModel
-from datetime import datetime
+
 
 class User(BaseModel):
-    user_id: int
+    id: int | None = None
     username: str
     email: str
-    password: str
-    role: int
+    role: int | None = None
     is_active: bool
-    created_at: datetime
 
     @classmethod
-    def from_query_result(cls, user_id: int, username: str, email, password, role, is_active, created_at):
+    def from_query_result(cls, id, username, email, role, is_active):
         return cls(
-            user_id=user_id,
+            id=id,
             username=username,
             email=email,
-            password=password,
             role=role,
-            is_active=is_active,
-            created_at=created_at
+            is_active=is_active
         )
 
 class UserRegistrationRequest(BaseModel):
