@@ -22,7 +22,7 @@ def find_topic_by_title(title: str):
 
 
 def find_topic_by_category(category_id: int):
-    data = read_query(TOPIC_BY_CATEGORY)
+    data = read_query(TOPIC_BY_CATEGORY, (category_id,))
     if not data:
         raise ValueError(f'There is no topic with category {category_id}.')
     return next((Topics.view_topics(*row) for row in data), None)

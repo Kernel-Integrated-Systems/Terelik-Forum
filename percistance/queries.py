@@ -59,4 +59,4 @@ DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
 
 
 # REPLIES QUERIES
-
+GET_REPLY_BY_ID = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""

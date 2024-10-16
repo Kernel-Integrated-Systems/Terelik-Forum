@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response
 from services.categories_services import create_category, find_category_by_id, view_categories, remove_category
 
-categories_router = APIRouter(prefix='/categories')
+categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 
 
 @categories_router.get('/')

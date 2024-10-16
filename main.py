@@ -21,6 +21,6 @@ app.include_router(best_reply_router)
 app.include_router(categories_router)
 
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run("main:app", host="127.0.0.1", port=8000)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000)

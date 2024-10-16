@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response
 from modules.users import User, UserRegistrationRequest, UserLoginRequest
 from services.user_services import get_all_users, get_user_by_id, register_user, authenticate_user
 
-users_router = APIRouter(prefix='/users')
+users_router = APIRouter(prefix='/users', tags=['Users'])
 
 
 @users_router.get('/')

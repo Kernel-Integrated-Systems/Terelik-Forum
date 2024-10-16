@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response
 
 from services.message_services import get_messages, get_message_by_id, post_new_message
 
-messages_router = APIRouter(prefix='/messages')
+messages_router = APIRouter(prefix='/messages', tags=['Messages'])
 
 
 # View Conversations - regardless of receiver
