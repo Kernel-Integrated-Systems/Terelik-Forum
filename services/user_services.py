@@ -1,11 +1,9 @@
-import base64
-from uuid import uuid4
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
 from percistance.connections import read_query, insert_query
+from percistance.data import session_store, encode
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
 
-session_store = {}
 
 def get_all_users():
     data = read_query(ALL_USERS)
@@ -77,32 +75,3 @@ def authenticate_user(username: str, password: str):
 
     return {"token": token, "token_type": "bearer"}
 
-
-def create_session_token(user: User):
-    token = str(uuid4())
-    session_store[token] = user
-    return token
-
-def authorise_user(token: str):
-    user = session_store.get(token)
-    if not user:
-        raise ValueError("Invalid session or expired token")
-    _, username, user_role = decode(token)
-    return user_role
-
-
-def encode(user_id: int, username: str, user_role: int) -> str:
-    user_string = f"{user_id}_{username}_{user_role}"
-    encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
-
-    return encoded_bytes.decode('utf-8')
-
-def decode(encoded_value: str):
-    decoded_string = base64.b64decode(encoded_value).decode('utf-8')
-    user_id, username, user_role = decoded_string.split('_')
-
-    return {
-        "user_id": int(user_id),
-        "username": username,
-        "user_role": int(user_role)
-    }

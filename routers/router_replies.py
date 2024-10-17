@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from starlette.responses import Response
 
-from modules.replies import Reply, Vote
+from percistance.data import authenticate
 from services.replies_services import vote_reply, create_reply, get_all_topics_with_best_replies
-from services.topic_services import find_topic_by_id
+
 
 replies_router = APIRouter(prefix='/replies')
 votes_router = APIRouter(prefix='/votes')
@@ -12,7 +12,8 @@ best_reply_router = APIRouter(prefix='/best_replies')
 
 # Create Reply
 @replies_router.post('/create_reply')
-def create_reply_route(reply_id: int, content: str):
+def create_reply_route(reply_id: int, content: str, token: str | None = None):
+    authenticate(token)
     try:
         return create_reply(content, reply_id)
     except ValueError as e:
@@ -48,10 +49,10 @@ def create_reply_route(reply_id: int, content: str):
 #     return {"detail": "Best reply selected successfully."}
 #
 
-
 # Upvote/Downvote a Reply
 @votes_router.post('/reply/{reply_id}')
-def post_vote_for_reply(reply_id: int, vote: str):
+def post_vote_for_reply(reply_id: int, vote: str, token: str | None = None):
+    authenticate(token)
     try:
         votes_list = vote_reply(reply_id, vote)
         return votes_list
@@ -73,7 +74,8 @@ def post_vote_for_reply(reply_id: int, vote: str):
 
 # Choose Best Reply
 @best_reply_router.get('/{topic_id}/replies{reply_id}')
-def get_all_topics_with_best_replies_route(topic_id: int, reply_id: int):
+def get_all_topics_with_best_replies_route(topic_id: int, reply_id: int, token: str | None = None):
+    authenticate(token)
     try:
         return get_all_topics_with_best_replies(topic_id, reply_id)
     except ValueError as e:

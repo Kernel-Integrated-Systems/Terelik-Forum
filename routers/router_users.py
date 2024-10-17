@@ -1,24 +1,23 @@
 from fastapi import APIRouter, HTTPException, Response, Header
-from modules.users import User, UserRegistrationRequest, UserLoginRequest
-from services.user_services import get_all_users, get_user_by_id, register_user, authenticate_user, session_store, \
-    decode
+from modules.users import UserRegistrationRequest
+from percistance.data import authenticate
+from services.user_services import get_all_users, get_user_by_id, register_user, authenticate_user
+
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
 
 @users_router.get('/')
-def get_all_users_route():
+def get_all_users_route(token: str | None = None):
+    authenticate(token)
     try:
         return get_all_users()
     except ValueError as e:
         return Response(content=str(e), status_code=400)
 
 @users_router.get('/{user_id}')
-def get_user_route(user_id: int, authorization: str | None = None):
-    print(session_store["bearer"])
-    if not authorization and authorization == session_store["bearer"]:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
+def get_user_route(user_id: int, token: str | None = None):
+    authenticate(token)
     try:
         # Pass the token to get_user_by_id() function
         return get_user_by_id(user_id)
