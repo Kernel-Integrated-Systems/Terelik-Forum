@@ -1,8 +1,8 @@
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
-
 from percistance.connections import read_query, insert_query
-from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER
+from percistance.data import session_store, encode
+from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
 
 
 def get_all_users():
@@ -44,10 +44,12 @@ def create_user(user_data: UserRegistrationRequest):
 
 
 def register_user(username: str, email: str, password: str) -> User:
-    if get_user_by_username(username):
-        raise ValueError('Username is already taken!')
-    if get_user_by_email(email):
-        raise ValueError('Email is already registered!')
+    usernm = read_query(USER_BY_USERNAME, (username,))
+    userem = read_query(USER_BY_EMAIL, (email,))
+    if usernm:
+        raise ValueError(f'Username {username} is already taken!')
+    if userem:
+        raise ValueError(f'Email is {email} already registered!')
 
     user_data = UserRegistrationRequest(username=username, email=email, password=password)
     new_user_id = create_user(user_data)
@@ -55,25 +57,21 @@ def register_user(username: str, email: str, password: str) -> User:
         id=new_user_id,
         username=username,
         email=email,
-        role='user',
+        role=1,
         is_active=True
     )
 
 
-def authenticate_user(email: str, password: str) -> Optional[User]:
-    user = get_user_by_email(email)
+def authenticate_user(username: str, password: str):
+    user = read_query(LOGIN_USERNAME_PASS, (username, password))
     if not user:
-        raise ValueError(f'User with email {email} does not exist.')
+        raise ValueError(f'User with email {username} does not exist.')
 
-    if user.password != password:
+    if user[0][2] != password:
         raise ValueError('The provided password is incorrect! Please try again.')
+    # assign user_id, username and user_role
+    token = encode(user[0][0], user[0][1], user[0][3])
+    session_store["bearer"] = token
 
-    return User(
-        id=user.id,
-        username=user.username,
-        email=user.email,
-        role=user.role,
-        is_active=user.is_active
-    )
-
+    return {"token": token, "token_type": "bearer"}
 

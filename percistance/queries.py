@@ -6,7 +6,8 @@ USER_BY_EMAIL = """SELECT user_id, username, email, user_role, is_active FROM us
 USER_BY_USERNAME = """SELECT user_id, username, email, user_role, is_active FROM users WHERE username = ?"""
 NEW_USER = """INSERT INTO Users (username, email, password_hash, user_role)
             VALUES (?, ?, ?, ?)"""
-
+LOGIN_USERNAME_PASS = """SELECT user_id, username, password_hash, user_role FROM users
+            WHERE username = ? AND password_hash = ?"""
 
 # TOPICS QUERIES
 
@@ -59,4 +60,12 @@ DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
 
 
 # REPLIES QUERIES
-GET_REPLY_BY_ID = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""
+VOTE_ON_REPLY = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""
+
+NEW_REPLY = """INSERT INTO replies (content, user_id, topic_id) VALUES (?, ?, ?)"""
+
+CHOOSE_BEST_REPLY_ID = """SELECT reply_id FROM replies
+            WHERE user_id = ? AND topic_id = ? AND reply_id = ?"""
+
+ADD_BEST_REPLY_ON_TOPIC = """UPDATE topics SET best_reply_id = ?
+            WHERE topic_id = ?"""
