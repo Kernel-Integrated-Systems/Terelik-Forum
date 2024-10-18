@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, HTTPException
+
+from percistance.data import authenticate
 from services.categories_services import create_category, find_category_by_id, view_categories, remove_category
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
@@ -21,7 +23,10 @@ def get_category_by_id(category_id: int):
 
 
 @categories_router.post('/')
-def create_new_category(category_name: str):
+def create_new_category(category_name: str, token: str | None = None):
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
     try:
         return create_category(category_name)
     except ValueError as e:
@@ -29,7 +34,10 @@ def create_new_category(category_name: str):
 
 
 @categories_router.delete('/{category_id}')
-def delete_category(category_id: int):
+def delete_category(category_id: int, token: str | None = None):
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
     try:
         return remove_category(category_id)
     except ValueError as e:

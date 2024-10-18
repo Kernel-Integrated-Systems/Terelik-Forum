@@ -7,8 +7,8 @@ session_store = {}
 
 
 def authenticate(authorization) -> bool:
-    if not authorization and authorization == session_store["bearer"]:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    if not authorization or authorization != session_store.get("bearer"):
+        return False
     return True
 
 

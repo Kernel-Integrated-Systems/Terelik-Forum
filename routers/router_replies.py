@@ -13,7 +13,9 @@ best_reply_router = APIRouter(prefix='/best_replies')
 # Create Reply
 @replies_router.post('/create_reply')
 def create_reply_route(reply_id: int, content: str, token: str | None = None):
-    authenticate(token)
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
     try:
         return create_reply(content, reply_id)
     except ValueError as e:
@@ -52,7 +54,9 @@ def create_reply_route(reply_id: int, content: str, token: str | None = None):
 # Upvote/Downvote a Reply
 @votes_router.post('/reply/{reply_id}')
 def post_vote_for_reply(reply_id: int, vote: str, token: str | None = None):
-    authenticate(token)
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
     try:
         votes_list = vote_reply(reply_id, vote)
         return votes_list
@@ -75,7 +79,9 @@ def post_vote_for_reply(reply_id: int, vote: str, token: str | None = None):
 # Choose Best Reply
 @best_reply_router.get('/{topic_id}/replies{reply_id}')
 def get_all_topics_with_best_replies_route(topic_id: int, reply_id: int, token: str | None = None):
-    authenticate(token)
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
     try:
         return get_all_topics_with_best_replies(topic_id, reply_id)
     except ValueError as e:
