@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Response, HTTPException
-
-from percistance.data import authenticate
 from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic)
-
+from services.user_services import authenticate
 
 topics_router = APIRouter(prefix='/topics', tags=['Topics'])
 

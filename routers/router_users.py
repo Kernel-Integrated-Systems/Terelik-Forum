@@ -1,10 +1,13 @@
 from fastapi import APIRouter, HTTPException, Response, Header
+import base64
 from modules.users import UserRegistrationRequest
-from percistance.data import authenticate
-from services.user_services import get_all_users, get_user_by_id, register_user, authenticate_user, un_authenticate_user
+from services.user_services import get_all_users, get_user_by_id, register_user, authenticate_user, \
+    un_authenticate_user, authenticate
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
+
+session_store = {}
 
 @users_router.get('/')
 def get_all_users_route(token: str | None = None):

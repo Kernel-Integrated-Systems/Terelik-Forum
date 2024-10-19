@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Response, HTTPException
-
-from percistance.data import authenticate
 from services.categories_services import create_category, find_category_by_id, view_categories, remove_category
+from services.user_services import authenticate
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 

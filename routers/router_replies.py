@@ -1,12 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from starlette.responses import Response
-
-from percistance.data import authenticate
 from services.replies_services import vote_reply, create_reply, get_all_topics_with_best_replies
-
+from services.user_services import authenticate
 
 replies_router = APIRouter(prefix='/replies')
-votes_router = APIRouter(prefix='/votes')
+votes_router = APIRouter(prefix='/votes', tags=['Replies'])
 best_reply_router = APIRouter(prefix='/best_replies')
 
 

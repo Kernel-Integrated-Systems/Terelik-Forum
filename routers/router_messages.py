@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Response, HTTPException
-
-from percistance.data import authenticate
 from services.message_services import get_messages, get_message_by_id, post_new_message
+from services.user_services import authenticate
 
 messages_router = APIRouter(prefix='/messages', tags=['Messages'])
 
