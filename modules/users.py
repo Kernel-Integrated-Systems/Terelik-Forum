@@ -25,5 +25,5 @@ class UserRegistrationRequest(BaseModel):
 
 
 class UserLoginRequest(BaseModel):
-    email: str
+    username: str
     password: str

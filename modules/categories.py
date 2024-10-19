@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Category(BaseModel):
-    category_id: int
+    category_id: int | None = None
     category_name: str
     private: int | None = None
     locked: int | None = None

@@ -1,6 +1,5 @@
 import base64
 from uuid import uuid4
-
 from fastapi import HTTPException
 
 session_store = {}
@@ -11,7 +10,7 @@ def authenticate(authorization) -> bool:
         return False
     return True
 
-
+# return the whole row for the found user and use the property as needed
 def authorise_user_role(token: str):
     user = session_store.get(token)
     if not user:
@@ -35,3 +34,4 @@ def decode(encoded_value: str):
         "username": username,
         "user_role": int(user_role)
     }
+    # refer to the auth activity solution
