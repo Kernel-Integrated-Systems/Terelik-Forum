@@ -1,8 +1,7 @@
 from sqlite3 import connect
 
 
-# Global variable to store the database file path
-_DB_FILE = './data/forum_api.db'  # Adjust the path as needed
+_DB_FILE = './data/forum_api.db'
 
 
 def query_count(sql: str, sql_params=()):
@@ -14,7 +13,6 @@ def query_count(sql: str, sql_params=()):
 
 
 def database_init():
-    # Use a with statement to ensure the connection is properly managed
     with connect(_DB_FILE) as conn:
         cursor = conn.cursor()
 
@@ -25,10 +23,9 @@ def database_init():
                           )""")
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS UserAccessLevel (
-                            user_access_id INTEGER PRIMARY KEY,   
-                            access_level TEXT NOT NULL 
-                          )""")
-
+                                    user_access_id INTEGER PRIMARY KEY,   
+                                    access_level TEXT NOT NULL 
+                                  )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS Users (
                             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                             username TEXT UNIQUE NOT NULL,

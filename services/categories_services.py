@@ -29,7 +29,7 @@ def remove_category(category_id: int):
 
 
 def grant_read_access(user_id: int, category_id: int):
-    query = """INSERT INTO UserCategoryAccess (user_id, category_id, access_level) 
+    query = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
                VALUES (?, ?, 1) 
                ON CONFLICT(user_id, category_id) DO UPDATE SET access_level = 1"""
     insert_query(query, (user_id, category_id))
@@ -47,3 +47,13 @@ def user_has_access(user_id: int, category_id: int, required_access: int):
     elif required_access == 2 and access_level == 2:
         return True
     return False
+
+def grant_write_access(user_id: int, category_id: int):
+    query = """
+        INSERT INTO CategoryAccess (user_id, category_id, access_level) 
+        VALUES (?, ?, 2) 
+        ON CONFLICT(user_id, category_id) 
+        DO UPDATE SET access_level = 2
+    """
+    insert_query(query, (user_id, category_id))
+    return {"message": f"User {user_id} granted write access to category {category_id}"}
