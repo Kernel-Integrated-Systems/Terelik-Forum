@@ -1,30 +1,39 @@
+
 from modules.topics import Topics
-from percistance.data import topics
-
-
-def create_topic(title: str, content: str, user_id: int, category: int):
-    new_id = max(topic.topic_id for topic in topics) + 1 if topics else 1
-    new_topic = Topics(topic_id=new_id, title=title, content=content, user_id=user_id, category_id=category)
-    topics.append(new_topic)
-    return new_topic
+from percistance.connections import read_query, insert_query, update_query
+from percistance.queries import ALL_TOPICS, TOPIC_BY_ID, TOPIC_BY_TITLE, TOPIC_BY_CATEGORY, NEW_TOPIC, DELETE_TOPIC
 
 
 def view_topics():
-    return topics
-
+    data = read_query(ALL_TOPICS)
+    return (Topics.view_topics(*row) for row in data)
 
 def find_topic_by_id(id: int):
-    for topic in topics:
-        if topic.topic_id == id:
-            return topic
-
+    data = read_query(TOPIC_BY_ID, (id,))
+    if not data:
+        raise ValueError(f'Topic with ID {id} does not exist.')
+    return next((Topics.view_topics(*row) for row in data), None)
 
 def find_topic_by_title(title: str):
-    for topic in topics:
-        if title.lower() in topic.title.lower():
-            return topic
+    data = read_query(TOPIC_BY_TITLE, (title,))
+    if not data:
+        raise ValueError(f'Topic with title {title} does not exist.')
+    return next((Topics.view_topics(*row) for row in data), None)
 
 
 def find_topic_by_category(category_id: int):
-    topic_l = [t for t in topics if t.category_id == category_id]
-    return topic_l
+    data = read_query(TOPIC_BY_CATEGORY, (category_id,))
+    if not data:
+        raise ValueError(f'There is no topic with category {category_id}.')
+    return next((Topics.view_topics(*row) for row in data), None)
+
+
+def create_topic(title: str, content: str, user_id: int, category: int):
+    new_topic_id = insert_query(NEW_TOPIC, (title, content, user_id, category))
+
+    return {"message": f"New topic ID {new_topic_id} with title {title} is created at {category}."}
+
+def remove_topic(topic_id: int):
+    find_topic_by_id(topic_id)
+    update_query(DELETE_TOPIC, (topic_id,))
+    return {"message": f"Topic with ID {topic_id} is successfully deleted."}

@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 
+
 class Reply(BaseModel):
     reply_id: int or None = None
     content: str
