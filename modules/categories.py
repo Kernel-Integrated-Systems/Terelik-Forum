@@ -15,3 +15,9 @@ class Category(BaseModel):
             private=private,
             locked=locked
         )
+
+
+class NewCategory(BaseModel):
+    category_name: str
+    private: int | None = None
+    locked: int | None = None

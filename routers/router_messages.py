@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Response, HTTPException
+
+from modules.messages import NewMessage
 from services.message_services import get_messages, get_message_by_id, post_new_message
 from services.user_services import authenticate
 
@@ -30,12 +32,12 @@ def get_user_message(user_id: int, target_usr_id: int, token: str | None = None)
 
 # Create New Message
 @messages_router.post("/")
-def create_new_message(sender_id: int, receiver_id: int, context: str, token: str | None = None):
+def create_new_message(user: NewMessage, token: str | None = None):
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        new_message = post_new_message(sender=sender_id,receiver=receiver_id,text=context)
+        new_message = post_new_message(sender=user.sender_id,receiver=user.receiver_id,text=user.content)
         return new_message
     except ValueError as e:
         return Response(status_code=400, content=str(e))

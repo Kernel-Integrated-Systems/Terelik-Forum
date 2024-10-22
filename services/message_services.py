@@ -23,11 +23,9 @@ def create_message(message_content: NewMessage):
                           (message_content.sender_id,
                            message_content.receiver_id,
                            message_content.content))
-    sender = message_content.sender_id
-    receiver = message_content.receiver_id
-    content = message_content.content
-    return {"message": f"New message ID {new_id} sent FROM {sender} TO {receiver} with content < {content} >."}
-
+    sender = get_user_by_id(message_content.sender_id)
+    receiver = get_user_by_id(message_content.receiver_id)
+    return {"New Message": f"From {sender.username} \nTo {receiver.username}\n[{message_content.content}]"}
 
 def post_new_message(sender: int, receiver: int, text: str):
     if not get_user_by_id(sender):

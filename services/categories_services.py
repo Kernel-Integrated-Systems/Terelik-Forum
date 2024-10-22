@@ -1,4 +1,4 @@
-from modules.categories import Category
+from modules.categories import Category, NewCategory
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_CATEGORIES, CATEGORY_BY_ID, NEW_CATEGORY, DELETE_CATEGORY
 
@@ -19,7 +19,8 @@ def find_category_by_id(category_id: int):
 
 def create_category(title: str):
     new_id = insert_query(NEW_CATEGORY, (title,))
-    return {"message": f"New Category {title} created with ID {new_id}."}
+    new_category = Category(id=new_id,category_name=title)
+    return new_category
 
 
 def remove_category(category_id: int):

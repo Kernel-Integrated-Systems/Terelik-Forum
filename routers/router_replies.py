@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from starlette.responses import Response
+
+from modules.replies import NewReply
 from services.replies_services import vote_reply, create_reply, get_all_topics_with_best_replies
 from services.user_services import authenticate
 
@@ -10,12 +12,12 @@ best_reply_router = APIRouter(prefix='/best_replies')
 
 # Create Reply
 @replies_router.post('/create_reply')
-def create_reply_route(reply_id: int, content: str, token: str | None = None):
+def create_reply_route(reply: NewReply, token: str | None = None):
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        return create_reply(content, reply_id)
+        return create_reply(reply.content, reply.reply_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
