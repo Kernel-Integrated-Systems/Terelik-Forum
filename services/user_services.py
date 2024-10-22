@@ -1,8 +1,14 @@
+from datetime import datetime
+from http.client import HTTPException
+
+import jwt
+
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
 from percistance.connections import read_query, insert_query
-from percistance.data import session_store, create_jwt_token, decode_jwt_token
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
+
+
 
 
 def get_all_users():
@@ -62,6 +68,51 @@ def register_user(username: str, email: str, password: str) -> User:
     )
 
 
+
+""" Аuthentication 
+        Logic 
+    and token JWT """
+
+session_store = {}
+
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
+
+def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
+    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
+    token_data = {
+        "sub": username,
+        "user_id": user_id,
+        "user_role": user_role,
+        "exp": expiration
+    }
+    token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
+def decode_jwt_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {
+            "user_id": payload["user_id"],
+            "username": payload["sub"],
+            "user_role": payload["user_role"]
+        }
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+def authenticate(authorization: str) -> bool:
+    if not authorization:
+        return False
+    token = authorization.split(" ")[1]
+    try:
+        decode_jwt_token(token)
+        return True
+    except ValueError:
+        return False
+
+
 def authenticate_user(username: str, password: str):
     user = read_query(LOGIN_USERNAME_PASS, (username, password))
     if not user:
@@ -91,3 +142,60 @@ def un_authenticate_user(username: str):
             return {"message": f"User {username} successfully logged out."}
 
     raise ValueError(f'User {username} is not logged in or session has expired.')
+
+
+
+
+"""
+Permissions for users - giving access 
+"""
+
+def grant_read_access(user_id: int, category_id: int):
+    query = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
+               VALUES (?, ?, 1) 
+               ON CONFLICT(user_id, category_id) DO UPDATE SET access_level = 1"""
+    insert_query(query, (user_id, category_id))
+    return {"message": f"User {user_id} granted read access to category {category_id}"}
+
+def user_has_access(user_id: int, category_id: int, required_access: int):
+    query = """SELECT access_level FROM UserCategoryAccess 
+               WHERE user_id = ? AND category_id = ?"""
+    data = read_query(query, (user_id, category_id))
+    if not data:
+        return False
+    access_level = data[0][0]
+    if required_access == 1 and access_level in [1, 2]:
+        return True
+    elif required_access == 2 and access_level == 2:
+        return True
+    return False
+
+def grant_write_access(user_id: int, category_id: int):
+    query = """
+        INSERT INTO CategoryAccess (user_id, category_id, access_level) 
+        VALUES (?, ?, 2) 
+        ON CONFLICT(user_id, category_id) 
+        DO UPDATE SET access_level = 2
+    """
+    insert_query(query, (user_id, category_id))
+    return {"message": f"User {user_id} granted write access to category {category_id}"}
+
+
+
+REMOVE_READ_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 1"
+REMOVE_WRITE_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 2"
+
+
+def revoke_access(user_id: int, category_id: int, access_type: str):
+
+    if access_type == "read":
+        result = update_query(REMOVE_READ_ACCESS, (user_id, category_id))
+    elif access_type == "write":
+        result = update_query(REMOVE_WRITE_ACCESS, (user_id, category_id))
+    else:
+        raise ValueError("Invalid access type. Must be 'read' or 'write'.")
+
+    if result:
+        return {"message": f"User {user_id}'s {access_type} access to category {category_id} has been revoked."}
+    else:
+        raise ValueError(f"Failed to revoke {access_type} access for user {user_id} to category {category_id}.")
