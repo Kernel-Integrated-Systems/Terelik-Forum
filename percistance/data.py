@@ -1,47 +1,37 @@
-from http.client import HTTPException
-
-from fastapi import APIRouter
-import jwt
-import datetime
+import base64
+from uuid import uuid4
+from fastapi import HTTPException
 
 session_store = {}
 
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
 
-categories_router = APIRouter(prefix='/categories', tags=["Categories"])
+def authenticate(authorization) -> bool:
+    if not authorization or authorization != session_store.get("bearer"):
+        return False
+    return True
 
-def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
-    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
-    token_data = {
-        "sub": username,
-        "user_id": user_id,
-        "user_role": user_role,
-        "exp": expiration
+# return the whole row for the found user and use the property as needed
+def authorise_user_role(token: str):
+    user = session_store.get(token)
+    if not user:
+        raise ValueError("Invalid session or expired token")
+    _, username, user_role = decode(token)
+    return user_role
+
+
+def encode(user_id: int, username: str, user_role: int) -> str:
+    user_string = f"{user_id}_{username}_{user_role}"
+    encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
+
+    return encoded_bytes.decode('utf-8')
+
+def decode(encoded_value: str):
+    decoded_string = base64.b64decode(encoded_value).decode('utf-8')
+    user_id, username, user_role = decoded_string.split('_')
+
+    return {
+        "user_id": int(user_id),
+        "username": username,
+        "user_role": int(user_role)
     }
-    token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
-    return token
-
-def decode_jwt_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return {
-            "user_id": payload["user_id"],
-            "username": payload["sub"],
-            "user_role": payload["user_role"]
-        }
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-def authenticate(authorization: str) -> bool:
-    if not authorization:
-        return False
-    token = authorization.split(" ")[1]
-    try:
-        decode_jwt_token(token)
-        return True
-    except ValueError:
-        return False
-
+    # refer to the auth activity solution

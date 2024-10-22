@@ -1,7 +1,7 @@
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
 from percistance.connections import read_query, insert_query
-from percistance.data import session_store, create_jwt_token, decode_jwt_token
+from percistance.data import session_store, encode
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
 
 
@@ -13,7 +13,7 @@ def get_all_users():
 def get_user_by_id(user_id: int):
     data = read_query(USER_BY_ID, (user_id,))
     if not data:
-        raise ValueError(f'User with ID {user_id} does not exist.')
+        raise ValueError(f'User with ID {id} does not exist.')
     return next((User.from_query_result(*row) for row in data), None)
 
 
@@ -49,7 +49,7 @@ def register_user(username: str, email: str, password: str) -> User:
     if usernm:
         raise ValueError(f'Username {username} is already taken!')
     if userem:
-        raise ValueError(f'Email {email} is already registered!')
+        raise ValueError(f'Email is {email} already registered!')
 
     user_data = UserRegistrationRequest(username=username, email=email, password=password)
     new_user_id = create_user(user_data)
@@ -65,29 +65,20 @@ def register_user(username: str, email: str, password: str) -> User:
 def authenticate_user(username: str, password: str):
     user = read_query(LOGIN_USERNAME_PASS, (username, password))
     if not user:
-        raise ValueError(f'User with username {username} does not exist.')
+        raise ValueError(f'User with email {username} does not exist.')
 
     if user[0][2] != password:
         raise ValueError('The provided password is incorrect! Please try again.')
-
-
-    user_id = user[0][0]
-    user_role = user[0][3]
-    token = create_jwt_token(user_id, username, user_role)
-
-    session_store[token] = {
-        "username": username,
-        "user_id": user_id,
-        "user_role": user_role
-    }
+    # assign user_id, username and user_role
+    token = encode(user[0][0], user[0][1], user[0][3])
+    session_store["bearer"] = token
 
     return {"token": token, "token_type": "bearer"}
 
 
 def un_authenticate_user(username: str):
-    for token, user_info in list(session_store.items()):
-        if user_info.get("username") == username:
-            del session_store[token]
-            return {"message": f"User {username} successfully logged out."}
-
-    raise ValueError(f'User {username} is not logged in or session has expired.')
+    user = get_user_by_username(username)
+    if not user:
+        raise ValueError(f'User {username} is not logged in.')
+    session_store["bearer"] = ""
+    return {"message": f"User {username} successfully logged out."}
