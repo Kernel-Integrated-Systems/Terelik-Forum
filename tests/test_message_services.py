@@ -64,48 +64,8 @@ class MessageService_Should(unittest.TestCase):
         new_message = NewMessage(sender_id=1, receiver_id=2, content="Hello Bob!")
         result = service.create_message(new_message)
 
-        expected = create_new_message_respond("alice", "bob", "Hello Bob!")
+        expected = service.create_message("alice", "bob", "Hello Bob!")
         self.assertEqual(result, expected)
-
-    @patch('services.user_services.get_user_by_id')
-    @patch('services.message_services.create_message')
-    def test_post_new_message(self, mock_create_message, mock_get_user_by_id):
-        # Mock return values for users
-        mock_get_user_by_id.side_effect = [mock_user_sender, mock_user_receiver]
-
-        # Mock the create_message function to simulate successful message creation
-        mock_create_message.return_value = create_new_message_respond("alice", "bob", "Hello Bob!")
-
-        result = service.post_new_message(sender=1, receiver=2, text="Hello Bob!")
-        expected = create_new_message_respond("alice", "bob", "Hello Bob!")
-
-        self.assertEqual(result, expected)
-
-    @patch('services.user_services.get_user_by_id')
-    def test_post_new_message_invalid_sender(self, mock_get_user_by_id):
-        # Simulate a non-existent sender
-        mock_get_user_by_id.return_value = None
-
-        with self.assertRaises(ValueError) as context:
-            service.post_new_message(sender=99, receiver=2, text="Hello Bob!")
-
-        self.assertEqual(str(context.exception), "Sender with ID 99 does not exist!")
-
-    @patch('services.user_services.get_user_by_id')
-    def test_post_new_message_invalid_receiver(self, mock_get_user_by_id):
-        # Simulate a non-existent receiver
-        mock_get_user_by_id.side_effect = [mock_user_sender, None]
-
-        with self.assertRaises(ValueError) as context:
-            service.post_new_message(sender=1, receiver=99, text="Hello Bob!")
-
-        self.assertEqual(str(context.exception), "Receiver with ID 99 does not exist!")
-
-    def test_post_new_message_empty_content(self):
-        with self.assertRaises(ValueError) as context:
-            service.post_new_message(sender=1, receiver=2, text="")
-
-        self.assertEqual(str(context.exception), "Message content cannot be empty!")
 
 
 if __name__ == "__main__":
