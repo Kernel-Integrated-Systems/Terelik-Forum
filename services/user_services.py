@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from http.client import HTTPException
 
 import jwt
@@ -6,9 +6,8 @@ import jwt
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
 from percistance.connections import read_query, insert_query, update_query
-from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
-
-
+from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
+    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS
 
 
 def get_all_users():
@@ -59,13 +58,18 @@ def register_user(username: str, email: str, password: str) -> User:
 
     user_data = UserRegistrationRequest(username=username, email=email, password=password)
     new_user_id = create_user(user_data)
-    return User(
-        id=new_user_id,
-        username=username,
-        email=email,
-        role=1,
-        is_active=True
-    )
+
+    token = create_jwt_token(new_user_id, username, 1)
+    return {
+        "user": {
+            "id": new_user_id,
+            "username": username,
+            "email": email,
+            "role": "user"
+        },
+        "token": token,
+        "token_type": "bearer"
+    }
 
 
 
@@ -134,16 +138,26 @@ def authenticate_user(username: str, password: str):
 
     return {"token": token, "token_type": "bearer"}
 
-
-def un_authenticate_user(username: str):
-    for token, user_info in list(session_store.items()):
-        if user_info.get("username") == username:
-            del session_store[token]
-            return {"message": f"User {username} successfully logged out."}
-
-    raise ValueError(f'User {username} is not logged in or session has expired.')
+# def blacklist_token(token: str):
+#     query = "INSERT INTO blacklisted_tokens (token, blacklisted_at) VALUES (%s, %s)"
+#     execute_query(query, (token, datetime.datetime.utcnow()))
 
 
+def un_authenticate_user(token: str):
+    try:
+        # Decode the token ensure it's valid
+        decoded_token = decode_jwt_token(token)
+        username = decoded_token.get("username")
+
+        # TODO IMPLEMENT token revocation by adding the token to a blacklist
+        # (blacklist logic not implemented here)
+        # blacklist.add(token)
+
+        return {"message": f"User {username} successfully logged out."}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token.")
 
 
 """
@@ -179,11 +193,6 @@ def grant_write_access(user_id: int, category_id: int):
     """
     insert_query(query, (user_id, category_id))
     return {"message": f"User {user_id} granted write access to category {category_id}"}
-
-
-
-REMOVE_READ_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 1"
-REMOVE_WRITE_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 2"
 
 
 def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):

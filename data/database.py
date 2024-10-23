@@ -106,6 +106,12 @@ def database_init():
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS SecretKeys (secret VARCHAR(200))""")
 
+        cursor.execute("""CREATE TABLE IF NOT EXISTS blacklisted_tokens (
+               id INTEGER PRIMARY KEY AUTOINCREMENT,
+               token TEXT NOT NULL,
+               blacklisted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+           );""")
+
         # Insert initial data (if needed)
         if query_count("SELECT COUNT(*) FROM roles") == 0:
             cursor.execute("INSERT OR IGNORE INTO Roles VALUES "
