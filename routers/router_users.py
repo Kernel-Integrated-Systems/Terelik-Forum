@@ -112,29 +112,14 @@ def give_user_write_access(body: dict = Body(...), authorization: str = Header(N
         return Response(status_code=400, content=str(e))
 
 
-
-class RevokeAccessRequest(BaseModel):     #not sure about this
-    user_id: int
-    category_id: int
-    access_type: str
-@users_router.post('/revoce_access/') #still not fully tested
-def revoke_user_access(request: RevokeAccessRequest, authorization: str = Header(None)):
-
-    if not authenticate(authorization):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
-    user_role = user_info["user_role"]
-
-    if user_role != 2:
-        raise HTTPException(status_code=403, detail="You do not have permission to revoke access")
-
-    if request.access_type not in ["read", "write"]:
-        raise HTTPException(status_code=400, detail="Invalid access type. Must be 'read' or 'write'.")
-
+@users_router.post('/revoke_access')
+def revoke_user_access(
+    user_id: int = Body(...),
+    category_id: int = Body(...),
+    access_type: str = Body(...),
+    authorization: str = Header(None)
+):
     try:
-        revoke_access(request.user_id, request.category_id, request.access_type)
-        return {"message": f"User {request.user_id}'s {request.access_type} access to category {request.category_id} has been revoked."}
+        return revoke_access(user_id, category_id, access_type, authorization)
     except ValueError as e:
         return Response(status_code=400, content=str(e))

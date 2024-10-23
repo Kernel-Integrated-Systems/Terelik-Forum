@@ -5,7 +5,7 @@ import jwt
 
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
-from percistance.connections import read_query, insert_query
+from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
 
 
@@ -186,7 +186,20 @@ REMOVE_READ_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_
 REMOVE_WRITE_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 2"
 
 
-def revoke_access(user_id: int, category_id: int, access_type: str):
+def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):
+
+    if not authenticate(authorization):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    token = authorization.split(" ")[1]
+    user_info = decode_jwt_token(token)
+    user_role = user_info["user_role"]
+
+    if user_role != 2:
+        raise HTTPException(status_code=403, detail="You do not have permission to revoke access")
+
+    if access_type not in ["read", "write"]:
+        raise HTTPException(status_code=400, detail="Invalid access type. Must be 'read' or 'write'.")
 
     if access_type == "read":
         result = update_query(REMOVE_READ_ACCESS, (user_id, category_id))
