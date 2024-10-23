@@ -30,9 +30,7 @@ def find_topic_by_category(category_id: int):
 
 def create_topic(title: str, content: str, user_id: int, category: int):
     new_topic_id = insert_query(NEW_TOPIC, (title, content, user_id, category))
-
-    new_topic = Topic(topic_id=new_topic_id, title=title, content=content, user_id=user_id, category_id=category)
-    return {"message": f"New topic ID {new_topic_id} with title {title} is created at {category}."}
+    return Topic(topic_id=new_topic_id, title=title, content=content, user_id=user_id, category_id=category)
 
 def remove_topic(topic_id: int):
     find_topic_by_id(topic_id)
