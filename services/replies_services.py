@@ -1,5 +1,5 @@
 from modules.replies import Reply, Vote
-from modules.topics import Topics
+from modules.topic import Topic
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import VOTE_ON_REPLY, NEW_REPLY, CHOOSE_BEST_REPLY_ID, ADD_BEST_REPLY_ON_TOPIC
 from services.topic_services import find_topic_by_id

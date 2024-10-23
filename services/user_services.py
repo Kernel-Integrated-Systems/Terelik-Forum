@@ -1,7 +1,8 @@
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
+import base64
 from percistance.connections import read_query, insert_query
-from percistance.data import session_store, encode
+from percistance.data import session_store
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
 
 
@@ -82,3 +83,34 @@ def un_authenticate_user(username: str):
         raise ValueError(f'User {username} is not logged in.')
     session_store["bearer"] = ""
     return {"message": f"User {username} successfully logged out."}
+
+
+def authenticate(authorization) -> bool:
+    if not authorization or authorization != session_store.get("bearer"):
+        return False
+    return True
+
+
+def authorise_user_role(token: str):
+    user = session_store.get(token)
+    if not user:
+        raise ValueError("Invalid session or expired token")
+    _, username, user_role = decode(token)
+    return user_role
+
+
+def encode(user_id: int, username: str, user_role: int) -> str:
+    user_string = f"{user_id}_{username}_{user_role}"
+    encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
+
+    return encoded_bytes.decode('utf-8')
+
+def decode(encoded_value: str):
+    decoded_string = base64.b64decode(encoded_value).decode('utf-8')
+    user_id, username, user_role = decoded_string.split('_')
+
+    return {
+        "user_id": int(user_id),
+        "username": username,
+        "user_role": int(user_role)
+    }
