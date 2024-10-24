@@ -92,11 +92,12 @@ def authenticate(authorization) -> bool:
 
 
 def authorise_user_role(token: str):
-    user = session_store.get(token)
+    user = session_store.get("bearer")
     if not user:
         raise ValueError("Invalid session or expired token")
-    _, username, user_role = decode(token)
-    return user_role
+    result = decode(token)
+
+    return result
 
 
 def encode(user_id: int, username: str, user_role: int) -> str:
@@ -108,9 +109,9 @@ def encode(user_id: int, username: str, user_role: int) -> str:
 def decode(encoded_value: str):
     decoded_string = base64.b64decode(encoded_value).decode('utf-8')
     user_id, username, user_role = decoded_string.split('_')
-
-    return {
+    result = {
         "user_id": int(user_id),
         "username": username,
         "user_role": int(user_role)
     }
+    return result

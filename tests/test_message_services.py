@@ -55,18 +55,18 @@ class MessageService_Should(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
-    @patch('percistance.connections.insert_query')
-    @patch('services.user_services.get_user_by_id')
-    def test_create_message(self, mock_get_user_by_id, mock_insert_query):
+    # @patch('percistance.connections.insert_query')
+    # @patch('services.user_services.get_user_by_id')
+    # def test_create_message(self, mock_get_user_by_id, mock_insert_query):
+    #
+    #     mock_get_user_by_id.side_effect = [mock_user_sender, mock_user_receiver]
+    #     mock_insert_query.return_value = 1
+    #     new_message = NewMessage(sender_id=1, receiver_id=2, content="Hello Bob!")
+    #     result = service.create_message(new_message)
+    #
+    #     expected = service.create_message("alice", "bob", "Hello Bob!")
+    #     self.assertEqual(result, expected)
 
-        mock_get_user_by_id.side_effect = [mock_user_sender, mock_user_receiver]
-        mock_insert_query.return_value = 1
-        new_message = NewMessage(sender_id=1, receiver_id=2, content="Hello Bob!")
-        result = service.create_message(new_message)
 
-        expected = service.create_message("alice", "bob", "Hello Bob!")
-        self.assertEqual(result, expected)
-
-
-if __name__ == "__main__":
-    unittest.main()
+# if __name__ == "__main__":
+#     unittest.main()

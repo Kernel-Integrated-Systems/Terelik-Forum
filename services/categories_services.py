@@ -19,7 +19,7 @@ def find_category_by_id(category_id: int):
 
 def create_category(title: str):
     new_id = insert_query(NEW_CATEGORY, (title,))
-    new_category = Category(id=new_id,category_name=title)
+    new_category = NewCategory(id=new_id,category_name=title)
     return new_category
 
 
