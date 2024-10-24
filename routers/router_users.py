@@ -58,6 +58,6 @@ def logout_user_route(user: UserLogoutRequest):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        return logout_user(user.username)
+        return logout_user(user.username, user.token)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

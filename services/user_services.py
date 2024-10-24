@@ -1,9 +1,11 @@
-from modules.users import User, UserRegistrationRequest
+from modules.users import User, UserRegistrationRequest, TokenResponse
 from typing import Optional
 import base64
 from percistance.connections import read_query, insert_query
 from percistance.data import session_store
-from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS
+from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
+    INSERT_TOKEN, SEARCH_TOKEN
+from datetime import datetime
 
 
 def get_all_users():
@@ -71,16 +73,17 @@ def authenticate_user(username: str, password: str):
         raise ValueError('The provided password is incorrect! Please try again.')
     # assign user_id, username and user_role
     token = encode(user[0][0], user[0][1], user[0][3])
-    session_store["bearer"] = token
+    insert_query(INSERT_TOKEN, (token, 30))
+    return TokenResponse(access_token=token)
 
-    return {"token": token, "token_type": "bearer"}
 
-
-def logout_user(username: str):
-    user = get_user_by_username(username)
-    if not user:
+def logout_user(username: str, token: str):
+    token_data = decode(token)
+    if token_data["user"] != username:
         raise ValueError(f'User {username} is not logged in.')
-    session_store["bearer"] = ""
+
+    session_token = read_query(SEARCH_TOKEN, (token,))
+    print(session_token)
     return {"message": f"User {username} successfully logged out."}
 
 
@@ -100,17 +103,19 @@ def authorise_user_role(token: str):
 
 
 def encode(user_id: int, username: str, user_role: int) -> str:
-    user_string = f"{user_id}_{username}_{user_role}"
+    now = datetime.now()
+    user_string = f"{user_id}_{username}_{user_role}_{now.strftime("%H:%M:%S")}"
     encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
 
     return encoded_bytes.decode('utf-8')
 
 def decode(encoded_value: str):
     decoded_string = base64.b64decode(encoded_value).decode('utf-8')
-    user_id, username, user_role = decoded_string.split('_')
+    user_id, username, user_role, created_at = decoded_string.split('_')
     result = {
         "user_id": int(user_id),
         "username": username,
-        "user_role": int(user_role)
+        "user_role": int(user_role),
+        "created_at": created_at
     }
     return result
