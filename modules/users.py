@@ -27,3 +27,8 @@ class UserRegistrationRequest(BaseModel):
 class UserLoginRequest(BaseModel):
     username: str
     password: str
+
+
+class UserLogoutRequest(BaseModel):
+    username: str
+    token: str | None = None

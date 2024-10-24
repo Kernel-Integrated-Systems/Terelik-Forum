@@ -25,8 +25,10 @@ def get_category_by_id(category_id: int):
 
 @categories_router.post('/')
 def create_new_category(category: NewCategory, token: str | None = Header()):
+    # Check if user is authenticated
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    # Validate user role is admin and raise error if not
     user_role = authorise_user_role(token)
     if user_role["user_role"] != 2:
         raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
@@ -38,8 +40,10 @@ def create_new_category(category: NewCategory, token: str | None = Header()):
 
 @categories_router.delete('/{category_id}')
 def delete_category(category_id: int, token: str | None = None):
+    # Check if user is authenticated
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    # Validate user role is admin and raise error if not
     user_role = authorise_user_role(token)
     if user_role["user_role"] != 2:
         raise HTTPException(status_code=401, detail="Unauthorized command. You are not admin!")

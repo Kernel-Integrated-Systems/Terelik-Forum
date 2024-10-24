@@ -82,7 +82,7 @@ class UserService_Should(unittest.TestCase):
     def test_un_authenticate_user(self):
         with patch('services.user_services.un_authenticate_user') as mock_un_auth:
             mock_un_auth.return_value = {"message": "User alice successfully logged out."}
-            result = service.un_authenticate_user('alice')
+            result = service.logout_user('alice')
             expected = {"message": "User alice successfully logged out."}
             self.assertEqual(expected, result)
 

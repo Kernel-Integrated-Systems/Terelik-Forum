@@ -77,7 +77,7 @@ def authenticate_user(username: str, password: str):
     return {"token": token, "token_type": "bearer"}
 
 
-def un_authenticate_user(username: str):
+def logout_user(username: str):
     user = get_user_by_username(username)
     if not user:
         raise ValueError(f'User {username} is not logged in.')
