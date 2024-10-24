@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Response, Header
 from modules.users import UserRegistrationRequest, UserLoginRequest
-from percistance.data import authenticate
-from services.user_services import get_all_users, get_user_by_id, register_user, authenticate_user, un_authenticate_user
+from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, un_authenticate_user
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 

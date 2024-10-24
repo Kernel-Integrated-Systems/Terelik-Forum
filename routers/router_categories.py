@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, HTTPException, Header, Body
 
 from modules.categories import Category, NewCategory
-from percistance.data import authenticate, authorise_user_role
+from services.user_services import authenticate, authorise_user_role
 from services.categories_services import create_category, find_category_by_id, view_categories, remove_category
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
@@ -27,7 +27,9 @@ def get_category_by_id(category_id: int):
 def create_new_category(category: NewCategory, token: str | None = Header()):
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
+    user_role = authorise_user_role(token)
+    if user_role["user_role"] != 2:
+        raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
     try:
         return create_category(category.category_name)
     except ValueError as e:

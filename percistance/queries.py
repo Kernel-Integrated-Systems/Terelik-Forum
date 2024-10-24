@@ -54,6 +54,8 @@ ALL_CATEGORIES = """SELECT category_id, category_name, is_private, is_locked FRO
 CATEGORY_BY_ID = """SELECT category_id, category_name, is_private, is_locked FROM categories
             WHERE category_id = ?"""
 
+CATEGORY_BY_NAME = """SELECT category_id, category_name, is_private, is_locked FROM categories WHERE category_name = ?"""
+
 NEW_CATEGORY = """INSERT INTO categories (category_name) VALUES (?)"""
 
 DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
