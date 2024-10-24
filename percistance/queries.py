@@ -60,6 +60,11 @@ NEW_CATEGORY = """INSERT INTO categories (category_name) VALUES (?)"""
 
 DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
 
+CATEGORY_PRIVILEGED_USERS = """SELECT a.category_id, c.category_name, u.username, ac.access_level FROM categoryaccess a
+            LEFT JOIN categories c on a.category_id = c.category_id
+            LEFT JOIN users u on a.user_id = u.user_id
+            LEFT JOIN useraccesslevel ac on a.access_level = ac.user_access_id
+            WHERE a.category_id = ?"""
 
 # REPLIES QUERIES
 VOTE_ON_REPLY = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""

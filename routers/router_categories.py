@@ -2,7 +2,8 @@ from fastapi import APIRouter, Response, HTTPException, Header, Body
 
 from modules.categories import Category, NewCategory
 from services.user_services import authenticate, authorise_user_role
-from services.categories_services import create_category, find_category_by_id, view_categories, remove_category
+from services.categories_services import create_category, find_category_by_id, view_categories, remove_category, \
+    show_users_on_category
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 
@@ -52,3 +53,17 @@ def delete_category(category_id: int, token: str | None = None):
     except ValueError as e:
         return Response(status_code=404, content=str(e))
 
+
+@categories_router.get('/{category_id}/privileged_users')
+def get_privileged_users_for_category(category_id: int, token: str | None = None):
+    # Check if user is authenticated
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    # Validate user role is admin and raise error if not
+    user_role = authorise_user_role(token)
+    if user_role["user_role"] != 2:
+        raise HTTPException(status_code=401, detail="Unauthorized command. You are not admin!")
+    try:
+        return show_users_on_category(category_id)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))

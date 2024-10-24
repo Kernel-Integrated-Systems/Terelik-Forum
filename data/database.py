@@ -112,7 +112,8 @@ def database_init():
         cursor.execute("""CREATE TABLE IF NOT EXISTS  Sessions (
                             Token_String VARCHAR(255) NOT NULL,
                             Created_at DATE,
-                            Expiration_time INT
+                            Expiration_time INT,
+                            Expired TINYINT(1) DEFAULT 0
                         )""")
 
         # Insert initial data (if needed)

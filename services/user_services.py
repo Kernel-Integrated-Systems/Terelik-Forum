@@ -43,7 +43,6 @@ def create_user(user_data: UserRegistrationRequest):
 
     return new_user_id
 
-
 def register_user(username: str, email: str, password: str) -> User:
     usernm = read_query(USER_BY_USERNAME, (username,))
     userem = read_query(USER_BY_EMAIL, (email,))

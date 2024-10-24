@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Header
 from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutRequest
-from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, logout_user
+from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, \
+    logout_user, authorise_user_role
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 

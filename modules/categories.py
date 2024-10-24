@@ -21,3 +21,19 @@ class NewCategory(BaseModel):
     category_name: str
     private: int | None = None
     locked: int | None = None
+
+
+class CategoryPrivilegedUsersResponse(BaseModel):
+    category_id: int
+    category_name: str
+    username: str
+    access: str
+
+    @classmethod
+    def from_query_string(cls, category_id, category_name, username, access):
+        return cls(
+            category_id=category_id,
+            category_name=category_name,
+            username=username,
+            access=access
+        )

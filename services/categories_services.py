@@ -1,6 +1,7 @@
-from modules.categories import Category, NewCategory
+from modules.categories import Category, NewCategory, CategoryPrivilegedUsersResponse
 from percistance.connections import read_query, insert_query, update_query
-from percistance.queries import ALL_CATEGORIES, CATEGORY_BY_ID, NEW_CATEGORY, DELETE_CATEGORY, CATEGORY_BY_NAME
+from percistance.queries import ALL_CATEGORIES, CATEGORY_BY_ID, NEW_CATEGORY, DELETE_CATEGORY, CATEGORY_BY_NAME, \
+    CATEGORY_PRIVILEGED_USERS
 
 
 def view_categories():
@@ -22,6 +23,7 @@ def find_category_by_name(category_name: str):
 
     return next((Category.from_query_string(*row) for row in data), None)
 
+
 def create_category(title: str):
     does_exist = find_category_by_name(title)
     if does_exist:
@@ -35,3 +37,10 @@ def remove_category(category_id: int):
     find_category_by_id(category_id,)
     update_query(DELETE_CATEGORY, (category_id,))
     return {"message": f"Category with ID {category_id} is successfully deleted."}
+
+
+def show_users_on_category(category_id: int):
+    data = read_query(CATEGORY_PRIVILEGED_USERS, (category_id,))
+    if not data:
+        raise ValueError(f'The category with ID {category_id} is not private!')
+    return (CategoryPrivilegedUsersResponse.from_query_string(*row) for row in data)
