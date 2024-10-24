@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, HTTPException, Header, Body
 
-from modules.categories import Category
+from modules.categories import Category, NewCategory
 from percistance.data import authenticate
 from services.categories_services import create_category, find_category_by_id, view_categories, remove_category
 
@@ -24,7 +24,7 @@ def get_category_by_id(category_id: int):
 
 
 @categories_router.post('/')
-def create_new_category(category: Category, token: str | None = Header()):
+def create_new_category(category: NewCategory, token: str | None = Header()):
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
