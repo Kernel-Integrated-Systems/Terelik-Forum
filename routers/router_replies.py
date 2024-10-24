@@ -1,23 +1,23 @@
 from fastapi import APIRouter, HTTPException
 from starlette.responses import Response
 
-from percistance.data import authenticate
+from modules.replies import NewReply, GetReplyOnTopic
 from services.replies_services import vote_reply, create_reply, get_all_topics_with_best_replies
-
+from services.user_services import authenticate
 
 replies_router = APIRouter(prefix='/replies')
-votes_router = APIRouter(prefix='/votes')
+votes_router = APIRouter(prefix='/votes', tags=['Replies'])
 best_reply_router = APIRouter(prefix='/best_replies')
 
 
 # Create Reply
 @replies_router.post('/create_reply')
-def create_reply_route(reply_id: int, content: str, token: str | None = None):
+def create_reply_route(reply: NewReply, token: str | None = None):
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        return create_reply(content, reply_id)
+        return create_reply(reply.content, reply.reply_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
@@ -78,11 +78,11 @@ def post_vote_for_reply(reply_id: int, vote: str, token: str | None = None):
 
 # Choose Best Reply
 @best_reply_router.get('/{topic_id}/replies{reply_id}')
-def get_all_topics_with_best_replies_route(topic_id: int, reply_id: int, token: str | None = None):
+def get_all_topics_with_best_replies_route(reply: GetReplyOnTopic, token: str | None = None):
     if not authenticate(token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        return get_all_topics_with_best_replies(topic_id, reply_id)
+        return get_all_topics_with_best_replies(reply.topic_id, reply.reply_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))

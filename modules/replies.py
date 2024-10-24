@@ -16,3 +16,13 @@ class Vote(BaseModel):
     reply_id: int
     vote_type: str  # 'upvote' or 'downvote'
     created_at: datetime = datetime.now()
+
+
+class NewReply(BaseModel):
+    topic_id: int
+    content: str
+
+class GetReplyOnTopic(BaseModel):
+    topic_id: int
+    reply_id: int
+
