@@ -2,7 +2,7 @@ from modules.categories import Category, NewCategory
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import (ALL_CATEGORIES, CATEGORY_BY_ID, NEW_CATEGORY, DELETE_CATEGORY,
                                  CATEGORY_BY_NAME, CHANGE_CATEGORY_PRIVATE, CHANGE_CATEGORY_LOCK_STATUS)
-
+from percistance import queries
 
 def view_categories():
     data = read_query(ALL_CATEGORIES)
@@ -61,3 +61,8 @@ def change_category_lock_status(category_id: int):
         updated_category = 0
         update_query(CHANGE_CATEGORY_LOCK_STATUS, (updated_category, category_id,))
         return {"message": f"Category with ID {category_id} is successfully unlocked."}
+
+
+def check_category_lock_status(category_id: int):
+    data = read_query(queries.CHECK_CATEGORY_PRIVATE_STATUS, (category_id,))
+    return data

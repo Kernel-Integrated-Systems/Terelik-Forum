@@ -5,10 +5,10 @@ from routers.router_topics import topics_router
 from routers.router_replies import replies_router, votes_router, best_reply_router
 from routers.router_messages import messages_router
 from routers.router_users import users_router
-from data.database import database_init
 
 
-database_init()
+
+
 
 app = FastAPI()
 

@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, HTTPException, Header
 from services.categories_services import find_category_by_id
-from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic)
+from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic,
+                                     change_topic_lock_status)
+from services.user_services import authenticate, authorise_user_role
 
 topics_router = APIRouter(prefix='/topics', tags=['Topics'])
 
@@ -43,3 +45,16 @@ def delete_topic(topic_id: int):
         return remove_topic(topic_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
+
+
+@topics_router.post('/change_topic_lock_status')
+def change_lock_status(topic_id: int, token: str | None = Header()):
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    user_role = authorise_user_role(token)
+    if user_role["user_role"] != 2:
+        raise HTTPException(status_code=401, detail="Unauthorized access. You are not admin!")
+    try:
+        return change_topic_lock_status(topic_id)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))

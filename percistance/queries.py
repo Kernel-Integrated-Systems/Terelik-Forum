@@ -12,7 +12,7 @@ LOGIN_USERNAME_PASS = """SELECT user_id, username, password_hash, user_role FROM
 # TOPICS QUERIES
 
 ALL_TOPICS = """SELECT topic_id, title, content, user_id, category_id FROM topics"""
-TOPIC_BY_ID = """SELECT topic_id, title, content, user_id, category_id FROM topics
+TOPIC_BY_ID = """SELECT topic_id, title, content, user_id, category_id, is_locked FROM topics
             WHERE topic_id = ?"""
 TOPIC_BY_TITLE = """SELECT topic_id, title, content, user_id, category_id FROM topics
             WHERE title = ?"""
@@ -21,7 +21,8 @@ TOPIC_BY_CATEGORY = """SELECT topic_id, title, content, user_id, category_id FRO
 NEW_TOPIC = """INSERT INTO topics (title, content, user_id, category_id)
             VALUES (?, ?, ?, ?)"""
 DELETE_TOPIC = """DELETE FROM topics WHERE topic_id = ?"""
-
+CHANGE_TOPIC_LOCK_STATUS = """UPDATE Topics SET is_locked = ? WHERE category_id = ?"""
+CHECK_TOPIC_PRIVATE_STATUS = """SELECT is_locked FROM Topics WHERE topic_id = ?"""
 
 # MESSAGE QUERIES
 
@@ -64,7 +65,7 @@ CHANGE_CATEGORY_PRIVATE = """UPDATE categories SET is_private = ? WHERE category
 
 CHANGE_CATEGORY_LOCK_STATUS = """UPDATE categories SET is_locked = ? WHERE category_id = ?"""
 
-
+CHECK_CATEGORY_PRIVATE_STATUS = """SELECT is_private FROM categories WHERE category_id = ?"""
 # REPLIES QUERIES
 VOTE_ON_REPLY = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""
 

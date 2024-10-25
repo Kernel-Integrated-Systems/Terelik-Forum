@@ -2,7 +2,7 @@ from modules.replies import Reply, Vote
 from modules.topic import Topic
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import VOTE_ON_REPLY, NEW_REPLY, CHOOSE_BEST_REPLY_ID, ADD_BEST_REPLY_ON_TOPIC
-from services.topic_services import find_topic_by_id
+from services.topic_services import find_topic_by_id, check_topic_lock_status
 
 
 # def find_reply_by_id(reply_id):
@@ -28,6 +28,10 @@ def vote_reply(reply_id: int, vote_type: str):
 
 
 def create_reply(content: str, topic_id: int):
+    lock = check_topic_lock_status(topic_id)
+    if lock == 1:
+
+        return {'message': 'Topic locked.'}
     user_id = 1
     find_topic_by_id(topic_id)
 
