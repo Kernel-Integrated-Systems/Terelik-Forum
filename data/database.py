@@ -109,17 +109,6 @@ def database_init():
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS SecretKeys (secret VARCHAR(200))""")
 
-        # cursor.execute("""CREATE TABLE IF NOT EXISTS blacklisted_tokens (
-        #        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        #        token TEXT NOT NULL,
-        #        blacklisted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        #    );""")
-
-        cursor.execute("""CREATE TABLE IF NOT EXISTS  Sessions (
-                            Token_String VARCHAR(255) NOT NULL,
-                            Created_at DATE,
-                            Expiration_time INT
-                        )""")
 
 
         # Insert initial data (if needed)

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Response, Header, Body
-from pydantic import BaseModel
+
 
 from modules.users import UserRegistrationRequest, UserLoginRequest
-from services.user_services import get_all_users, get_user_by_id, register_user, authenticate_user, \
-    un_authenticate_user, authenticate, decode_jwt_token, grant_read_access, grant_write_access, revoke_access
-import jwt
+from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, decode_jwt_token, \
+    grant_read_access, grant_write_access, revoke_access, \
+    logout_user, authenticate_user
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
@@ -54,17 +54,15 @@ def login_user_route(user: UserLoginRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-
-@users_router.post('/lgout')
-def logout_user_route(user: UserLogoutRequest):
-    if not authenticate(user.token):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+@users_router.post('/logout')
+def logout_user_route(authorization: str = Header(...)):
+    token = authorization.split(" ")[1]
 
     try:
-        return logout_user(user.username)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
+        response = logout_user(token)
+        return response
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 
 @users_router.post('/grant_read_access/')
