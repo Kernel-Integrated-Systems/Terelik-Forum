@@ -2,7 +2,8 @@ from fastapi import APIRouter, Response, HTTPException, Header, Body
 
 from modules.categories import Category, NewCategory
 from services.user_services import authenticate, authorise_user_role
-from services.categories_services import create_category, find_category_by_id, view_categories, remove_category
+from services.categories_services import (create_category, find_category_by_id, view_categories, remove_category,
+                                          change_category_private_status, change_category_lock_status)
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 
@@ -47,4 +48,32 @@ def delete_category(category_id: int, token: str | None = None):
         return remove_category(category_id)
     except ValueError as e:
         return Response(status_code=404, content=str(e))
+
+
+@categories_router.post('/change_category_private_status')
+def change_private_status(category_id, token: str | None = Header()):
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    user_role = authorise_user_role(token)
+    if user_role["user_role"] != 2:
+        raise HTTPException(status_code=401, detail="Unauthorized access. You are not admin!")
+    try:
+        return change_category_private_status(category_id)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))
+
+
+@categories_router.post('/change_category_lock_status')
+def change_lock_status(category_id, token: str | None = Header()):
+    if not authenticate(token):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    user_role = authorise_user_role(token)
+    if user_role["user_role"] != 2:
+        raise HTTPException(status_code=401, detail="Unauthorized access. You are not admin!")
+    try:
+        return change_category_lock_status(category_id)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))
+
+
 

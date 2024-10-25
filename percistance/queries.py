@@ -60,6 +60,10 @@ NEW_CATEGORY = """INSERT INTO categories (category_name) VALUES (?)"""
 
 DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
 
+CHANGE_CATEGORY_PRIVATE = """UPDATE categories SET is_private = ? WHERE category_id = ?"""
+
+CHANGE_CATEGORY_LOCK_STATUS = """UPDATE categories SET is_locked = ? WHERE category_id = ?"""
+
 
 # REPLIES QUERIES
 VOTE_ON_REPLY = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""
