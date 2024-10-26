@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, HTTPException, Header, Body
 from pydantic import BaseModel
 
-from modules.categories import Category
+from modules.categories import Category, NewCategory
 from services.categories_services import create_category, find_category_by_id, remove_category, view_categories
 from services.user_services import authenticate, decode_jwt_token, grant_write_access, revoke_access, grant_read_access, \
     get_user_accessible_categories, get_access_level
@@ -59,9 +59,8 @@ def get_category_by_id(category_id: int, authorization: str | None = Header(None
     raise HTTPException(status_code=403, detail="You do not have permission to view this category")
 
 
-
 @categories_router.post('/')
-def create_new_category(category: Category, authorization: str | None = Header(None)):
+def create_new_category(category: NewCategory, authorization: str | None = Header(None)):
     if not authenticate(authorization):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
@@ -73,9 +72,12 @@ def create_new_category(category: Category, authorization: str | None = Header(N
         raise HTTPException(status_code=403, detail="You do not have permission to create categories")
 
     try:
-        return create_category(category.category_name, category.private, category.locked)
+        # Pass is_private and is_locked to the create_category function
+        return create_category(category.category_name, category.is_private, category.is_locked)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
+
+
 
 @categories_router.delete('/{category_id}')
 def delete_category(category_id: int, authorization: str | None = Header(None)):

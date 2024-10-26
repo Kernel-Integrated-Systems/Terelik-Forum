@@ -4,27 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="380d51c3-1d3d-4a03-9db5-7261811efb21" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/percistance/percistance/MariaDB.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/percistance/percistance/connections.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/percistance/percistance/data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/percistance/percistance/forum_db.sql.mwb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/percistance/percistance/queries.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/routers/router_categories.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/routers/router_messages.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/categories_services.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/messages_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/router_replies.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router_replies.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/router_topics.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router_topics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/router_users.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router_users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/replies_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/replies_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/topic_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/topic_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/user_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/user_services.py" afterDir="false" />
-    </list>
+    <list default="true" id="380d51c3-1d3d-4a03-9db5-7261811efb21" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -57,6 +48,14 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\kalin\Documents\GitHub\Terelik-Forum\percistance" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\kalin\Documents\GitHub\Terelik-Forum" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -107,7 +106,7 @@
       <workItem from="1729955079765" duration="43000" />
       <workItem from="1729955126549" duration="62000" />
       <workItem from="1729955192664" duration="56000" />
-      <workItem from="1729955262956" duration="305000" />
+      <workItem from="1729955262956" duration="911000" />
     </task>
     <servers />
   </component>

@@ -151,8 +151,6 @@ Permissions for users ACCESS LEVELS
 
 def grant_read_access(user_id: int, category_id: int):
 
-
-
     query = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
                VALUES (?, ?, 1) 
                ON CONFLICT(user_id, category_id) DO UPDATE SET access_level = 1"""
@@ -197,16 +195,15 @@ def user_has_access(user_id: int, category_id: int, required_access: int):
 
 
 def get_user_accessible_categories(user_id: int):
-    # Query to fetch locked categories where the user has explicit access
     query = """
-        SELECT c.category_id, c.category_name, c.is_private, c.is_locked, c.created_at
+        SELECT c.category_id, c.category_name, c.is_private, c.is_locked
         FROM categories c
         JOIN CategoryAccess ca ON c.category_id = ca.category_id
         WHERE ca.user_id = ? AND c.is_locked = 1
     """
     data = read_query(query, (user_id,))
 
-    # Return a generator of Category instances
+    # Ensure each row has five elements
     return (Category.from_query_string(*row) for row in data)
 
 def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):

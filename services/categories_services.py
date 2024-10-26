@@ -11,8 +11,8 @@ def view_categories(is_locked: bool = None):
         params = (is_locked,)
 
     data = read_query(query, params)
+    # Ensure each row has five elements (category_id, category_name, is_private, is_locked, created_at)
     return (Category.from_query_string(*row) for row in data)
-
 
 def find_category_by_id(category_id: int):
     data = read_query(CATEGORY_BY_ID, (category_id,))
@@ -23,11 +23,19 @@ def find_category_by_id(category_id: int):
     return next((Category.from_query_string(*row) for row in data), None)
 
 
+def create_category(title: str, private, locked):
+    # Check if a category with the same name already exists
+    existing_category = read_query("SELECT * FROM categories WHERE category_name = ?", (title,))
+    if existing_category:
+        raise ValueError(f"A category with the name '{title}' already exists.")
 
-def create_category(title: str, is_private, is_locked):
-    # Update the insert query to include is_private and is_locked fields
-    new_id = insert_query(NEW_CATEGORY, (title, int(is_private), int(is_locked)))
+    is_private = int(private)
+    is_locked = int(locked)
+
+    new_id = insert_query(NEW_CATEGORY, (title, is_private, is_locked))
     return {"message": f"New Category '{title}' created with ID {new_id}."}
+
+
 def remove_category(category_id: int):
     find_category_by_id(category_id,)
     update_query(DELETE_CATEGORY, (category_id,))

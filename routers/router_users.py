@@ -10,8 +10,8 @@ users_router = APIRouter(prefix='/users', tags=['Users'])
 
 
 @users_router.get('/')
-def get_all_users_route(token: str | None = None):
-    if not authenticate(token):
+def get_all_users_route(authorization: str = Header(...)):
+    if not authenticate(authorization):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
@@ -20,8 +20,8 @@ def get_all_users_route(token: str | None = None):
         return Response(content=str(e), status_code=400)
 
 @users_router.get('/{user_id}')
-def get_user_route(user_id: int, token: str | None = None):
-    if not authenticate(token):
+def get_user_route(user_id: int, authorization: str = Header(...)):
+    if not authenticate(authorization):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
@@ -75,8 +75,8 @@ def give_user_read_access(body: dict = Body(...), authorization: str = Header(..
     token = authorization.split(" ")[1]
     user_info = decode_jwt_token(token)
     user_role = user_info["user_role"]
-
-    if user_role != 2:
+    print(user_role)
+    if user_role == 1:
         raise HTTPException(status_code=403, detail="You do not have permission to grant access")
 
     user_id = body.get("user_id")
