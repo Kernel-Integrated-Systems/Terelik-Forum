@@ -13,11 +13,13 @@ best_reply_router = APIRouter(prefix='/best_replies')
 # Create Reply
 @replies_router.post('/create_reply')
 def create_reply_route(reply: NewReply, token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        return create_reply(reply.content, reply.reply_id)
+        return create_reply(reply.content, reply.topic_id, user_data["user_id"])
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
@@ -54,7 +56,9 @@ def create_reply_route(reply: NewReply, token: str | None = None):
 # Upvote/Downvote a Reply
 @votes_router.post('/reply/{reply_id}')
 def post_vote_for_reply(reply_id: int, vote: str, token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
@@ -79,7 +83,9 @@ def post_vote_for_reply(reply_id: int, vote: str, token: str | None = None):
 # Choose Best Reply
 @best_reply_router.get('/{topic_id}/replies{reply_id}')
 def get_all_topics_with_best_replies_route(reply: GetReplyOnTopic, token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:

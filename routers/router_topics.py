@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, HTTPException
 
 from modules.topic import NewTopic
 from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic)
+from services.user_services import authenticate
 
 topics_router = APIRouter(prefix='/topics', tags=['Topics'])
 
@@ -28,7 +29,11 @@ def get_topic_by_category(category_id: int):
 
 
 @topics_router.post('/new_topic')
-def create_new_topic(topic: NewTopic):
+def create_new_topic(topic: NewTopic, token: str | None = None):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
     try:
         return create_topic(topic.title, topic.content, topic.user_id, topic.category_id)
     except ValueError as e:

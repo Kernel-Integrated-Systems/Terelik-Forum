@@ -1,14 +1,16 @@
-from fastapi import APIRouter, HTTPException, Response, Header
+from fastapi import APIRouter, HTTPException, Response
 from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutRequest
 from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, \
-    logout_user, authorise_user_role
+    logout_user
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
 
 @users_router.get('/')
 def get_all_users_route(token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
@@ -18,7 +20,9 @@ def get_all_users_route(token: str | None = None):
 
 @users_router.get('/{user_id}')
 def get_user_route(user_id: int, token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
@@ -54,7 +58,9 @@ def login_user_route(user: UserLoginRequest):
 
 @users_router.post('/lgout')
 def logout_user_route(user: UserLogoutRequest):
-    if not authenticate(user.token):
+    # Check if user is authenticated
+    user_data = authenticate(user.token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:

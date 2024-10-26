@@ -102,9 +102,3 @@ class UserService_Should(unittest.TestCase):
             self.assertEqual(expected, result)
 
 
-    def test_authorise_user_role(self):
-        with patch('services.user_services.authorise_user_role') as mock_auth_role:
-            mock_auth_role.return_value = 1
-            result = service.authorise_user_role('alice', 1)
-            expected = 1
-            self.assertEqual(expected, result)

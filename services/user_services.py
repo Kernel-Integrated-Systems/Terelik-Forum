@@ -73,7 +73,6 @@ def authenticate_user(username: str, password: str):
         raise ValueError('The provided password is incorrect! Please try again.')
     # assign user_id, username and user_role
     token = encode(user[0][0], user[0][1], user[0][3])
-    insert_query(INSERT_TOKEN, (token, 30))
     return TokenResponse(access_token=token)
 
 
@@ -87,19 +86,13 @@ def logout_user(username: str, token: str):
     return {"message": f"User {username} successfully logged out."}
 
 
-def authenticate(authorization) -> bool:
-    if not authorization or authorization != session_store.get("bearer"):
-        return False
-    return True
-
-
-def authorise_user_role(token: str):
-    user = session_store.get("bearer")
+def authenticate(token) -> dict:
+    session_data = decode(token)
+    user = get_user_by_username(session_data["username"])
     if not user:
-        raise ValueError("Invalid session or expired token")
-    result = decode(token)
+        raise ValueError(f'Username {session_data["username"]} is not registered or token has expired.')
 
-    return result
+    return session_data
 
 
 def encode(user_id: int, username: str, user_role: int) -> str:

@@ -27,8 +27,7 @@ def vote_reply(reply_id: int, vote_type: str):
 #     return topic_replies
 
 
-def create_reply(content: str, topic_id: int):
-    user_id = 1
+def create_reply(content: str, topic_id: int, user_id: int):
     find_topic_by_id(topic_id)
 
     new_reply_id = insert_query(NEW_REPLY, (content, user_id, topic_id))

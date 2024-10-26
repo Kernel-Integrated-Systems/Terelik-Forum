@@ -10,9 +10,10 @@ messages_router = APIRouter(prefix='/messages', tags=['Messages'])
 # View Conversations - regardless of receiver
 @messages_router.get("/{user_id}")
 def get_user_messages(user_id: int, token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
     try:
         return get_messages(user_id)
     except ValueError as e:
@@ -21,7 +22,9 @@ def get_user_messages(user_id: int, token: str | None = None):
 # View Conversation - to a particular receiver
 @messages_router.get("/{user_id}/{target_usr_id}")
 def get_user_message(user_id: int, target_usr_id: int, token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
@@ -33,7 +36,9 @@ def get_user_message(user_id: int, target_usr_id: int, token: str | None = None)
 # Create New Message
 @messages_router.post("/")
 def create_new_message(user: NewMessage, token: str | None = None):
-    if not authenticate(token):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
