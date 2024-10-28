@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Header
-from modules.users import UserRegistrationRequest, UserLoginRequest
-from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, un_authenticate_user
+from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutRequest
+from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, \
+    logout_user, authorise_user_role
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
@@ -28,14 +29,14 @@ def get_user_route(user_id: int, token: str | None = None):
 
 
 @users_router.post('/register')
-def register_user_route(
-        username: str = Header(..., description="The username of the user"),
-        email: str = Header(..., description="The email of the user"),
-        password: str = Header(..., description="The password of the user")
-):
+def register_user_route(new_usr: UserRegistrationRequest):
     try:
         # Manually create the UserRegistrationRequest model
-        user_request = UserRegistrationRequest(username=username, email=email, password=password)
+        user_request = UserRegistrationRequest(
+            username=new_usr.username,
+            email=new_usr.email,
+            password=new_usr.password
+        )
 
         # Pass the model to the register_user function
         return register_user(user_request.username, user_request.email, user_request.password)
@@ -52,11 +53,11 @@ def login_user_route(user: UserLoginRequest):
 
 
 @users_router.post('/lgout')
-def logout_user_route(username: str, token: str | None = None):
-    if not authenticate(token):
+def logout_user_route(user: UserLogoutRequest):
+    if not authenticate(user.token):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        return un_authenticate_user(username)
+        return logout_user(user.username)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

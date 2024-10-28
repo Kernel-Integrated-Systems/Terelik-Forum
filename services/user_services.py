@@ -43,7 +43,6 @@ def create_user(user_data: UserRegistrationRequest):
 
     return new_user_id
 
-
 def register_user(username: str, email: str, password: str) -> User:
     usernm = read_query(USER_BY_USERNAME, (username,))
     userem = read_query(USER_BY_EMAIL, (email,))
@@ -77,7 +76,7 @@ def authenticate_user(username: str, password: str):
     return {"token": token, "token_type": "bearer"}
 
 
-def un_authenticate_user(username: str):
+def logout_user(username: str):
     user = get_user_by_username(username)
     if not user:
         raise ValueError(f'User {username} is not logged in.')
