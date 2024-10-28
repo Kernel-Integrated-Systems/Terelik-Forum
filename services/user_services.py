@@ -4,13 +4,13 @@ from fastapi import HTTPException
 
 from modules.categories import Category
 
-from modules.users import User, UserRegistrationRequest
+from modules.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
 
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
-    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS,
-                                 GRANT_READ_ACCESS, GRANT_WRITE_ACCESS, USER_CATEGORIES)
+    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS, GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL
+
 from datetime import datetime
 
 
@@ -127,13 +127,25 @@ Permissions for users ACCESS LEVELS
 
 
 
-def grant_read_access(user_id: int, category_id: int):
+def grant_read_access(user_id: int, category_id: int) -> dict:
+    user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=1)
+    insert_query(GRANT_READ_ACCESS, (user_access.user_id, user_access.category_id))
+    return {"message": f"User {user_access.user_id} granted read access to category {user_access.category_id}"}
 
-    query = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
-               VALUES (?, ?, 1) 
-               ON CONFLICT(user_id, category_id) DO UPDATE SET access_level = 1"""
-    insert_query(query, (user_id, category_id))
-    return {"message": f"User {user_id} granted read access to category {category_id}"}
+
+def grant_write_access(user_id: int, category_id: int, authorization: str) -> dict:
+    if not authenticate(authorization):
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    token = authorization.split(" ")[1]
+    user_info = decode_jwt_token(token)
+
+    if user_info["user_role"] != 2:
+        raise HTTPException(status_code=403, detail="You do not have permission to grant write access")
+
+    user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=2)
+    insert_query(GRANT_WRITE_ACCESS, (user_access.user_id, user_access.category_id))
+    return {"message": f"User {user_access.user_id} granted write access to category {user_access.category_id}"}
 
 
 def grant_write_access(user_id: int, category_id: int, authorization: str):
@@ -143,18 +155,13 @@ def grant_write_access(user_id: int, category_id: int, authorization: str):
     token = authorization.split(" ")[1]
     user_info = decode_jwt_token(token)
 
-    # Ensure only admins can grant access
     if user_info["user_role"] != 2:
         raise HTTPException(status_code=403, detail="You do not have permission to grant access")
 
-    query = """
-        INSERT INTO CategoryAccess (user_id, category_id, access_level) 
-        VALUES (?, ?, 2) 
-        ON CONFLICT(user_id, category_id) 
-        DO UPDATE SET access_level = 2
-    """
-    insert_query(query, (user_id, category_id))
+    insert_query(GRANT_WRITE_ACCESS, (user_id, category_id))
     return {"message": f"User {user_id} granted write access to category {category_id}"}
+
+
 
 
 
