@@ -1,6 +1,5 @@
 import jwt
 from fastapi import HTTPException
-
 from modules.categories import Category
 from modules.users import User, UserRegistrationRequest, TokenResponse
 from typing import Optional
