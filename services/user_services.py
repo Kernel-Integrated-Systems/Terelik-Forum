@@ -1,8 +1,7 @@
-import datetime
 
+import datetime
 import jwt
 from fastapi import HTTPException
-
 from modules.categories import Category
 from modules.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
@@ -11,11 +10,10 @@ from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_US
     REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS, GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, \
     GET_USER_ACCESSIBLE_CATEGORIES
 
+
 """ 
 ----------------------------------->
-    Аuthentication 
-        Logic 
-    and token JWT 
+    BASIC USER THINGS - REGISTER, GET USER
 ----------------------------------->
 """
 
@@ -74,7 +72,6 @@ def create_user(user_data: UserRegistrationRequest):
     return new_user_id
 
 
-
 def register_user(username: str, email: str, password: str):
     usernm = read_query(USER_BY_USERNAME, (username,))
     userem = read_query(USER_BY_EMAIL, (email,))
@@ -102,7 +99,6 @@ def register_user(username: str, email: str, password: str):
 
 
 
-
 def logout_user(token: str):
   return {"message": "User successfully logged out. "}
 
@@ -120,7 +116,6 @@ def get_access_level(user_id: int, category_id: int):
         return None
 
     return data[0][0]
-
 
 def grant_read_access(user_id: int, category_id: int) -> dict:
     user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=1)
@@ -143,7 +138,6 @@ def grant_write_access(user_id: int, category_id: int, authorization: str) -> di
     return {"message": f"User {user_access.user_id} granted write access to category {user_access.category_id}"}
 
 
-
 def user_has_access(user_id: int, category_id: int, required_access: int):
     data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
     if not data:
@@ -160,6 +154,7 @@ def get_user_accessible_categories(user_id: int):
     data = read_query(GET_USER_ACCESSIBLE_CATEGORIES, (user_id,))
 
     return (Category.from_query_string(*row) for row in data)
+
 
 def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):
 
@@ -190,8 +185,6 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
 
 
 
-
-
 """ 
 ----------------------------------->
     Аuthentication 
@@ -218,8 +211,6 @@ def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
     }
     token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
     return token
-
-
 
 
 def decode_jwt_token(token: str):
