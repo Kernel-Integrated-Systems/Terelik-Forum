@@ -1,6 +1,5 @@
 import jwt
 from fastapi import HTTPException
-
 from modules.categories import Category
 from modules.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
@@ -231,7 +230,7 @@ def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
 def decode_jwt_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        is_expired = payload['exp'] < datetime.datetime.utcnow().timestamp()
+        is_expired = payload['exp'] < datetime.utcnow().timestamp()
         return {
             "user_id": payload["user_id"],
             "username": payload["sub"],
