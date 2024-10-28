@@ -1,19 +1,16 @@
 from fastapi import APIRouter, Response, HTTPException, Header, Body
-from pydantic import BaseModel
 
-from modules.categories import Category, NewCategory
-from services.categories_services import create_category, find_category_by_id, remove_category, view_categories
-from services.user_services import authenticate, decode_jwt_token, grant_write_access, revoke_access, grant_read_access, \
-    get_user_accessible_categories, get_access_level
+from modules.categories import NewCategory
+from services.user_services import authenticate, decode_jwt_token, get_user_accessible_categories, get_access_level
+from services.categories_services import create_category, find_category_by_id, view_categories, remove_category, \
+    show_users_on_category
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 
 
 
-
 @categories_router.get('/')
 def show_categories(authorization: str | None = Header(None)):
-    # Authenticate and extract user details
     if not authenticate(authorization):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
@@ -24,8 +21,8 @@ def show_categories(authorization: str | None = Header(None)):
 
     try:
         # Admin can see all categories without restriction
-        if user_role == 2:  # Admin role
-            return list(view_categories())  # Convert to list to avoid generator issues
+        if user_role == 2:
+            return list(view_categories())
 
         # For basic users, retrieve accessible categories
         unlocked_categories = list(view_categories(is_locked=False))
@@ -72,11 +69,29 @@ def create_new_category(category: NewCategory, authorization: str | None = Heade
         raise HTTPException(status_code=403, detail="You do not have permission to create categories")
 
     try:
-        # Pass is_private and is_locked to the create_category function
         return create_category(category.category_name, category.is_private, category.is_locked)
+
+@categories_router.get('/{category_id}')
+def get_category_by_id(category_id: int):
+    try:
+        return find_category_by_id(category_id)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))
+
+
+@categories_router.post('/')
+def create_new_category(category: NewCategory, token: str | None = Header()):
+    user_data = authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+    user_role = user_data["user_role"]
+    if user_role != 2:
+        raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
+    try:
+        return create_category(category.category_name)
+
     except ValueError as e:
         return Response(status_code=400, content=str(e))
-
 
 
 @categories_router.delete('/{category_id}')
@@ -96,3 +111,18 @@ def delete_category(category_id: int, authorization: str | None = Header(None)):
     except ValueError as e:
         return Response(status_code=404, content=str(e))
 
+
+@categories_router.get('/{category_id}/privileged_users')
+def get_privileged_users_for_category(category_id: int, token: str | None = None):
+
+    user_data = authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    user_role = user_data["user_role"]
+    if user_role["user_role"] != 2:
+        raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
+    try:
+        return show_users_on_category(category_id)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))

@@ -1,6 +1,5 @@
 from sqlite3 import connect
 
-
 _DB_FILE = './data/forum_api.db'
 
 
@@ -46,6 +45,11 @@ def database_init():
         cursor = conn.cursor()
 
 
+def database_init():
+    # Use a with statement to ensure the connection is properly managed
+    with connect(_DB_FILE) as conn:
+        cursor = conn.cursor()
+
         # Create tables
         cursor.execute("""CREATE TABLE IF NOT EXISTS Roles (
                             user_role INTEGER PRIMARY KEY, 
@@ -56,6 +60,8 @@ def database_init():
                                     user_access_id INTEGER PRIMARY KEY,   
                                     access_level TEXT NOT NULL 
                                   )""")
+
+
         cursor.execute("""CREATE TABLE IF NOT EXISTS Users (
                             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                             username TEXT UNIQUE NOT NULL,
@@ -134,13 +140,14 @@ def database_init():
                             FOREIGN KEY (vote_type) REFERENCES VoteTypes(vote_id)
                           )""")
 
-        cursor.execute("""CREATE TABLE IF NOT EXISTS Sessions (
-            Token_String VARCHAR(255) NOT NULL,
-            Created_at DATE,
-            Expiration_time INT,
-            Expired INTEGER DEFAULT 0  
-        )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS SecretKeys (secret VARCHAR(200))""")
+
+        cursor.execute("""CREATE TABLE IF NOT EXISTS  Sessions (
+                            Token_String VARCHAR(255) NOT NULL,
+                            Created_at DATE,
+                            Expiration_time INT,
+                            Expired TINYINT(1) DEFAULT 0
+                        )""")
 
 
         # Insert initial data (if needed)
@@ -218,13 +225,6 @@ def database_init():
         if query_count("SELECT COUNT(*) FROM SecretKeys") == 0:
             cursor.execute("""INSERT INTO SecretKeys VALUES ('secret')""")
 
-        cursor.execute("""INSERT INTO Sessions (Token_String, Created_at, Expiration_time) VALUES 
-    ('expiredToken1', '2023-10-01', strftime('%s', 'now') - 10000),  -- Expired token
-    ('activeToken2', '2023-10-01', strftime('%s', 'now') + 10000);   -- Active token
-
-        """)
-
 
 
         print("Database initialized successfully.")
-

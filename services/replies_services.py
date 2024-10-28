@@ -1,12 +1,11 @@
 from modules.replies import Reply, Vote
-from modules.topics import Topics
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import VOTE_ON_REPLY, NEW_REPLY, CHOOSE_BEST_REPLY_ID, ADD_BEST_REPLY_ON_TOPIC
 from services.topic_services import find_topic_by_id
 
 
-
-def vote_reply(reply_id: int, vote_type: str, user_id: int):
+def vote_reply(reply_id: int, vote_type: str):
+    user_id = 1
     if vote_type.lower() == 'upvote':
         vote_type = 1
     elif vote_type.lower() == 'downvote':
@@ -25,7 +24,25 @@ def create_reply(content: str, topic_id: int, user_id: int):
     return new_reply
 
 
-def get_all_topics_with_best_replies(topic_id: int, reply_id: int, user_id: int):
+
+
+
+def get_replies_for_topic(topic_id: int):
+    topic_replies = [reply for reply in replies if reply.topic_id == topic_id]
+    return topic_replies
+
+
+def create_reply(content: str, topic_id: int, user_id: int):
+    find_topic_by_id(topic_id)
+
+    new_reply_id = insert_query(NEW_REPLY, (content, user_id, topic_id))
+    new_reply = Reply(reply_id=new_reply_id, content=content, user_id=user_id, topic_id=topic_id)
+
+    return new_reply
+
+
+def get_all_topics_with_best_replies(topic_id: int, reply_id: int):
+    user_id = 1
     best_reply = read_query(CHOOSE_BEST_REPLY_ID, (user_id, topic_id, reply_id))
     if not best_reply:
         raise ValueError(f'There is no topic with ID {topic_id} for user ID {user_id}!')
@@ -33,3 +50,4 @@ def get_all_topics_with_best_replies(topic_id: int, reply_id: int, user_id: int)
     best_reply_id = best_reply[0][0]
     update_query(ADD_BEST_REPLY_ON_TOPIC, (best_reply_id, reply_id))
     return {"message": f"Best reply ID {reply_id} is added to topic ID {topic_id}"}
+
