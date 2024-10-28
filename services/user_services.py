@@ -1,17 +1,30 @@
-import base64
-import datetime
-
 
 import jwt
 from fastapi import HTTPException
 
 from modules.categories import Category
+
 from modules.users import User, UserRegistrationRequest
 from typing import Optional
 
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
-    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS
+    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS,
+                                 GRANT_READ_ACCESS, GRANT_WRITE_ACCESS, USER_CATEGORIES)
+from datetime import datetime
+
+
+""" 
+----------------------------------->
+    Аuthentication 
+        Logic 
+    and token JWT 
+----------------------------------->
+"""
+
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
+
 
 def authenticate_user(username: str, password: str):
     user = read_query(LOGIN_USERNAME_PASS, (username, password))
@@ -62,6 +75,7 @@ def create_user(user_data: UserRegistrationRequest):
         1
     ))
 
+
     return new_user_id
 
 
@@ -78,6 +92,7 @@ def register_user(username: str, email: str, password: str):
     new_user_id = create_user(user_data)
 
 
+
     token = create_jwt_token(new_user_id, username, 1)
     return {
         "user": {
@@ -92,21 +107,16 @@ def register_user(username: str, email: str, password: str):
 
 
 
+def get_access_level(user_id: int, category_id: int):
+    data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
 
+    if not data:
+        return None
 
-# def get_access_level(user_id: int, category_id: int):
-#     data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
-#
-#     if not data:
-#         return None  # No access level found or category is not locked
-#
-#     return data[0][0]
+    return data[0][0]
 
 def logout_user(token: str):
   return {"message": "User successfully logged out. "}
-
-
-
 
 
 """
@@ -205,7 +215,6 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
 
 
 
-
 """ 
 ----------------------------------->
     Аuthentication 
@@ -259,7 +268,6 @@ def authenticate(authorization: str) -> bool:
     token = authorization.split(" ")[1]
     decoded_token = decode_jwt_token(token)
 
-    # Check if the token is marked as expired
     if decoded_token["is_expired"]:
         return False
 

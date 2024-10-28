@@ -32,3 +32,7 @@ class UserLoginRequest(BaseModel):
 class UserLogoutRequest(BaseModel):
     username: str
     token: str | None = None
+
+
+class TokenResponse(BaseModel):
+    access_token: str

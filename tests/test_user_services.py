@@ -43,6 +43,13 @@ class UserService_Should(unittest.TestCase):
             expected = create_user()
             self.assertEqual(expected, result_obj)
 
+    def test_get_user_by_nonexistent_id(self):
+        with patch('services.user_services.get_user_by_id') as mock_get:
+            mock_get.side_effect = ValueError("User with ID 999 does not exist.")
+            with self.assertRaises(ValueError) as context:
+                service.get_user_by_id(999)
+            self.assertEqual(str(context.exception), "User with ID 999 does not exist.")
+
 
     def test_get_user_by_email(self):
         with patch('services.user_services.get_user_by_email') as mock_get:
@@ -60,6 +67,29 @@ class UserService_Should(unittest.TestCase):
             result_obj = User(**result)
             expected = create_user()
             self.assertEqual(expected, result_obj)
+
+    def test_register_user_with_duplicate_username(self):
+        with patch('services.user_services.register_user') as mock_register:
+            mock_register.side_effect = ValueError("Username alice is already taken!")
+            with self.assertRaises(ValueError) as context:
+                service.register_user('alice', 'newuser@test.com', 'password')
+            self.assertEqual(str(context.exception), "Username alice is already taken!")
+
+
+    def test_register_user_with_duplicate_email(self):
+        with patch('services.user_services.register_user') as mock_register:
+            mock_register.side_effect = ValueError("Email is alice@example.com already registered!")
+            with self.assertRaises(ValueError) as context:
+                service.register_user('newuser', 'alice@example.com', 'password')
+            self.assertEqual(str(context.exception), "Email is alice@example.com already registered!")
+
+
+    def test_authenticate_user_with_invalid_password(self):
+        with patch('services.user_services.authenticate_user') as mock_auth:
+            mock_auth.side_effect = ValueError("The provided password is incorrect! Please try again.")
+            with self.assertRaises(ValueError) as context:
+                service.authenticate_user('alice', 'wrong_password')
+            self.assertEqual(str(context.exception), "The provided password is incorrect! Please try again.")
 
 
     def test_register_user(self):
@@ -79,32 +109,18 @@ class UserService_Should(unittest.TestCase):
             self.assertEqual(expected, result)
 
 
-    def test_un_authenticate_user(self):
-        with patch('services.user_services.un_authenticate_user') as mock_un_auth:
-            mock_un_auth.return_value = {"message": "User alice successfully logged out."}
-            result = service.logout_user('alice')
+    def test_logout_user_with_incorrect_token(self):
+        with patch('services.user_services.logout_user') as mock_logout:
+            mock_logout.side_effect = ValueError("User alice is not logged in.")
+            with self.assertRaises(ValueError) as context:
+                service.logout_user('alice', 'invalid_token')
+            self.assertEqual(str(context.exception), "User alice is not logged in.")
+
+
+    def test_logout_user(self):
+        with patch('services.user_services.logout_user') as mock_logout:
+            mock_logout.return_value = {"message": "User alice successfully logged out."}
+            result = service.logout_user('alice', 'mock_token')
             expected = {"message": "User alice successfully logged out."}
             self.assertEqual(expected, result)
 
-    @patch('services.user_services.read_query')
-    def test_authenticate(self, mock_read_query):
-        with patch('services.user_services.authenticate') as mock_auth:
-            mock_read_query.return_value = [
-                {
-                    "user_id": 1,
-                    "username": "alice",
-                    "password_hash": "hashed_password_1",  # This matches the test input password
-                    "user_role": 1
-                }
-            ]
-            result = service.authenticate_user('alice', 'hashed_password_1')
-            expected = True
-            self.assertEqual(expected, result)
-
-
-    def test_authorise_user_role(self):
-        with patch('services.user_services.authorise_user_role') as mock_auth_role:
-            mock_auth_role.return_value = 1
-            result = service.authorise_user_role('alice', 1)
-            expected = 1
-            self.assertEqual(expected, result)

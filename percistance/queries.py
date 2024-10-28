@@ -16,6 +16,36 @@ NEW_USER = """INSERT INTO Users (username, email, password_hash, user_role)
 LOGIN_USERNAME_PASS = """SELECT user_id, username, password_hash, user_role FROM users
             WHERE username = ? AND password_hash = ?"""
 
+INSERT_TOKEN = """INSERT INTO sessions (token_string, expiration_time)
+            VALUES (?, ?)"""
+SEARCH_TOKEN = """SELECT * FROM sessions WHERE Token_String = ?"""
+
+# USER ACCESS QUERIES
+
+REMOVE_READ_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 1"
+REMOVE_WRITE_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 2"
+GET_ACCESS_LEVEL = """
+        SELECT ca.access_level 
+        FROM CategoryAccess ca
+        JOIN Categories c ON ca.category_id = c.category_id
+        WHERE ca.user_id = ? AND ca.category_id = ? AND c.is_locked = 1
+    """
+GRANT_READ_ACCESS = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
+               VALUES (?, ?, 1) 
+               ON CONFLICT(user_id, category_id) DO UPDATE SET access_level = 1"""
+GRANT_WRITE_ACCESS = """
+        INSERT INTO CategoryAccess (user_id, category_id, access_level) 
+        VALUES (?, ?, 2) 
+        ON CONFLICT(user_id, category_id) 
+        DO UPDATE SET access_level = 2
+    """
+USER_CATEGORIES = """
+        SELECT c.category_id, c.category_name, c.is_private, c.is_locked
+        FROM categories c
+        JOIN CategoryAccess ca ON c.category_id = ca.category_id
+        WHERE ca.user_id = ? AND c.is_locked = 1
+    """
+
 # TOPICS QUERIES
 
 ALL_TOPICS = """SELECT topic_id, title, content, user_id, category_id FROM topics"""
@@ -67,6 +97,11 @@ NEW_CATEGORY = """INSERT INTO categories (category_name) VALUES (?)"""
 
 DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
 
+CATEGORY_PRIVILEGED_USERS = """SELECT a.category_id, c.category_name, u.username, ac.access_level FROM categoryaccess a
+            LEFT JOIN categories c on a.category_id = c.category_id
+            LEFT JOIN users u on a.user_id = u.user_id
+            LEFT JOIN useraccesslevel ac on a.access_level = ac.user_access_id
+            WHERE a.category_id = ?"""
 
 # REPLIES QUERIES
 VOTE_ON_REPLY = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""
