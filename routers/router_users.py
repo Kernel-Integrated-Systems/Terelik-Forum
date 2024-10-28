@@ -75,7 +75,7 @@ def give_user_read_access(body: dict = Body(...), authorization: str = Header(..
     token = authorization.split(" ")[1]
     user_info = decode_jwt_token(token)
     user_role = user_info["user_role"]
-    print(user_role)
+
     if user_role == 1:
         raise HTTPException(status_code=403, detail="You do not have permission to grant access")
 

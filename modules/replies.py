@@ -26,3 +26,6 @@ class GetReplyOnTopic(BaseModel):
     topic_id: int
     reply_id: int
 
+
+class VoteRequest(BaseModel):
+    vote: str

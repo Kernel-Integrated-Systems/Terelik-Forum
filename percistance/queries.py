@@ -46,6 +46,13 @@ USER_CATEGORIES = """
         WHERE ca.user_id = ? AND c.is_locked = 1
     """
 
+GET_USER_ACCESSIBLE_CATEGORIES= """
+       SELECT c.category_id, c.category_name, c.is_private, c.is_locked
+       FROM categories c
+       JOIN CategoryAccess ca ON c.category_id = ca.category_id
+       WHERE ca.user_id = ? AND c.is_locked = 1
+   """
+
 # TOPICS QUERIES
 
 ALL_TOPICS = """SELECT topic_id, title, content, user_id, category_id FROM topics"""
@@ -59,7 +66,11 @@ NEW_TOPIC = """INSERT INTO topics (title, content, user_id, category_id)
             VALUES (?, ?, ?, ?)"""
 DELETE_TOPIC = """DELETE FROM topics WHERE topic_id = ?"""
 
-
+GET_TOPICS_WITH_BEST_REPLY = """
+        SELECT topic_id, title, content, user_id, category_id, best_reply_id
+        FROM topics
+        WHERE best_reply_id IS NOT NULL
+    """
 # MESSAGE QUERIES
 
 ALL_MESSAGES = """SELECT 

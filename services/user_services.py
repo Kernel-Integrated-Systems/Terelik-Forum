@@ -1,18 +1,15 @@
+import datetime
 
 import jwt
 from fastapi import HTTPException
 
 from modules.categories import Category
-
 from modules.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
-
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
-    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS, GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL
-
-from datetime import datetime
-
+    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS, GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, \
+    GET_USER_ACCESSIBLE_CATEGORIES
 
 """ 
 ----------------------------------->
@@ -22,8 +19,6 @@ from datetime import datetime
 ----------------------------------->
 """
 
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
 
 
 def authenticate_user(username: str, password: str):
@@ -107,13 +102,6 @@ def register_user(username: str, email: str, password: str):
 
 
 
-def get_access_level(user_id: int, category_id: int):
-    data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
-
-    if not data:
-        return None
-
-    return data[0][0]
 
 def logout_user(token: str):
   return {"message": "User successfully logged out. "}
@@ -125,6 +113,13 @@ Permissions for users ACCESS LEVELS
 ----------------------------------->
 """
 
+def get_access_level(user_id: int, category_id: int):
+    data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
+
+    if not data:
+        return None
+
+    return data[0][0]
 
 
 def grant_read_access(user_id: int, category_id: int) -> dict:
@@ -148,27 +143,9 @@ def grant_write_access(user_id: int, category_id: int, authorization: str) -> di
     return {"message": f"User {user_access.user_id} granted write access to category {user_access.category_id}"}
 
 
-def grant_write_access(user_id: int, category_id: int, authorization: str):
-    if not authenticate(authorization):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
-
-    if user_info["user_role"] != 2:
-        raise HTTPException(status_code=403, detail="You do not have permission to grant access")
-
-    insert_query(GRANT_WRITE_ACCESS, (user_id, category_id))
-    return {"message": f"User {user_id} granted write access to category {category_id}"}
-
-
-
-
 
 def user_has_access(user_id: int, category_id: int, required_access: int):
-    query = """SELECT access_level FROM UserCategoryAccess 
-               WHERE user_id = ? AND category_id = ?"""
-    data = read_query(query, (user_id, category_id))
+    data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
     if not data:
         return False
     access_level = data[0][0]
@@ -180,15 +157,8 @@ def user_has_access(user_id: int, category_id: int, required_access: int):
 
 
 def get_user_accessible_categories(user_id: int):
-    query = """
-        SELECT c.category_id, c.category_name, c.is_private, c.is_locked
-        FROM categories c
-        JOIN CategoryAccess ca ON c.category_id = ca.category_id
-        WHERE ca.user_id = ? AND c.is_locked = 1
-    """
-    data = read_query(query, (user_id,))
+    data = read_query(GET_USER_ACCESSIBLE_CATEGORIES, (user_id,))
 
-    # Ensure each row has five elements
     return (Category.from_query_string(*row) for row in data)
 
 def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):
