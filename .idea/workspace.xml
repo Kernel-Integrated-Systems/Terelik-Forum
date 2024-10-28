@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="380d51c3-1d3d-4a03-9db5-7261811efb21" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="kristin_branch2" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2nnBARZRMdCWZJmaERBbUWYZeYd" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "kristin__branch",
+    "last_opened_file_path": "C:/Users/kalin/Documents/GitHub/Terelik-Forum/percistance",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.fileTypes",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\kalin\Documents\GitHub\Terelik-Forum\percistance" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\kalin\Documents\GitHub\Terelik-Forum" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-PY-241.15989.155" />
+        <option value="bundled-python-sdk-babbdf50b680-7c6932dee5e4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.15989.155" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="380d51c3-1d3d-4a03-9db5-7261811efb21" name="Changes" comment="" />
+      <created>1729598816513</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1729598816513</updated>
+      <workItem from="1729598817693" duration="504000" />
+      <workItem from="1729600035127" duration="22000" />
+      <workItem from="1729600829319" duration="40000" />
+      <workItem from="1729600884805" duration="107000" />
+      <workItem from="1729675303199" duration="195000" />
+      <workItem from="1729689159499" duration="297000" />
+      <workItem from="1729689701897" duration="133000" />
+      <workItem from="1729696374255" duration="73000" />
+      <workItem from="1729696459149" duration="77000" />
+      <workItem from="1729696557363" duration="12000" />
+      <workItem from="1729696598171" duration="12000" />
+      <workItem from="1729696629925" duration="20000" />
+      <workItem from="1729696780397" duration="10000" />
+      <workItem from="1729696941171" duration="681000" />
+      <workItem from="1729715480489" duration="11000" />
+      <workItem from="1729715515546" duration="30000" />
+      <workItem from="1729715556539" duration="73000" />
+      <workItem from="1729715646742" duration="75000" />
+      <workItem from="1729774760864" duration="1590000" />
+      <workItem from="1729845376641" duration="14000" />
+      <workItem from="1729878386335" duration="1856000" />
+      <workItem from="1729881360722" duration="112000" />
+      <workItem from="1729881488837" duration="5000" />
+      <workItem from="1729881518522" duration="7000" />
+      <workItem from="1729883734453" duration="6000" />
+      <workItem from="1729883751456" duration="130000" />
+      <workItem from="1729883891331" duration="139000" />
+      <workItem from="1729925135189" duration="38000" />
+      <workItem from="1729948071169" duration="8000" />
+      <workItem from="1729952830743" duration="80000" />
+      <workItem from="1729955060160" duration="13000" />
+      <workItem from="1729955079765" duration="43000" />
+      <workItem from="1729955126549" duration="62000" />
+      <workItem from="1729955192664" duration="56000" />
+      <workItem from="1729955262956" duration="911000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

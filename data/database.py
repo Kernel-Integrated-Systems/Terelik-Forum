@@ -1,8 +1,6 @@
 from sqlite3 import connect
 
-
-# Global variable to store the database file path
-_DB_FILE = './data/forum_api.db'  # Adjust the path as needed
+_DB_FILE = './data/forum_api.db'
 
 
 def query_count(sql: str, sql_params=()):
@@ -11,6 +9,40 @@ def query_count(sql: str, sql_params=()):
         cursor.execute(sql, sql_params)
 
         return cursor.fetchone()[0]
+
+
+def read_query(sql: str, sql_params=()):
+    with connect(_DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(sql, sql_params)
+        return list(cursor)
+
+def insert_query(sql: str, sql_params=()) -> int:
+    with connect(_DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(sql, sql_params)
+        conn.commit()
+        return cursor.lastrowid
+
+def update_query(sql: str, sql_params=()) -> bool:
+    with connect(_DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(sql, sql_params)
+        conn.commit()
+        return cursor.rowcount > 0
+
+def delete_query(query: str, params: tuple):
+    with connect(_DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        cursor.close()
+
+
+def database_init():
+    with connect(_DB_FILE) as conn:
+
+        cursor = conn.cursor()
 
 
 def database_init():
@@ -25,9 +57,10 @@ def database_init():
                           )""")
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS UserAccessLevel (
-                            user_access_id INTEGER PRIMARY KEY,   
-                            access_level TEXT NOT NULL 
-                          )""")
+                                    user_access_id INTEGER PRIMARY KEY,   
+                                    access_level TEXT NOT NULL 
+                                  )""")
+
 
         cursor.execute("""CREATE TABLE IF NOT EXISTS Users (
                             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,6 +149,7 @@ def database_init():
                             Expired TINYINT(1) DEFAULT 0
                         )""")
 
+
         # Insert initial data (if needed)
         if query_count("SELECT COUNT(*) FROM roles") == 0:
             cursor.execute("INSERT OR IGNORE INTO Roles VALUES "
@@ -190,5 +224,7 @@ def database_init():
 
         if query_count("SELECT COUNT(*) FROM SecretKeys") == 0:
             cursor.execute("""INSERT INTO SecretKeys VALUES ('secret')""")
+
+
 
         print("Database initialized successfully.")

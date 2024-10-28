@@ -1,12 +1,21 @@
+
 from modules.categories import Category, NewCategory, CategoryPrivilegedUsersResponse
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_CATEGORIES, CATEGORY_BY_ID, NEW_CATEGORY, DELETE_CATEGORY, CATEGORY_BY_NAME, \
     CATEGORY_PRIVILEGED_USERS
+from percistance.connections import read_query, insert_query, update_query
 
 
-def view_categories():
-    data = read_query(ALL_CATEGORIES)
+def view_categories(is_locked: bool = None):
+    query = ALL_CATEGORIES
+    params = ()
+    if is_locked is not None:
+        query += " WHERE is_locked = ?"
+        params = (is_locked,)
+
+    data = read_query(query, params)
     return (Category.from_query_string(*row) for row in data)
+
 
 
 def find_category_by_id(category_id: int):
@@ -18,19 +27,23 @@ def find_category_by_id(category_id: int):
     return next((Category.from_query_string(*row) for row in data), None)
 
 
+def create_category(title: str, private, locked):
+    existing_category = read_query("SELECT * FROM categories WHERE category_name = ?", (title,))
+    if existing_category:
+        raise ValueError(f"A category with the name '{title}' already exists.")
+
+    is_private = int(private)
+    is_locked = int(locked)
+
+    new_id = insert_query(NEW_CATEGORY, (title, is_private, is_locked))
+    return {"message": f"New Category '{title}' created with ID {new_id}."}
+
 def find_category_by_name(category_name: str):
     data = read_query(CATEGORY_BY_NAME, (category_name,))
 
     return next((Category.from_query_string(*row) for row in data), None)
 
 
-def create_category(title: str):
-    does_exist = find_category_by_name(title)
-    if does_exist:
-        raise ValueError(f'Category with name {title} already exists!')
-    new_id = insert_query(NEW_CATEGORY, (title,))
-    new_category = NewCategory(id=new_id,category_name=title)
-    return new_category
 
 
 def remove_category(category_id: int):
@@ -39,8 +52,10 @@ def remove_category(category_id: int):
     return {"message": f"Category with ID {category_id} is successfully deleted."}
 
 
+
 def show_users_on_category(category_id: int):
     data = read_query(CATEGORY_PRIVILEGED_USERS, (category_id,))
     if not data:
         raise ValueError(f'The category with ID {category_id} is not private!')
     return (CategoryPrivilegedUsersResponse.from_query_string(*row) for row in data)
+
