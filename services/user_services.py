@@ -3,7 +3,6 @@ from fastapi import HTTPException
 from modules.categories import Category
 from modules.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
-
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
     REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS, GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL
