@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Response, HTTPException, Header, Body
 
-from modules.categories import NewCategory
-from services.user_services import authenticate, decode_jwt_token, get_user_accessible_categories, get_access_level
-from services.categories_services import create_category, find_category_by_id, view_categories, remove_category, \
+from modules.categories import Category, NewCategory
+from services.categories_services import view_categories, find_category_by_id, create_category, remove_category, \
     show_users_on_category
+from services.user_services import authenticate, decode_jwt_token, grant_read_access, grant_write_access,  get_user_accessible_categories, get_access_level
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
-
 
 
 @categories_router.get('/')
@@ -35,6 +34,7 @@ def show_categories(authorization: str | None = Header(None)):
 
     except ValueError as e:
         return Response(status_code=400, content=str(e))
+
 
 @categories_router.get('/{category_id}')
 def get_category_by_id(category_id: int, authorization: str | None = Header(None)):
@@ -72,28 +72,6 @@ def create_new_category(category: NewCategory, authorization: str | None = Heade
         return create_category(category.category_name, category.is_private, category.is_locked)
     except ValueError as e:
         return Response(status_code=404, content=str(e))
-
-@categories_router.get('/{category_id}')
-def get_category_by_id(category_id: int):
-    try:
-        return find_category_by_id(category_id)
-    except ValueError as e:
-        return Response(status_code=404, content=str(e))
-
-
-@categories_router.post('/')
-def create_new_category(category: NewCategory, token: str | None = Header()):
-    user_data = authenticate(token)
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-    user_role = user_data["user_role"]
-    if user_role != 2:
-        raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
-    try:
-        return create_category(category.category_name)
-
-    except ValueError as e:
-        return Response(status_code=400, content=str(e))
 
 
 @categories_router.delete('/{category_id}')

@@ -47,33 +47,6 @@ def choose_best_reply_route(topic_id: int, reply_id: int, authorization: str = H
         return Response(status_code=400, content=str(e))
 
 
-# Create Reply
-@replies_router.post('/create_reply')
-def create_reply_route(reply: NewReply, token: str | None = None):
-    user_data = authenticate(token)
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    try:
-        return create_reply(reply.content, reply.topic_id, user_data["user_id"])
-    except ValueError as e:
-        return Response(status_code=400, content=str(e))
-
-# Upvote/Downvote a Reply
-@votes_router.post('/reply/{reply_id}')
-def post_vote_for_reply(reply_id: int, vote: str, token: str | None = None):
-
-    user_data = authenticate(token)
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    try:
-        votes_list = vote_reply(reply_id, vote)
-        return votes_list
-    except ValueError as e:
-        return Response(status_code=400, content=str(e))
-
-
 
 # Choose Best Reply
 @best_reply_router.get('/{topic_id}/replies{reply_id}')

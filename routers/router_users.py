@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, Response, Header, Body
-from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutRequest
+
+
+from modules.users import UserRegistrationRequest, UserLoginRequest
 from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, decode_jwt_token, \
     grant_read_access, grant_write_access, revoke_access, \
     logout_user, authenticate_user
-
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
@@ -12,6 +13,7 @@ users_router = APIRouter(prefix='/users', tags=['Users'])
 def get_all_users_route(authorization: str = Header(...)):
     if not authenticate(authorization):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
     try:
         return get_all_users()
     except ValueError as e:
@@ -21,7 +23,9 @@ def get_all_users_route(authorization: str = Header(...)):
 def get_user_route(user_id: int, authorization: str = Header(...)):
     if not authenticate(authorization):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
     try:
+        # Pass the token to get_user_by_id() function
         return get_user_by_id(user_id)
     except ValueError as e:
         return Response(content=str(e), status_code=400)
@@ -128,16 +132,3 @@ def revoke_user_access(user_id: int = Body(...), category_id: int = Body(...),
         return revoke_access(user_id, category_id, access_type, authorization)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
-
-
-@users_router.post('/lgout')
-def logout_user_route(user: UserLogoutRequest):
-    # Check if user is authenticated
-    user_data = authenticate(user.token)
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    try:
-        return logout_user(user.username, user.token)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))

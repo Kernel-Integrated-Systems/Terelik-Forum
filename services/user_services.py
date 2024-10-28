@@ -193,21 +193,6 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
 
 
 
-
-
-""" 
------------------------------------>
-    Аuthentication 
-        Logic 
-    and token JWT 
------------------------------------>
-"""
-
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
-
-
-
 def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
 
@@ -220,8 +205,6 @@ def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
     }
     token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
     return token
-
-
 
 
 def decode_jwt_token(token: str):
