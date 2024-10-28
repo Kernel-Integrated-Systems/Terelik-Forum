@@ -24,12 +24,12 @@ def create_reply(content: str, topic_id: int, user_id: int):
     return new_reply
 
 
-
-
-
-def get_replies_for_topic(topic_id: int):
-    topic_replies = [reply for reply in replies if reply.topic_id == topic_id]
-    return topic_replies
+#
+#
+#
+# def get_replies_for_topic(topic_id: int):
+#     topic_replies = [reply for reply in replies if reply.topic_id == topic_id]
+#     return topic_replies
 
 
 def create_reply(content: str, topic_id: int, user_id: int):
