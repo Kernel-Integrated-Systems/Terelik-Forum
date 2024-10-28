@@ -73,27 +73,27 @@ def create_new_category(category: NewCategory, authorization: str | None = Heade
     except ValueError as e:
         return Response(status_code=404, content=str(e))
 
-@categories_router.get('/{category_id}')
-def get_category_by_id(category_id: int):
-    try:
-        return find_category_by_id(category_id)
-    except ValueError as e:
-        return Response(status_code=404, content=str(e))
+# @categories_router.get('/{category_id}')
+# def get_category_by_id(category_id: int):
+#     try:
+#         return find_category_by_id(category_id)
+#     except ValueError as e:
+#         return Response(status_code=404, content=str(e))
 
 
-@categories_router.post('/')
-def create_new_category(category: NewCategory, token: str | None = Header()):
-    user_data = authenticate(token)
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-    user_role = user_data["user_role"]
-    if user_role != 2:
-        raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
-    try:
-        return create_category(category.category_name)
-
-    except ValueError as e:
-        return Response(status_code=400, content=str(e))
+# @categories_router.post('/')
+# def create_new_category(category: NewCategory, token: str | None = Header()):
+#     user_data = authenticate(token)
+#     if not user_data:
+#         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+#     user_role = user_data["user_role"]
+#     if user_role != 2:
+#         raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
+#     try:
+#         return create_category(category.category_name)
+#
+#     except ValueError as e:
+#         return Response(status_code=400, content=str(e))
 
 
 @categories_router.delete('/{category_id}')
