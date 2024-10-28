@@ -70,6 +70,8 @@ def create_new_category(category: NewCategory, authorization: str | None = Heade
 
     try:
         return create_category(category.category_name, category.is_private, category.is_locked)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))
 
 @categories_router.get('/{category_id}')
 def get_category_by_id(category_id: int):

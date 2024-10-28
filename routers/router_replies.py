@@ -43,7 +43,8 @@ def choose_best_reply_route(topic_id: int, reply_id: int, authorization: str = H
     token_data = decode_jwt_token(authorization.split(" ")[1])
     try:
         return get_all_topics_with_best_replies(topic_id, reply_id, token_data["user_id"])
-
+    except ValueError as e:
+        return Response(status_code=400, content=str(e))
 
 
 # Create Reply

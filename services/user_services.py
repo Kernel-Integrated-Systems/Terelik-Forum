@@ -6,9 +6,22 @@ from modules.users import User, UserRegistrationRequest, TokenResponse
 from typing import Optional
 import base64
 from percistance.connections import read_query, insert_query, update_query
-from percistance.percistance.queries import GET_ACCESS_LEVEL, REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS
-from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, SEARCH_TOKEN
+from percistance.queries import (ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS,
+                                 SEARCH_TOKEN, GET_ACCESS_LEVEL, REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS,
+                                 GRANT_READ_ACCESS, GRANT_WRITE_ACCESS, USER_CATEGORIES)
 from datetime import datetime
+
+
+""" 
+----------------------------------->
+    Аuthentication 
+        Logic 
+    and token JWT 
+----------------------------------->
+"""
+
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
 
 
 def authenticate_user(username: str, password: str):
@@ -64,7 +77,7 @@ def create_user(user_data: UserRegistrationRequest):
     return new_user_id
 
 
-def register_user(username: str, email: str, password: str) -> User:
+def register_user(username: str, email: str, password: str):
     usernm = read_query(USER_BY_USERNAME, (username,))
     userem = read_query(USER_BY_EMAIL, (email,))
     if usernm:
@@ -103,19 +116,6 @@ def logout_user(token: str):
 
 
 
-def get_all_users():
-    data = read_query(ALL_USERS)
-    return (User.from_query_result(*row) for row in data)
-
-
-def get_user_by_id(user_id: int):
-    data = read_query(USER_BY_ID, (user_id,))
-    if not data:
-        raise ValueError(f'User with ID {user_id} does not exist.')
-    return next((User.from_query_result(*row) for row in data), None)
-
-
-
 """
 ----------------------------------->
 Permissions for users ACCESS LEVELS
@@ -125,11 +125,7 @@ Permissions for users ACCESS LEVELS
 
 
 def grant_read_access(user_id: int, category_id: int):
-
-    query = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
-               VALUES (?, ?, 1) 
-               ON CONFLICT(user_id, category_id) DO UPDATE SET access_level = 1"""
-    insert_query(query, (user_id, category_id))
+    insert_query(GRANT_READ_ACCESS, (user_id, category_id))
     return {"message": f"User {user_id} granted read access to category {category_id}"}
 
 
@@ -143,13 +139,7 @@ def grant_write_access(user_id: int, category_id: int, authorization: str):
     if user_info["user_role"] != 2:
         raise HTTPException(status_code=403, detail="You do not have permission to grant access")
 
-    query = """
-        INSERT INTO CategoryAccess (user_id, category_id, access_level) 
-        VALUES (?, ?, 2) 
-        ON CONFLICT(user_id, category_id) 
-        DO UPDATE SET access_level = 2
-    """
-    insert_query(query, (user_id, category_id))
+    insert_query(GRANT_WRITE_ACCESS, (user_id, category_id))
     return {"message": f"User {user_id} granted write access to category {category_id}"}
 
 
@@ -169,15 +159,9 @@ def user_has_access(user_id: int, category_id: int, required_access: int):
 
 
 def get_user_accessible_categories(user_id: int):
-    query = """
-        SELECT c.category_id, c.category_name, c.is_private, c.is_locked
-        FROM categories c
-        JOIN CategoryAccess ca ON c.category_id = ca.category_id
-        WHERE ca.user_id = ? AND c.is_locked = 1
-    """
-    data = read_query(query, (user_id,))
-
+    data = read_query(USER_CATEGORIES, (user_id,))
     return (Category.from_query_string(*row) for row in data)
+
 
 def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):
 
@@ -219,14 +203,9 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
 ----------------------------------->
 """
 
-session_store = {}
-
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 
-
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
 
 
 def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
