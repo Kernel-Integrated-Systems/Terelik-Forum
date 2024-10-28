@@ -1,13 +1,15 @@
+
 import jwt
 from fastapi import HTTPException
 
 from modules.categories import Category
-from modules.users import User, UserRegistrationRequest, TokenResponse
+
+from modules.users import User, UserRegistrationRequest
 from typing import Optional
-import base64
+
 from percistance.connections import read_query, insert_query, update_query
-from percistance.queries import (ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS,
-                                 SEARCH_TOKEN, GET_ACCESS_LEVEL, REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS,
+from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
+    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS,
                                  GRANT_READ_ACCESS, GRANT_WRITE_ACCESS, USER_CATEGORIES)
 from datetime import datetime
 
@@ -77,6 +79,7 @@ def create_user(user_data: UserRegistrationRequest):
     return new_user_id
 
 
+
 def register_user(username: str, email: str, password: str):
     usernm = read_query(USER_BY_USERNAME, (username,))
     userem = read_query(USER_BY_EMAIL, (email,))
@@ -87,6 +90,7 @@ def register_user(username: str, email: str, password: str):
 
     user_data = UserRegistrationRequest(username=username, email=email, password=password)
     new_user_id = create_user(user_data)
+
 
 
     token = create_jwt_token(new_user_id, username, 1)
@@ -115,7 +119,6 @@ def logout_user(token: str):
   return {"message": "User successfully logged out. "}
 
 
-
 """
 ----------------------------------->
 Permissions for users ACCESS LEVELS
@@ -125,7 +128,11 @@ Permissions for users ACCESS LEVELS
 
 
 def grant_read_access(user_id: int, category_id: int):
-    insert_query(GRANT_READ_ACCESS, (user_id, category_id))
+
+    query = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
+               VALUES (?, ?, 1) 
+               ON CONFLICT(user_id, category_id) DO UPDATE SET access_level = 1"""
+    insert_query(query, (user_id, category_id))
     return {"message": f"User {user_id} granted read access to category {category_id}"}
 
 
@@ -136,10 +143,17 @@ def grant_write_access(user_id: int, category_id: int, authorization: str):
     token = authorization.split(" ")[1]
     user_info = decode_jwt_token(token)
 
+    # Ensure only admins can grant access
     if user_info["user_role"] != 2:
         raise HTTPException(status_code=403, detail="You do not have permission to grant access")
 
-    insert_query(GRANT_WRITE_ACCESS, (user_id, category_id))
+    query = """
+        INSERT INTO CategoryAccess (user_id, category_id, access_level) 
+        VALUES (?, ?, 2) 
+        ON CONFLICT(user_id, category_id) 
+        DO UPDATE SET access_level = 2
+    """
+    insert_query(query, (user_id, category_id))
     return {"message": f"User {user_id} granted write access to category {category_id}"}
 
 
@@ -159,9 +173,16 @@ def user_has_access(user_id: int, category_id: int, required_access: int):
 
 
 def get_user_accessible_categories(user_id: int):
-    data = read_query(USER_CATEGORIES, (user_id,))
-    return (Category.from_query_string(*row) for row in data)
+    query = """
+        SELECT c.category_id, c.category_name, c.is_private, c.is_locked
+        FROM categories c
+        JOIN CategoryAccess ca ON c.category_id = ca.category_id
+        WHERE ca.user_id = ? AND c.is_locked = 1
+    """
+    data = read_query(query, (user_id,))
 
+    # Ensure each row has five elements
+    return (Category.from_query_string(*row) for row in data)
 
 def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):
 
@@ -194,7 +215,6 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
 
 
 
-
 """ 
 ----------------------------------->
     Аuthentication 
@@ -202,6 +222,7 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
     and token JWT 
 ----------------------------------->
 """
+
 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
@@ -247,58 +268,7 @@ def authenticate(authorization: str) -> bool:
     token = authorization.split(" ")[1]
     decoded_token = decode_jwt_token(token)
 
-    # Check if the token is marked as expired
     if decoded_token["is_expired"]:
         return False
 
     return True
-
-
-def authenticate_user(username: str, password: str):
-    user = read_query(LOGIN_USERNAME_PASS, (username, password))
-    if not user:
-        raise ValueError(f'User with email {username} does not exist.')
-
-    if user[0][2] != password:
-        raise ValueError('The provided password is incorrect! Please try again.')
-    # assign user_id, username and user_role
-    token = encode(user[0][0], user[0][1], user[0][3])
-    return TokenResponse(access_token=token)
-
-
-def logout_user(username: str, token: str):
-    token_data = decode(token)
-    if token_data["user"] != username:
-        raise ValueError(f'User {username} is not logged in.')
-
-    session_token = read_query(SEARCH_TOKEN, (token,))
-    print(session_token)
-    return {"message": f"User {username} successfully logged out."}
-
-
-def authenticate(token) -> dict:
-    session_data = decode(token)
-    user = get_user_by_username(session_data["username"])
-    if not user:
-        raise ValueError(f'Username {session_data["username"]} is not registered or token has expired.')
-
-    return session_data
-
-
-def encode(user_id: int, username: str, user_role: int) -> str:
-    now = datetime.now()
-    user_string = f"{user_id}_{username}_{user_role}_{now.strftime("%H:%M:%S")}"
-    encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
-
-    return encoded_bytes.decode('utf-8')
-
-def decode(encoded_value: str):
-    decoded_string = base64.b64decode(encoded_value).decode('utf-8')
-    user_id, username, user_role, created_at = decoded_string.split('_')
-    result = {
-        "user_id": int(user_id),
-        "username": username,
-        "user_role": int(user_role),
-        "created_at": created_at
-    }
-    return result

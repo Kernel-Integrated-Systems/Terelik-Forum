@@ -53,6 +53,7 @@ def remove_category(category_id: int):
 
 
 
+
 def show_users_on_category(category_id: int):
     data = read_query(CATEGORY_PRIVILEGED_USERS, (category_id,))
     if not data:

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Response, HTTPException, Header, Body
 
-from modules.categories import NewCategory
-from services.user_services import authenticate, decode_jwt_token, get_user_accessible_categories, get_access_level
-from services.categories_services import create_category, find_category_by_id, view_categories, remove_category, \
-    show_users_on_category
+from modules.categories import Category, NewCategory
+from services.categories_services import view_categories, find_category_by_id, create_category, remove_category
+from services.user_services import authenticate, decode_jwt_token, grant_read_access, grant_write_access, \
+    authorise_user_role
+
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 
