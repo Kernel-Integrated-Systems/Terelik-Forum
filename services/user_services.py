@@ -23,19 +23,6 @@ SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 
 
-def authenticate_user(username: str, password: str):
-    user = read_query(LOGIN_USERNAME_PASS, (username, password))
-
-    if not user:
-        raise ValueError(f'User with username {username} does not exist.')
-
-    if user[0][2] != password:
-        raise ValueError('The provided password is incorrect! Please try again.')
-
-    token = create_jwt_token(user[0][0], user[0][1], user[0][3])
-
-    return {"token": token, "token_type": "bearer"}
-
 
 def get_all_users():
     data = read_query(ALL_USERS)
@@ -110,17 +97,12 @@ def get_access_level(user_id: int, category_id: int):
 
     return data[0][0]
 
-def logout_user(token: str):
-  return {"message": "User successfully logged out. "}
-
-
 
 """
 ----------------------------------->
 Permissions for users ACCESS LEVELS
 ----------------------------------->
 """
-
 
 
 def grant_read_access(user_id: int, category_id: int):
@@ -222,18 +204,6 @@ def decode_jwt_token(token: str):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token.")
 
-def authenticate(authorization: str) -> bool:
-    if not authorization:
-        return False
-
-    token = authorization.split(" ")[1]
-    decoded_token = decode_jwt_token(token)
-
-    # Check if the token is marked as expired
-    if decoded_token["is_expired"]:
-        return False
-
-    return True
 
 
 def authenticate_user(username: str, password: str):
@@ -254,7 +224,6 @@ def logout_user(username: str, token: str):
         raise ValueError(f'User {username} is not logged in.')
 
     session_token = read_query(SEARCH_TOKEN, (token,))
-    print(session_token)
     return {"message": f"User {username} successfully logged out."}
 
 
