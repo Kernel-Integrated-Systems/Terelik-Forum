@@ -76,7 +76,6 @@ def create_user(user_data: UserRegistrationRequest):
     return new_user_id
 
 
-
 def register_user(username: str, email: str, password: str):
     usernm = read_query(USER_BY_USERNAME, (username,))
     userem = read_query(USER_BY_EMAIL, (email,))
@@ -103,7 +102,6 @@ def register_user(username: str, email: str, password: str):
     }
 
 
-
 def get_access_level(user_id: int, category_id: int):
     data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
 
@@ -121,7 +119,6 @@ def logout_user(token: str):
 Permissions for users ACCESS LEVELS
 ----------------------------------->
 """
-
 
 
 def grant_read_access(user_id: int, category_id: int) -> dict:
@@ -184,6 +181,7 @@ def get_user_accessible_categories(user_id: int):
 
     # Ensure each row has five elements
     return (Category.from_query_string(*row) for row in data)
+
 
 def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):
 
