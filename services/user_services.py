@@ -1,4 +1,4 @@
-import jwt
+# import jwt
 from fastapi import HTTPException
 from modules.categories import Category
 from modules.users import User, UserRegistrationRequest, TokenResponse
@@ -11,16 +11,16 @@ from percistance.queries import (ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_U
 from datetime import datetime
 
 
-""" 
------------------------------------>
-    Аuthentication 
-        Logic 
-    and token JWT 
------------------------------------>
-"""
-
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
+# """
+# ----------------------------------->
+#     Аuthentication
+#         Logic
+#     and token JWT
+# ----------------------------------->
+# """
+#
+# SECRET_KEY = "your_secret_key"
+# ALGORITHM = "HS256"
 
 
 
