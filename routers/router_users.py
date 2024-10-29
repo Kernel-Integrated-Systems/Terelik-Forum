@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response, Header
 from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutRequest, UserAccess
 from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, \
     logout_user, grant_read_access, grant_write_access, revoke_access
@@ -7,7 +7,7 @@ users_router = APIRouter(prefix='/users', tags=['Users'])
 
 
 @users_router.get('/')
-def get_all_users_route(token: str | None = None):
+def get_all_users_route(token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -20,7 +20,7 @@ def get_all_users_route(token: str | None = None):
 
 
 @users_router.get('/{user_id}')
-def get_user_route(user_id: int, token: str | None = None):
+def get_user_route(user_id: int, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -72,7 +72,7 @@ def logout_user_route(user: UserLogoutRequest):
 
 # REWORKED ACCESS LEVEL FUNCTIONS
 @users_router.post('/grant_read_access/')
-def give_user_read_access(user: UserAccess, token: str | None = None):
+def give_user_read_access(user: UserAccess, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -89,7 +89,7 @@ def give_user_read_access(user: UserAccess, token: str | None = None):
 
 
 @users_router.post('/grant_write_access/')
-def give_user_write_access(user: UserAccess, token: str | None = None):
+def give_user_write_access(user: UserAccess, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -106,7 +106,7 @@ def give_user_write_access(user: UserAccess, token: str | None = None):
 
 
 @users_router.post('/revoke_access')
-def revoke_user_access(user: UserAccess, token: str | None = None):
+def revoke_user_access(user: UserAccess, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:

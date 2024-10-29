@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Response, HTTPException
-
+from fastapi import APIRouter, Response, HTTPException, Header
 from modules.topic import NewTopic
-from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic)
+from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic,
+                                     change_topic_lock_status)
 from services.user_services import authenticate
 
 topics_router = APIRouter(prefix='/topics', tags=['Topics'])
@@ -29,7 +29,7 @@ def get_topic_by_category(category_id: int):
 
 
 @topics_router.post('/new_topic')
-def create_new_topic(topic: NewTopic, token: str | None = None):
+def create_new_topic(topic: NewTopic, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -46,3 +46,20 @@ def delete_topic(topic_id: int):
         return remove_topic(topic_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
+
+
+@topics_router.post('/change_topic_lock_status')
+def change_lock_status(topic_id: int, token: str | None = Header()):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    user_role = user_data["user_role"]
+    if user_role == 1:
+        raise HTTPException(status_code=403, detail="You do not have permission to grant access")
+
+    try:
+        return change_topic_lock_status(topic_id)
+    except ValueError as e:
+        return Response(status_code=404, content=str(e))

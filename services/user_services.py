@@ -1,29 +1,26 @@
 from fastapi import HTTPException
-
 from modules.users import User, UserRegistrationRequest, TokenResponse, UserAccess
 from typing import Optional
 import base64
-from percistance.connections import read_query, insert_query, update_query
-from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
-    INSERT_TOKEN, SEARCH_TOKEN, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, GRANT_WRITE_ACCESS, REMOVE_ACCESS
-
+from percistance.connections import read_query, insert_query
+from percistance import queries
 from datetime import datetime
 
 
 def get_all_users():
-    data = read_query(ALL_USERS)
+    data = read_query(queries.ALL_USERS)
     return (User.from_query_result(*row) for row in data)
 
 
 def get_user_by_id(user_id: int):
-    data = read_query(USER_BY_ID, (user_id,))
+    data = read_query(queries.USER_BY_ID, (user_id,))
     if not data:
         raise ValueError(f'User with ID {id} does not exist.')
     return next((User.from_query_result(*row) for row in data), None)
 
 
 def get_user_by_email(email: str) -> Optional[User]:
-    data = read_query(USER_BY_EMAIL, (email,))
+    data = read_query(queries.USER_BY_EMAIL, (email,))
     if not data:
         raise ValueError(f'User with email {email} does not exist.')
 
@@ -31,14 +28,14 @@ def get_user_by_email(email: str) -> Optional[User]:
 
 
 def get_user_by_username(username: str) -> Optional[User]:
-    data = read_query(USER_BY_USERNAME, (username,))
+    data = read_query(queries.USER_BY_USERNAME, (username,))
     if not data:
         raise ValueError(f'User with username {username} does not exist.')
     return next((User.from_query_result(*row) for row in data), None)
 
 
 def create_user(user_data: UserRegistrationRequest):
-    new_user_id = insert_query(NEW_USER, (
+    new_user_id = insert_query(queries.NEW_USER, (
         user_data.username,
         user_data.email,
         user_data.password,
@@ -49,8 +46,8 @@ def create_user(user_data: UserRegistrationRequest):
 
 
 def register_user(username: str, email: str, password: str) -> User:
-    usernm = read_query(USER_BY_USERNAME, (username,))
-    userem = read_query(USER_BY_EMAIL, (email,))
+    usernm = get_user_by_username(username)
+    userem = get_user_by_email(email)
     if usernm:
         raise ValueError(f'Username {username} is already taken!')
     if userem:
@@ -68,7 +65,7 @@ def register_user(username: str, email: str, password: str) -> User:
 
 
 def authenticate_user(username: str, password: str):
-    user = read_query(LOGIN_USERNAME_PASS, (username, password))
+    user = read_query(queries.LOGIN_USERNAME_PASS, (username, password))
     if not user:
         raise ValueError(f'User with email {username} does not exist.')
 
@@ -84,7 +81,7 @@ def logout_user(username: str, token: str):
     if token_data["user"] != username:
         raise ValueError(f'User {username} is not logged in.')
 
-    session_token = read_query(SEARCH_TOKEN, (token,))
+    session_token = read_query(queries.SEARCH_TOKEN, (token,))
     print(session_token)
     return {"message": f"User {username} successfully logged out."}
 
@@ -125,7 +122,7 @@ Permissions for users ACCESS LEVELS
 """
 
 def get_access_level(user_id: int, category_id: int):
-    data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
+    data = read_query(queries.GET_ACCESS_LEVEL, (user_id, category_id))
     if not data:
         return None
     return data[0][0]
@@ -133,13 +130,13 @@ def get_access_level(user_id: int, category_id: int):
 
 def grant_read_access(user_id: int, category_id: int) -> dict:
     user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=1)
-    insert_query(GRANT_READ_ACCESS, (user_access.user_id, user_access.category_id))
+    insert_query(queries.GRANT_READ_ACCESS, (user_access.user_id, user_access.category_id))
     return {"message": f"User {user_access.user_id} granted read access to category {user_access.category_id}"}
 
 
 def grant_write_access(user_id: int, category_id: int) -> dict:
     user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=2)
-    insert_query(GRANT_WRITE_ACCESS, (user_access.user_id, user_access.category_id))
+    insert_query(queries.GRANT_WRITE_ACCESS, (user_access.user_id, user_access.category_id))
     return {"message": f"User {user_access.user_id} granted write access to category {user_access.category_id}"}
 
 
@@ -147,7 +144,7 @@ def revoke_access(user_id: int, category_id: int):
     user_access = get_access_level(user_id, category_id)
 
     if user_access:
-        insert_query(REMOVE_ACCESS, (user_id, category_id))
+        insert_query(queries.REMOVE_ACCESS, (user_id, category_id))
         return {"message": f"User {user_id}'s access to category {category_id} has been revoked."}
     else:
         raise ValueError(f"Failed to revoke access for user {user_id} to category {category_id}.")
