@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Response, HTTPException
 
 from modules.messages import NewMessage
-from services.message_services import get_messages, get_message_by_id, post_new_message
-from services.user_services import authenticate
+from services.message_services import get_messages, get_message_by_id, post_new_message, create_message
+from services.user_services import authenticate, get_user_by_id
 
 messages_router = APIRouter(prefix='/messages', tags=['Messages'])
 
@@ -35,14 +35,22 @@ def get_user_message(user_id: int, target_usr_id: int, token: str | None = None)
 
 # Create New Message
 @messages_router.post("/")
-def create_new_message(user: NewMessage, token: str | None = None):
+def create_new_message(msg: NewMessage, token: str | None = None):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
+    sender = get_user_by_id(user_data["user_id"])
+    if not sender:
+        raise HTTPException(status_code=401, detail=f"Sender {sender.username} does not exist!")
+
+    receiver = get_user_by_id(msg.receiver_id)
+    if not receiver:
+        raise HTTPException(status_code=401, detail=f"Receiver {receiver.username} does not exist!")
+
     try:
-        new_message = post_new_message(sender=user.sender_id,receiver=user.receiver_id,text=user.content)
-        return new_message
+        message_id = create_message(sender_id=user_data["user_id"], receiver_id=receiver.id, content=msg.content)
+        return post_new_message(message_id=message_id, sender=user_data["username"], receiver=receiver.username, text=msg.content)
     except ValueError as e:
         return Response(status_code=400, content=str(e))

@@ -1,7 +1,12 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from modules.messages import NewMessage, NewMessageRespond
 from services import message_services as service
+
+mock_message_service = Mock(spec='services.message_services')
+
+service.message_services = mock_message_service
+
 
 # Mock Data
 mock_user_sender = {
@@ -60,21 +65,21 @@ class MessageService_Should(unittest.TestCase):
             self.assertEqual(result, expected)
 
 
-    # def test_create_message(self):
-    #     with (patch('services.message_services.read_query') as mock_read_query,
-    #           patch('services.message_services.insert_query') as mock_insert_query):
-    #
-    #         mock_read_query.side_effect = [
-    #             [mock_user_sender],
-    #             [mock_user_receiver]
-    #         ]
-    #
-    #         mock_insert_query.return_value = 1
-    #         new_message = NewMessage(sender_id=1, receiver_id=2, content="Hello Bob!")
-    #         result = service.create_message(new_message)
-    #         result_obj = NewMessageRespond(**result)
-    #         expected = NewMessageRespond(sender="alice", receiver="bob", content="Hello Bob!")
-    #
-    #         self.assertEqual(result_obj, expected)
+    def test_create_message(self):
+        with (patch('services.message_services.insert_query') as mock_insert_query):
+
+            mock_insert_query.side_effect = [
+                [mock_user_sender],
+                [mock_user_receiver]
+            ]
+
+            mock_insert_query.return_value = 1
+
+            new_message = NewMessage(sender_id=1, receiver_id=2, content="Hello Bob!")
+            result = service.create_message(new_message)
+            result_obj = NewMessageRespond(**result)
+            expected = NewMessageRespond(sender="alice", receiver="bob", content="Hello Bob!")
+
+            self.assertEqual(result_obj, expected)
 
 

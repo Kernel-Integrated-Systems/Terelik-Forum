@@ -1,4 +1,5 @@
-from modules.messages import Message, NewMessage, NewMessageRespond
+from datetime import datetime
+from modules.messages import Message, NewMessage, NewMessageRespond, CreateMessage
 from percistance.connections import read_query, insert_query
 from percistance.queries import ALL_MESSAGES, MESSAGE_BY_ID, NEW_MESSAGE
 from services.user_services import get_user_by_id
@@ -18,27 +19,13 @@ def get_message_by_id(current_user_id: int, target_user_id: int):
     return (NewMessageRespond.from_query_string(*row) for row in msg_data)
 
 
-def create_message(message_content: NewMessage):
-    insert_query(NEW_MESSAGE,
-              (message_content.sender_id,
-               message_content.receiver_id,
-               message_content.content))
-    sender = get_user_by_id(message_content.sender_id)
-    receiver = get_user_by_id(message_content.receiver_id)
-    return NewMessageRespond(
-        sender=sender.username,
-        receiver=receiver.username,
-        content=message_content.content
-    )
+def create_message(sender_id: int, receiver_id: int, content: str):
+    return insert_query(NEW_MESSAGE, (sender_id,receiver_id,content))
 
-def post_new_message(sender: int, receiver: int, text: str):
-    if not get_user_by_id(sender):
-        raise ValueError(f"Sender with ID {sender} does not exist!")
-    if not get_user_by_id(receiver):
-        raise ValueError(f"Receiver with ID {receiver} does not exist!")
+
+def post_new_message(message_id: int, sender: str, receiver: str, text: str):
     if len(text) < 1:
-        raise ValueError(f"Message content cannot be empty!")
-
-    message_context = NewMessage(sender_id=sender, receiver_id=receiver, content=text)
-
-    return create_message(message_context)
+        raise ValueError("Message content cannot be empty!")
+    stamp = datetime.now()
+    msg_response = NewMessageRespond(message_id=message_id, sent_at=stamp, sender=sender, receiver=receiver, content=text)
+    return msg_response

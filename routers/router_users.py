@@ -18,6 +18,7 @@ def get_all_users_route(token: str | None = None):
     except ValueError as e:
         return Response(content=str(e), status_code=400)
 
+
 @users_router.get('/{user_id}')
 def get_user_route(user_id: int, token: str | None = None):
     # Check if user is authenticated

@@ -4,7 +4,6 @@ from modules.users import User, UserRegistrationRequest, TokenResponse, UserAcce
 from typing import Optional
 import base64
 from percistance.connections import read_query, insert_query, update_query
-from percistance.data import session_store
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
     INSERT_TOKEN, SEARCH_TOKEN, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, GRANT_WRITE_ACCESS, REMOVE_ACCESS
 
@@ -47,6 +46,7 @@ def create_user(user_data: UserRegistrationRequest):
     ))
 
     return new_user_id
+
 
 def register_user(username: str, email: str, password: str) -> User:
     usernm = read_query(USER_BY_USERNAME, (username,))
@@ -104,6 +104,7 @@ def encode(user_id: int, username: str, user_role: int) -> str:
     encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
 
     return encoded_bytes.decode('utf-8')
+
 
 def decode(encoded_value: str):
     decoded_string = base64.b64decode(encoded_value).decode('utf-8')
