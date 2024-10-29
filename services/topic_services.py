@@ -1,4 +1,3 @@
-
 from modules.topic import Topic
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_TOPICS, TOPIC_BY_ID, TOPIC_BY_TITLE, TOPIC_BY_CATEGORY, NEW_TOPIC, DELETE_TOPIC

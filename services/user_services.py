@@ -1,10 +1,13 @@
-from modules.users import User, UserRegistrationRequest, TokenResponse
+from fastapi import HTTPException
+
+from modules.users import User, UserRegistrationRequest, TokenResponse, UserAccess
 from typing import Optional
 import base64
-from percistance.connections import read_query, insert_query
+from percistance.connections import read_query, insert_query, update_query
 from percistance.data import session_store
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
-    INSERT_TOKEN, SEARCH_TOKEN
+    INSERT_TOKEN, SEARCH_TOKEN, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, GRANT_WRITE_ACCESS, REMOVE_ACCESS
+
 from datetime import datetime
 
 
@@ -112,3 +115,38 @@ def decode(encoded_value: str):
         "created_at": created_at
     }
     return result
+
+
+"""
+----------------------------------->
+Permissions for users ACCESS LEVELS
+----------------------------------->
+"""
+
+def get_access_level(user_id: int, category_id: int):
+    data = read_query(GET_ACCESS_LEVEL, (user_id, category_id))
+    if not data:
+        return None
+    return data[0][0]
+
+
+def grant_read_access(user_id: int, category_id: int) -> dict:
+    user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=1)
+    insert_query(GRANT_READ_ACCESS, (user_access.user_id, user_access.category_id))
+    return {"message": f"User {user_access.user_id} granted read access to category {user_access.category_id}"}
+
+
+def grant_write_access(user_id: int, category_id: int) -> dict:
+    user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=2)
+    insert_query(GRANT_WRITE_ACCESS, (user_access.user_id, user_access.category_id))
+    return {"message": f"User {user_access.user_id} granted write access to category {user_access.category_id}"}
+
+
+def revoke_access(user_id: int, category_id: int):
+    user_access = get_access_level(user_id, category_id)
+
+    if user_access:
+        insert_query(REMOVE_ACCESS, (user_id, category_id))
+        return {"message": f"User {user_id}'s access to category {category_id} has been revoked."}
+    else:
+        raise ValueError(f"Failed to revoke access for user {user_id} to category {category_id}.")

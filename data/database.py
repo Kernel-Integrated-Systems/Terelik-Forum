@@ -141,7 +141,7 @@ def database_init():
                         ('Announcements', 0, 1),
                         ('Off-Topic', 0, 0),
                         ('Tech Support', 0, 0),
-                        ('Private Forum', 1, 0)""")
+                        ('Private Forum', 1, 1)""")
 
         if query_count("SELECT COUNT(*) FROM categoryaccess") == 0:
             cursor.execute("""INSERT INTO CategoryAccess (user_id, category_id, access_level) VALUES

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
-from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutRequest
+from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutRequest, UserAccess
 from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, \
-    logout_user
+    logout_user, grant_read_access, grant_write_access, revoke_access
 
 users_router = APIRouter(prefix='/users', tags=['Users'])
 
@@ -67,3 +67,55 @@ def logout_user_route(user: UserLogoutRequest):
         return logout_user(user.username, user.token)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# REWORKED ACCESS LEVEL FUNCTIONS
+@users_router.post('/grant_read_access/')
+def give_user_read_access(user: UserAccess, token: str | None = None):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    user_role = user_data["user_role"]
+    if user_role == 1:
+        raise HTTPException(status_code=403, detail="You do not have permission to grant access")
+
+    try:
+        return grant_read_access(user.user_id, user.category_id)
+    except ValueError as e:
+        return Response(status_code=400, content=str(e))
+
+
+@users_router.post('/grant_write_access/')
+def give_user_write_access(user: UserAccess, token: str | None = None):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    user_role = user_data["user_role"]
+    if user_role == 1:
+        raise HTTPException(status_code=403, detail="You do not have permission to grant access")
+
+    try:
+        return grant_write_access(user.user_id, user.category_id)
+    except ValueError as e:
+        return Response(status_code=400, content=str(e))
+
+
+@users_router.post('/revoke_access')
+def revoke_user_access(user: UserAccess, token: str | None = None):
+    # Check if user is authenticated
+    user_data = authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    user_role = user_data["user_role"]
+    if user_role == 1:
+        raise HTTPException(status_code=403, detail="You do not have permission to grant access")
+
+    try:
+        return revoke_access(user.user_id, user.category_id)
+    except ValueError as e:
+        return Response(status_code=400, content=str(e))

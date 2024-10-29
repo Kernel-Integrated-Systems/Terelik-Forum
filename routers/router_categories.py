@@ -63,7 +63,7 @@ def get_privileged_users_for_category(category_id: int, token: str | None = None
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
     # Validate user role is admin and raise error if not
     user_role = user_data["user_role"]
-    if user_role["user_role"] != 2:
+    if user_role != 2:
         raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
     try:
         return show_users_on_category(category_id)

@@ -36,3 +36,8 @@ class UserLogoutRequest(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
+
+
+class UserAccess(BaseModel):
+    user_id: int
+    category_id: int
