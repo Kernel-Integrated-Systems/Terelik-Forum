@@ -11,18 +11,6 @@ from percistance.queries import (ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_U
 from datetime import datetime
 
 
-# """
-# ----------------------------------->
-#     Аuthentication
-#         Logic
-#     and token JWT
-# ----------------------------------->
-# """
-#
-# SECRET_KEY = "your_secret_key"
-# ALGORITHM = "HS256"
-
-
 
 def get_all_users():
     data = read_query(ALL_USERS)
@@ -75,7 +63,7 @@ def register_user(username: str, email: str, password: str):
     new_user_id = create_user(user_data)
 
 
-    token = create_jwt_token(new_user_id, username, 1)
+    token = encode(new_user_id, username, 1)
     return {
         "user": {
             "id": new_user_id,
@@ -115,7 +103,7 @@ def grant_write_access(user_id: int, category_id: int, authorization: str):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
+    user_info = decode(token)
 
     if user_info["user_role"] != 2:
         raise HTTPException(status_code=403, detail="You do not have permission to grant access")
@@ -150,7 +138,7 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
+    user_info = decode(token)
     user_role = user_info["user_role"]
 
     if user_role != 2:
@@ -172,37 +160,35 @@ def revoke_access(user_id: int, category_id: int, access_type: str, authorizatio
         raise ValueError(f"Failed to revoke {access_type} access for user {user_id} to category {category_id}.")
 
 
+# def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
+#     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
+#
+#
+#     token_data = {
+#         "sub": username,
+#         "user_id": user_id,
+#         "user_role": user_role,
+#         "exp": expiration
+#     }
+#     token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
+#     return token
 
 
-def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
-    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
-
-
-    token_data = {
-        "sub": username,
-        "user_id": user_id,
-        "user_role": user_role,
-        "exp": expiration
-    }
-    token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
-    return token
-
-
-def decode_jwt_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        is_expired = payload['exp'] < datetime.datetime.utcnow().timestamp()
-        return {
-            "user_id": payload["user_id"],
-            "username": payload["sub"],
-            "user_role": payload["user_role"],
-            "is_expired": is_expired
-        }
-
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired.")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token.")
+# def decode_jwt_token(token: str):
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         is_expired = payload['exp'] < datetime.datetime.utcnow().timestamp()
+#         return {
+#             "user_id": payload["user_id"],
+#             "username": payload["sub"],
+#             "user_role": payload["user_role"],
+#             "is_expired": is_expired
+#         }
+#
+#     except jwt.ExpiredSignatureError:
+#         raise HTTPException(status_code=401, detail="Token has expired.")
+#     except jwt.InvalidTokenError:
+#         raise HTTPException(status_code=401, detail="Invalid token.")
 
 
 

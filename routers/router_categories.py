@@ -3,7 +3,7 @@ from fastapi import APIRouter, Response, HTTPException, Header, Body
 from modules.categories import Category, NewCategory
 from services.categories_services import view_categories, find_category_by_id, create_category, remove_category, \
     show_users_on_category
-from services.user_services import authenticate, decode_jwt_token, grant_read_access, grant_write_access,  get_user_accessible_categories, get_access_level
+from services.user_services import authenticate, decode, grant_read_access, grant_write_access,  get_user_accessible_categories, get_access_level
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 
@@ -14,7 +14,7 @@ def show_categories(authorization: str | None = Header(None)):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
+    user_info = decode(token)
     user_id = user_info["user_id"]
     user_role = user_info["user_role"]
 
@@ -43,7 +43,7 @@ def get_category_by_id(category_id: int, authorization: str | None = Header(None
 
     token = authorization.split(" ")[1]
 
-    user_info = decode_jwt_token(token)
+    user_info = decode(token)
     user_id = user_info["user_id"]
     user_role = user_info["user_role"]
 
@@ -62,7 +62,7 @@ def create_new_category(category: NewCategory, authorization: str | None = Heade
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
+    user_info = decode(token)
     user_role = user_info["user_role"]
 
     if user_role != 2:
