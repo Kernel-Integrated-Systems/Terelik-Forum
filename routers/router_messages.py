@@ -1,9 +1,9 @@
 
 from fastapi import APIRouter, Response, HTTPException, Header
 
+from modules.messages import NewMessageRespond
 from services.message_services import get_messages, post_new_message, get_message_by_id
 from services.user_services import authenticate, decode_jwt_token
-
 
 
 
@@ -42,15 +42,15 @@ def get_user_message(user_id: int, target_usr_id: int, authorization: str = Head
 
 # Create New Message
 @messages_router.post("/")
-def create_new_message(sender_id: int, receiver_id: int, content: str, authorization: str = Header(...)):
+def create_new_message(user=NewMessageRespond, authorization: str = Header(...)):
     if not authenticate(authorization):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     token_data = decode_jwt_token(authorization.split(" ")[1])
-    if token_data["user_id"] != sender_id:
+    if token_data["user_id"] != user.sender:
         raise HTTPException(status_code=403, detail="You cannot send messages on behalf of another user.")
     try:
-        new_message = post_new_message(sender=user.sender_id,receiver=user.receiver_id,text=user.content)
+        new_message = post_new_message(sender=user.sender,receiver=user.receiver,text=user.content)
         return new_message
     except ValueError as e:
         return Response(status_code=400, content=str(e))

@@ -1,6 +1,4 @@
-
-from modules.categories import Category, NewCategory, CategoryPrivilegedUsersResponse
-from percistance.connections import read_query, insert_query, update_query
+from modules.categories import Category, CategoryPrivilegedUsersResponse
 from percistance.queries import ALL_CATEGORIES, CATEGORY_BY_ID, NEW_CATEGORY, DELETE_CATEGORY, CATEGORY_BY_NAME, \
     CATEGORY_PRIVILEGED_USERS
 from percistance.connections import read_query, insert_query, update_query
