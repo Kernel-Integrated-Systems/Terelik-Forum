@@ -123,16 +123,7 @@ def grant_read_access(user_id: int, category_id: int) -> dict:
     return {"message": f"User {user_access.user_id} granted read access to category {user_access.category_id}"}
 
 
-def grant_write_access(user_id: int, category_id: int, authorization: str) -> dict:
-    if not authenticate(authorization):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
-
-    if user_info["user_role"] != 2:
-        raise HTTPException(status_code=403, detail="You do not have permission to grant write access")
-
+def grant_write_access(user_id: int, category_id: int) -> dict:
     user_access = UserAccess(user_id=user_id, category_id=category_id, access_level=2)
     insert_query(GRANT_WRITE_ACCESS, (user_access.user_id, user_access.category_id))
     return {"message": f"User {user_access.user_id} granted write access to category {user_access.category_id}"}
@@ -155,34 +146,14 @@ def get_user_accessible_categories(user_id: int):
 
     return (Category.from_query_string(*row) for row in data)
 
+def revoke_access(user_id: int, category_id: int):
+    user_access = get_access_level(user_id, category_id)
 
-def revoke_access(user_id: int, category_id: int, access_type: str, authorization: str):
-
-    if not authenticate(authorization):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    token = authorization.split(" ")[1]
-    user_info = decode_jwt_token(token)
-    user_role = user_info["user_role"]
-
-    if user_role != 2:
-        raise HTTPException(status_code=403, detail="You do not have permission to revoke access")
-
-    if access_type not in ["read", "write"]:
-        raise HTTPException(status_code=400, detail="Invalid access type. Must be 'read' or 'write'.")
-
-    if access_type == "read":
-        result = update_query(REMOVE_READ_ACCESS, (user_id, category_id))
-    elif access_type == "write":
-        result = update_query(REMOVE_WRITE_ACCESS, (user_id, category_id))
+    if user_access:
+        insert_query(REVOKE_ACCESS, (user_id, category_id))
+        return {"message": f"User {user_id}'s access to category {category_id} has been revoked."}
     else:
-        raise ValueError("Invalid access type. Must be 'read' or 'write'.")
-
-    if result:
-        return {"message": f"User {user_id}'s {access_type} access to category {category_id} has been revoked."}
-    else:
-        raise ValueError(f"Failed to revoke {access_type} access for user {user_id} to category {category_id}.")
-
+        raise ValueError(f"Failed to revoke access for user {user_id} to category {category_id}.")
 
 
 """ 
@@ -229,14 +200,15 @@ def decode_jwt_token(token: str):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token.")
 
-def authenticate(authorization: str) -> bool:
+
+def authenticate(authorization: str) -> dict:
     if not authorization:
-        return False
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     token = authorization.split(" ")[1]
     decoded_token = decode_jwt_token(token)
 
     if decoded_token["is_expired"]:
-        return False
+        raise HTTPException(status_code=401, detail="Token has expired.")
 
-    return True
+    return decoded_token

@@ -13,11 +13,8 @@ messages_router = APIRouter(prefix='/messages', tags=['Messages'])
 # View Conversations - regardless of receiver
 @messages_router.get("/{user_id}")
 def get_user_messages(user_id: int, authorization: str = Header(...)):
-    if not authenticate(authorization):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    token_data = decode_jwt_token(authorization.split(" ")[1])
-    if token_data["user_id"] != user_id:
+    user_info = authenticate(authorization)
+    if user_info["user_id"] != user_id:
         raise HTTPException(status_code=403, detail="Access denied.")
     try:
         return get_messages(user_id)
@@ -28,11 +25,8 @@ def get_user_messages(user_id: int, authorization: str = Header(...)):
 # View Conversation - to a particular receiver
 @messages_router.get("/{user_id}/{target_usr_id}")
 def get_user_message(user_id: int, target_usr_id: int, authorization: str = Header(...)):
-    if not authenticate(authorization):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    token_data = decode_jwt_token(authorization.split(" ")[1])
-    if token_data["user_id"] != user_id:
+    user_info = authenticate(authorization)
+    if user_info["user_id"] != user_id:
         raise HTTPException(status_code=403, detail="Access denied.")
     try:
         return get_message_by_id(user_id, target_usr_id)
@@ -43,14 +37,11 @@ def get_user_message(user_id: int, target_usr_id: int, authorization: str = Head
 # Create New Message
 @messages_router.post("/")
 def create_new_message(user=NewMessageRespond, authorization: str = Header(...)):
-    if not authenticate(authorization):
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    token_data = decode_jwt_token(authorization.split(" ")[1])
-    if token_data["user_id"] != user.sender:
+    user_info = authenticate(authorization)
+    if user_info["user_id"] != user.sender:
         raise HTTPException(status_code=403, detail="You cannot send messages on behalf of another user.")
     try:
-        new_message = post_new_message(sender=user.sender,receiver=user.receiver,text=user.content)
+        new_message = post_new_message(sender=user.sender, receiver=user.receiver, text=user.content)
         return new_message
     except ValueError as e:
         return Response(status_code=400, content=str(e))
