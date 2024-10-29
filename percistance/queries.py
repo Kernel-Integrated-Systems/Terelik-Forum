@@ -9,6 +9,10 @@ NEW_USER = """INSERT INTO Users (username, email, password_hash, user_role)
 LOGIN_USERNAME_PASS = """SELECT user_id, username, password_hash, user_role FROM users
             WHERE username = ? AND password_hash = ?"""
 
+INSERT_TOKEN = """INSERT INTO sessions (token_string, expiration_time)
+            VALUES (?, ?)"""
+SEARCH_TOKEN = """SELECT * FROM sessions WHERE Token_String = ?"""
+
 # TOPICS QUERIES
 
 ALL_TOPICS = """SELECT topic_id, title, content, user_id, category_id FROM topics"""
