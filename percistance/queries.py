@@ -3,10 +3,7 @@
 # INSERT_BLACKLISTED_TOKEN = """INSERT INTO blacklisted_tokens (token) VALUES (?)"""
 # CHECK_TOKEN_BLACKLISTED = """SELECT COUNT(*) FROM blacklisted_tokens WHERE token = ?"""
 # REMOVE_OLD_TOKENS = """DELETE FROM blacklisted_tokens WHERE blacklisted_at < DATETIME('now', '-30 days')"""
-
-REMOVE_READ_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 1"
-REMOVE_WRITE_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 2"
-
+REVOKE_ACCESS = """DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ?"""
 ALL_USERS = """SELECT user_id, username, email, user_role, is_active FROM users"""
 USER_BY_ID = """SELECT user_id, username, email, user_role, is_active FROM users WHERE user_id = ?"""
 USER_BY_EMAIL = """SELECT user_id, username, email, user_role, is_active FROM users WHERE email = ?"""
@@ -28,7 +25,7 @@ GET_ACCESS_LEVEL = """
         SELECT ca.access_level 
         FROM CategoryAccess ca
         JOIN Categories c ON ca.category_id = c.category_id
-        WHERE ca.user_id = ? AND ca.category_id = ? AND c.is_locked = 1
+        WHERE ca.user_id = ? AND ca.category_id = ? AND c.is_private = 1
     """
 GRANT_READ_ACCESS = """INSERT INTO CategoryAccess (user_id, category_id, access_level) 
                VALUES (?, ?, 1) 
@@ -43,14 +40,14 @@ USER_CATEGORIES = """
         SELECT c.category_id, c.category_name, c.is_private, c.is_locked
         FROM categories c
         JOIN CategoryAccess ca ON c.category_id = ca.category_id
-        WHERE ca.user_id = ? AND c.is_locked = 1
+        WHERE ca.user_id = ? AND c.is_private = 1
     """
 
 GET_USER_ACCESSIBLE_CATEGORIES= """
        SELECT c.category_id, c.category_name, c.is_private, c.is_locked
        FROM categories c
        JOIN CategoryAccess ca ON c.category_id = ca.category_id
-       WHERE ca.user_id = ? AND c.is_locked = 1
+       WHERE ca.user_id = ? AND c.is_private = 1
    """
 
 # TOPICS QUERIES
