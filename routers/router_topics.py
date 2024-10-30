@@ -1,21 +1,29 @@
 from fastapi import APIRouter, Response, HTTPException, Header
 from modules.topic import NewTopic
-from services.topic_services import (view_topics, create_topic, find_topic_by_id, find_topic_by_category, remove_topic,
-                                     change_topic_lock_status)
-from services.user_services import authenticate
+from services import topic_services, user_services
+
 
 topics_router = APIRouter(prefix='/topics', tags=['Topics'])
 
 
 @topics_router.get('/')
-def get_topics():
-    return view_topics()
+def get_topics(
+        sort: str | None = None,
+        sort_by: str | None = None,
+        search: str | None = None,
+        page: int = 1,
+        page_size: int = 4):
+    found_topics = topic_services.view_topics(search, page, page_size)
+
+    if sort and (sort == 'asc' or sort == 'desc'):
+        return topic_services.sort_topics(found_topics, reverse=sort == 'desc', attribute=sort_by)
+    return found_topics
 
 
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(topic_id: int):
     try:
-        return find_topic_by_id(topic_id)
+        return topic_services.find_topic_by_id(topic_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
@@ -23,7 +31,7 @@ def get_topic_by_id(topic_id: int):
 @topics_router.get('/category/{category_id}')
 def get_topic_by_category(category_id: int):
     try:
-        return find_topic_by_category(category_id)
+        return topic_services.find_topic_by_category(category_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
@@ -31,11 +39,11 @@ def get_topic_by_category(category_id: int):
 @topics_router.post('/new_topic')
 def create_new_topic(topic: NewTopic, token: str | None = Header()):
     # Check if user is authenticated
-    user_data = authenticate(token)
+    user_data = user_services.authenticate(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
     try:
-        return create_topic(topic.title, topic.content, topic.user_id, topic.category_id)
+        return topic_services.create_topic(topic.title, topic.content, topic.user_id, topic.category_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
@@ -43,7 +51,7 @@ def create_new_topic(topic: NewTopic, token: str | None = Header()):
 @topics_router.delete('/{topic_id}')
 def delete_topic(topic_id: int):
     try:
-        return remove_topic(topic_id)
+        return topic_services.remove_topic(topic_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
@@ -51,7 +59,7 @@ def delete_topic(topic_id: int):
 @topics_router.post('/change_topic_lock_status')
 def change_lock_status(topic_id: int, token: str | None = Header()):
     # Check if user is authenticated
-    user_data = authenticate(token)
+    user_data = user_services.authenticate(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
@@ -60,6 +68,6 @@ def change_lock_status(topic_id: int, token: str | None = Header()):
         raise HTTPException(status_code=403, detail="You do not have permission to grant access")
 
     try:
-        return change_topic_lock_status(topic_id)
+        return topic_services.change_topic_lock_status(topic_id)
     except ValueError as e:
         return Response(status_code=404, content=str(e))

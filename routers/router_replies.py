@@ -1,25 +1,28 @@
 from fastapi import APIRouter, HTTPException, Header
 from starlette.responses import Response
+from modules.replies import NewReply, GetReplyOnTopic, Vote
+from services import replies_services, user_services, topic_services
 
-from modules.replies import NewReply, GetReplyOnTopic
-from services.replies_services import vote_reply, create_reply, get_all_topics_with_best_replies
-from services.user_services import authenticate
 
-replies_router = APIRouter(prefix='/replies')
-votes_router = APIRouter(prefix='/votes', tags=['Replies'])
-best_reply_router = APIRouter(prefix='/best_replies')
+replies_router = APIRouter(prefix='/replies', tags=["Replies"])
+# votes_router = APIRouter(prefix='/votes', tags=['Replies'])
+# best_reply_router = APIRouter(prefix='/best_replies')
 
 
 # Create Reply
-@replies_router.post('/create_reply')
+@replies_router.post('/reply')
 def create_reply_route(reply: NewReply, token: str | None = Header()):
     # Check if user is authenticated
-    user_data = authenticate(token)
+    user_data = user_services.authenticate(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
+    is_locked = topic_services.check_topic_lock_status(reply.topic_id)
+
+    if is_locked == 1:
+         raise HTTPException(status_code=403, detail="Category is locked!")
     try:
-        return create_reply(reply.content, reply.topic_id, user_data["user_id"])
+        return replies_services.create_reply(reply.content, reply.topic_id, user_data["user_id"])
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
@@ -54,15 +57,15 @@ def create_reply_route(reply: NewReply, token: str | None = Header()):
 #
 
 # Upvote/Downvote a Reply
-@votes_router.post('/reply/{reply_id}')
-def post_vote_for_reply(reply_id: int, vote: str, token: str | None = Header()):
+@replies_router.post('/{reply_id}')
+def post_vote_for_reply(reply: Vote, token: str | None = Header()):
     # Check if user is authenticated
-    user_data = authenticate(token)
+    user_data = user_services.authenticate(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        votes_list = vote_reply(reply_id, vote)
+        votes_list = replies_services.vote_reply(reply.reply_id, reply.vote)
         return votes_list
     except ValueError as e:
         return Response(status_code=400, content=str(e))
@@ -81,14 +84,14 @@ def post_vote_for_reply(reply_id: int, vote: str, token: str | None = Header()):
 #
 
 # Choose Best Reply
-@best_reply_router.get('/{topic_id}/replies{reply_id}')
+@replies_router.get('/{topic_id}/replies{reply_id}')
 def get_all_topics_with_best_replies_route(reply: GetReplyOnTopic, token: str | None = Header()):
     # Check if user is authenticated
-    user_data = authenticate(token)
+    user_data = user_services.authenticate(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     try:
-        return get_all_topics_with_best_replies(reply.topic_id, reply.reply_id)
+        return replies_services.get_all_topics_with_best_replies(reply.topic_id, reply.reply_id)
     except ValueError as e:
         return Response(status_code=400, content=str(e))

@@ -1,36 +1,38 @@
-from modules.topic import Topic
+from modules.topic import Topic, Topics
 from modules.replies import Reply
 from percistance.connections import read_query, insert_query, update_query
 from percistance import queries
 
-def view_topics():
+
+def view_topics(search: str = None, page: int = 1, page_size: int = 4):
     topic_data = read_query(queries.ALL_TOPICS)
-    topics = []
-    for row in topic_data:
-        topic_id, title, content, user_id, category_id, is_locked = row
-
-        reply_data = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
-        replies = [
-            Reply(
-                reply_id=reply_row[0],
-                content=reply_row[1],
-                user_id=reply_row[2],
-                topic_id=reply_row[3],
-                created_at=reply_row[4]
-            ) for reply_row in reply_data
+    # Apply search query
+    if search:
+        filtered_topics = [
+            Topics.view_topics(*row)
+            for row in topic_data
+            if any(word.lower() == search.lower() for word in row[1].split())
         ]
+    else:
+        filtered_topics = [Topics.view_topics(*row) for row in topic_data]
 
-        topic = Topic.view_topics(
-            topic_id=topic_id,
-            title=title,
-            content=content,
-            user_id=user_id,
-            category_id=category_id,
-            is_locked=is_locked,
-            replies=replies
-        )
-        topics.append(topic)
-    return topics
+    # Implement pagination
+    start_index = (page - 1) * page_size
+    end_index = start_index + page_size
+    paginated_topics = filtered_topics[start_index:end_index]
+
+    return paginated_topics
+
+
+def sort_topics(topics: list[Topics], attribute='title', reverse=False):
+    if attribute == 'title':
+        sort_key = lambda t: t.title
+    elif attribute == 'is_locked':
+        sort_key = lambda t: t.is_locked
+    else:
+        sort_key = lambda t: t.topic_id
+
+    return sorted(topics, key=sort_key, reverse=reverse)
 
 
 def find_topic_by_id(topic_id: int):
@@ -106,5 +108,5 @@ def change_topic_lock_status(topic_id: int):
 
 
 def check_topic_lock_status(topic_id: int):
-    data = read_query(queries.CHANGE_TOPIC_LOCK_STATUS, (topic_id,))
-    return data
+    data = read_query(queries.CHECK_TOPIC_PRIVATE_STATUS, (topic_id,))
+    return data[0][0]
