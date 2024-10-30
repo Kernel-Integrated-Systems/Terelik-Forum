@@ -7,7 +7,7 @@ def view_topics():
     topic_data = read_query(queries.ALL_TOPICS)
     topics = []
     for row in topic_data:
-        topic_id, title, content, user_id, category_id = row
+        topic_id, title, content, user_id, category_id, is_locked = row
 
         reply_data = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
         replies = [
@@ -26,19 +26,21 @@ def view_topics():
             content=content,
             user_id=user_id,
             category_id=category_id,
+            is_locked=is_locked,
             replies=replies
         )
         topics.append(topic)
     return topics
 
 
-def find_topic_by_id(id: int):
-    topic_data = read_query(queries.TOPIC_BY_ID, (id,))
+def find_topic_by_id(topic_id: int):
+    topic_data = read_query(queries.TOPIC_BY_ID, (topic_id,))
     if not topic_data:
-        raise ValueError(f'Topic with ID {id} does not exist.')
+        raise ValueError(f'Topic with ID {topic_id} does not exist.')
 
+    topic_by_id = []
     for row in topic_data:
-        topic_id, title, content, user_id, category_id = row
+        topic_id, title, content, user_id, category_id, is_locked = row
 
         reply_data = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
         replies = [
@@ -51,14 +53,17 @@ def find_topic_by_id(id: int):
             ) for reply_row in reply_data
         ]
 
-        return Topic.view_topics(
+        topic = Topic.view_topics(
             topic_id=topic_id,
             title=title,
             content=content,
             user_id=user_id,
             category_id=category_id,
+            is_locked=is_locked,
             replies=replies
         )
+        topic_by_id.append(topic)
+    return topic_by_id
 
 
 def find_topic_by_title(title: str):
@@ -87,7 +92,7 @@ def remove_topic(topic_id: int):
 
 
 def change_topic_lock_status(topic_id: int):
-    topic = find_topic_by_id(topic_id)
+    topic = find_topic_by_id(topic_id)[0]
     if not topic:
         raise ValueError(f'There is no topic with ID {topic_id}.')
     if topic.is_locked == 0:
