@@ -6,7 +6,7 @@ from services import categories_services
 
 categories_router = APIRouter(prefix='/categories', tags=["Categories"])
 
-
+# View Categories
 @categories_router.get('/')
 def show_categories():
     try:
@@ -14,7 +14,7 @@ def show_categories():
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
-
+# View Category
 @categories_router.get('/{category_id}')
 def get_category_by_id(category_id: int):
     try:
@@ -22,7 +22,7 @@ def get_category_by_id(category_id: int):
     except ValueError as e:
         return Response(status_code=404, content=str(e))
 
-
+# Create Category
 @categories_router.post('/')
 def create_new_category(category: NewCategory, token: str | None = Header()):
     # Check if user is authenticated
@@ -54,7 +54,7 @@ def delete_category(category_id: int, token: str | None = None):
     except ValueError as e:
         return Response(status_code=404, content=str(e))
 
-
+# View Privileged Users
 @categories_router.get('/{category_id}/privileged_users')
 def get_privileged_users_for_category(category_id: int, token: str | None = None):
     # Check if user is authenticated

@@ -6,7 +6,7 @@ from services import topic_services, user_services
 
 topics_router = APIRouter(prefix='/topics', tags=['Topics'])
 
-
+# View Topics
 @topics_router.get('/')
 def get_topics(
         sort: str | None = None,
@@ -20,7 +20,7 @@ def get_topics(
         return topic_services.sort_topics(found_topics, reverse=sort == 'desc', attribute=sort_by)
     return found_topics
 
-
+# View Topic
 @topics_router.get('/{topic_id}')
 def get_topic_by_id(topic_id: int):
     try:
@@ -28,7 +28,7 @@ def get_topic_by_id(topic_id: int):
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
-
+# ?
 @topics_router.get('/category/{category_id}')
 def get_topic_by_category(category_id: int):
     try:
@@ -36,7 +36,7 @@ def get_topic_by_category(category_id: int):
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
-
+# Create Topic
 @topics_router.post('/new_topic')
 def create_new_topic(topic: NewTopic, token: str | None = Header()):
     # Check if user is authenticated
@@ -70,7 +70,7 @@ def delete_topic(topic_id: int):
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
-
+# Lock Topic
 @topics_router.post('/change_topic_lock_status')
 def change_lock_status(topic_id: int, token: str | None = Header()):
     # Check if user is authenticated
