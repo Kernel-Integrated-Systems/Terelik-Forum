@@ -20,7 +20,7 @@ class NewReply(BaseModel):
     topic_id: int
     content: str
 
-class GetReplyOnTopic(BaseModel):
+class BestReply(BaseModel):
     topic_id: int
     reply_id: int
 

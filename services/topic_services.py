@@ -1,9 +1,9 @@
 from modules.topic import Topic, Topics
-from modules.replies import Reply
+from modules.replies import Reply, BestReply
 from percistance.connections import read_query, insert_query, update_query
 from percistance import queries
 
-
+# View Topics
 def view_topics(search: str = None, page: int = 1, page_size: int = 4):
     topic_data = read_query(queries.ALL_TOPICS)
     # Apply search query
@@ -34,7 +34,7 @@ def sort_topics(topics: list[Topics], attribute='title', reverse=False):
 
     return sorted(topics, key=sort_key, reverse=reverse)
 
-
+# Find Topic by ID
 def find_topic_by_id(topic_id: int):
     topic_data = read_query(queries.TOPIC_BY_ID, (topic_id,))
     if not topic_data:
@@ -79,10 +79,27 @@ def find_topic_by_category(category_id: int):
         raise ValueError(f'There is no topic with category {category_id}.')
     return next((Topic.view_topics(*row) for row in data), None)
 
-
+# Post Topic
 def create_topic(title: str, content: str, user_id: int, category: int):
     new_topic_id = insert_query(queries.NEW_TOPIC, (title, content, user_id, category))
     return Topic(topic_id=new_topic_id, title=title, content=content, user_id=user_id, category_id=category)
+
+# Choose Best Reply on Topic
+def choose_best_reply(topic_id: int, reply_id: int, user_id: int):
+    topic = find_topic_by_id(topic_id)
+    replies = topic.replies
+    if not topic:
+        raise ValueError("Topic not found.")
+    if topic.user_id != user_id:
+        raise ValueError("Only the topic author can select the best reply.")
+
+    reply_ids = [reply.reply_id for reply in replies]
+    if reply_id not in reply_ids:
+        raise ValueError("There is no such reply for this topic!")
+
+    update_query(queries.ADD_BEST_REPLY_ON_TOPIC, (reply_id, topic_id))
+
+    return BestReply(topic_id=topic_id, reply_id=reply_id)
 
 
 def remove_topic(topic_id: int):
@@ -107,4 +124,6 @@ def change_topic_lock_status(topic_id: int):
 
 def check_topic_lock_status(topic_id: int):
     data = read_query(queries.CHECK_TOPIC_PRIVATE_STATUS, (topic_id,))
+    if not data:
+        return None
     return data[0][0]

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Response, HTTPException, Header
+from modules.replies import BestReply
 from modules.topic import NewTopic
 from services import topic_services, user_services
 
@@ -44,6 +45,20 @@ def create_new_topic(topic: NewTopic, token: str | None = Header()):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
     try:
         return topic_services.create_topic(topic.title, topic.content, topic.user_id, topic.category_id)
+    except ValueError as e:
+        return Response(status_code=400, content=str(e))
+
+
+# Choose Best Reply
+@topics_router.post('/{topic_id}/replies{reply_id}')
+def select_best_reply(reply: BestReply, token: str | None = Header()):
+    # Check if user is authenticated
+    user_data = user_services.authenticate(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    try:
+        return topic_services.choose_best_reply(reply.topic_id, reply.reply_id, user_data["user_id"])
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 

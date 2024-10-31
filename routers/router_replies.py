@@ -1,12 +1,10 @@
 from fastapi import APIRouter, HTTPException, Header
 from starlette.responses import Response
-from modules.replies import NewReply, GetReplyOnTopic, Vote
+from modules.replies import NewReply, Vote
 from services import replies_services, user_services, topic_services
 
 
 replies_router = APIRouter(prefix='/replies', tags=["Replies"])
-# votes_router = APIRouter(prefix='/votes', tags=['Replies'])
-# best_reply_router = APIRouter(prefix='/best_replies')
 
 
 # Create Reply
@@ -18,7 +16,8 @@ def create_reply_route(reply: NewReply, token: str | None = Header()):
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     is_locked = topic_services.check_topic_lock_status(reply.topic_id)
-
+    if not is_locked:
+        raise HTTPException(status_code=404, detail="Topic does not exist!")
     if is_locked == 1:
          raise HTTPException(status_code=403, detail="Category is locked!")
     try:
@@ -26,14 +25,6 @@ def create_reply_route(reply: NewReply, token: str | None = Header()):
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
-
-# @votes_router.post('/reply/{reply_id}')
-# def vote_reply_route(reply_id: int, vote: Vote):
-#     try:
-#         result = vote_reply(reply_id, vote.user_id, vote.vote_type)
-#         return result
-#     except ValueError as e:
-#         return Response(status_code=400, content=str(e))
 
 
 # @best_reply_router.patch('/{topic_id}/best_reply/{reply_id}')
@@ -70,28 +61,3 @@ def post_vote_for_reply(reply: Vote, token: str | None = Header()):
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
-
-# @best_reply_router.get('/{topic_id}')
-# def get_best_reply_route(topic_id: int):
-#     try:
-#         best_reply = get_best_reply_for_topic(topic_id)
-#         if not best_reply:
-#             return {"detail": "No best reply selected for this topic."}
-#         return best_reply
-#     except ValueError as err:
-#         raise HTTPException(status_code=404, detail=str(err))
-#
-#
-
-# Choose Best Reply
-@replies_router.get('/{topic_id}/replies{reply_id}')
-def get_all_topics_with_best_replies_route(reply: GetReplyOnTopic, token: str | None = Header()):
-    # Check if user is authenticated
-    user_data = user_services.authenticate(token)
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
-    try:
-        return replies_services.get_all_topics_with_best_replies(reply.topic_id, reply.reply_id)
-    except ValueError as e:
-        return Response(status_code=400, content=str(e))
