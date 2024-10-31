@@ -1,5 +1,5 @@
-
-import datetime
+import base64
+from datetime import datetime
 import jwt
 from fastapi import HTTPException
 from modules.categories import Category
@@ -7,8 +7,8 @@ from modules.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
 from percistance.connections import read_query, insert_query, update_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
-    REMOVE_READ_ACCESS, REMOVE_WRITE_ACCESS, GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, \
-    GET_USER_ACCESSIBLE_CATEGORIES
+    GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, \
+    REVOKE_ACCESS, GET_USER_ACCESSIBLE_CATEGORIES
 
 
 """ 
@@ -171,35 +171,60 @@ ALGORITHM = "HS256"
 
 
 def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
-    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
-
-
-    token_data = {
-        "sub": username,
-        "user_id": user_id,
-        "user_role": user_role,
-        "exp": expiration
-    }
-    token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
-    return token
+    # expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
+    #
+    #
+    # token_data = {
+    #     "sub": username,
+    #     "user_id": user_id,
+    #     "user_role": user_role,
+    #     "exp": expiration
+    # }
+    # token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
+    # return token
+    return encode(user_id, username, user_role)
 
 
 def decode_jwt_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        is_expired = payload['exp'] < datetime.datetime.utcnow().timestamp()
-        return {
-            "user_id": payload["user_id"],
-            "username": payload["sub"],
-            "user_role": payload["user_role"],
-            "is_expired": is_expired
-        }
+    # try:
+    #     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    #     is_expired = payload['exp'] < datetime.datetime.utcnow().timestamp()
+    #     return {
+    #         "user_id": payload["user_id"],
+    #         "username": payload["sub"],
+    #         "user_role": payload["user_role"],
+    #         "is_expired": is_expired
+    #     }
+    #
+    # except jwt.ExpiredSignatureError:
+    #     raise HTTPException(status_code=401, detail="Token has expired.")
+    # except jwt.InvalidTokenError:
+    #     raise HTTPException(status_code=401, detail="Invalid token.")
+    return decode(token)
 
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired.")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token.")
 
+#### COMMENT the functions below and switch the code and comments in encode and decode functions above ^
+
+def encode(user_id: int, username: str, user_role: int) -> str:
+    now = datetime.now()
+    user_string = f"{user_id}_{username}_{user_role}_{now.strftime("%H:%M:%S")}"
+    encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
+
+    return encoded_bytes.decode('utf-8')
+
+
+def decode(encoded_value: str):
+    decoded_string = base64.b64decode(encoded_value).decode('utf-8')
+    user_id, username, user_role, created_at = decoded_string.split('_')
+    result = {
+        "user_id": int(user_id),
+        "username": username,
+        "user_role": int(user_role),
+        "created_at": created_at
+    }
+    return result
+
+####
 
 def authenticate(authorization: str) -> dict:
     if not authorization:

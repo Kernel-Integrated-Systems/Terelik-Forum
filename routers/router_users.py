@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response, Header, Body
 
 
 from modules.users import UserRegistrationRequest, UserLoginRequest, UserAccess
-from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, decode_jwt_token, \
+from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, \
     grant_read_access, grant_write_access, revoke_access, \
     logout_user, authenticate_user
 
@@ -11,7 +11,10 @@ users_router = APIRouter(prefix='/users', tags=['Users'])
 
 @users_router.get('/')
 def get_all_users_route(authorization: str = Header(...)):
-    user_info = authenticate(authorization)
+    # Check if user is authenticated
+    user_data = authenticate(authorization)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
     try:
         return get_all_users()
     except ValueError as e:

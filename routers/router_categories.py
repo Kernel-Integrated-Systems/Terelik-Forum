@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Response, HTTPException, Header, Body
-
-from modules.categories import Category, NewCategory
+from fastapi import APIRouter, Response, HTTPException, Header
+from modules.categories import NewCategory
 from services.categories_services import view_categories, find_category_by_id, create_category, remove_category, \
     show_users_on_category
 from services.user_services import authenticate, decode_jwt_token, grant_read_access, grant_write_access,  get_user_accessible_categories, get_access_level

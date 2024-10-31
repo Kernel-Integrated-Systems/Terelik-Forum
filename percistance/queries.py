@@ -18,6 +18,7 @@ INSERT_TOKEN = """INSERT INTO sessions (token_string, expiration_time)
 SEARCH_TOKEN = """SELECT * FROM sessions WHERE Token_String = ?"""
 
 # USER ACCESS QUERIES
+
 GET_ACCESS_LEVEL = """
         SELECT ca.access_level 
         FROM CategoryAccess ca
@@ -49,8 +50,8 @@ GET_USER_ACCESSIBLE_CATEGORIES= """
 
 # TOPICS QUERIES
 
-ALL_TOPICS = """SELECT topic_id, title, content, user_id, category_id FROM topics"""
-TOPIC_BY_ID = """SELECT topic_id, title, content, user_id, category_id FROM topics
+ALL_TOPICS = """SELECT topic_id, title, content, user_id, category_id, is_locked FROM topics"""
+TOPIC_BY_ID = """SELECT topic_id, title, content, user_id, category_id, is_locked FROM topics
             WHERE topic_id = ?"""
 TOPIC_BY_TITLE = """SELECT topic_id, title, content, user_id, category_id FROM topics
             WHERE title = ?"""
