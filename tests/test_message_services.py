@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 from modules.messages import NewMessage, NewMessageRespond
-from services import message_services as service
+from services import messages_services as service
 
 # Mock Data
 mock_user_sender = {
