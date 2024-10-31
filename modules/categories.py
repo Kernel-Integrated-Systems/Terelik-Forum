@@ -1,29 +1,49 @@
+from typing import List
+
 from pydantic import BaseModel
 
+from modules.topic import Topics
+
+
+class Categories(BaseModel):
+    category_id: int | None = None
+    category_name: str
+    private: int | None = None
+    locked: int | None = None
+
+    @classmethod
+    def from_query_string(cls, category_id, category_name, private, locked):
+        return cls(
+            category_id=category_id,
+            category_name=category_name,
+            private=private,
+            locked=locked
+        )
 
 
 class Category(BaseModel):
     category_id: int | None = None
     category_name: str
-    is_private: int | None = None
-    is_locked: int | None = None
+    private: int | None = None
+    locked: int | None = None
+    topics: List[Topics] = []
 
     @classmethod
-    def from_query_string(cls, category_id, category_name, is_private, is_locked):
+    def from_query_string(cls, category_id, category_name, private, locked, topics):
         return cls(
             category_id=category_id,
             category_name=category_name,
-            is_private=is_private,
-            is_locked=is_locked
+            private=private,
+            locked=locked,
+            topics=topics
         )
 
 
 
 class NewCategory(BaseModel):
     category_name: str
-    is_private: int = 0
-    is_locked: int = 0
-
+    private: int | None = None
+    locked: int | None = None
 
 
 class CategoryPrivilegedUsersResponse(BaseModel):

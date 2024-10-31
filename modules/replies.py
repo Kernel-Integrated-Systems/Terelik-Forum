@@ -11,21 +11,21 @@ class Reply(BaseModel):
 
 
 class Vote(BaseModel):
-    vote_id: int | None = None
-    user_id: int
+    reply_id: int
+    vote_type: int  # 1 for upvote / 0 for downvote
+
+
+class VoteResponse(BaseModel):
     reply_id: int
     vote_type: str  # 'upvote' or 'downvote'
     created_at: datetime = datetime.now()
-
 
 class NewReply(BaseModel):
     topic_id: int
     content: str
 
-class GetReplyOnTopic(BaseModel):
+class BestReply(BaseModel):
     topic_id: int
     reply_id: int
 
 
-class VoteRequest(BaseModel):
-    vote: str

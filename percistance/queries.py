@@ -18,9 +18,6 @@ INSERT_TOKEN = """INSERT INTO sessions (token_string, expiration_time)
 SEARCH_TOKEN = """SELECT * FROM sessions WHERE Token_String = ?"""
 
 # USER ACCESS QUERIES
-
-REMOVE_READ_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 1"
-REMOVE_WRITE_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? AND access_level = 2"
 GET_ACCESS_LEVEL = """
         SELECT ca.access_level 
         FROM CategoryAccess ca
@@ -62,6 +59,9 @@ TOPIC_BY_CATEGORY = """SELECT topic_id, title, content, user_id, category_id FRO
 NEW_TOPIC = """INSERT INTO topics (title, content, user_id, category_id)
             VALUES (?, ?, ?, ?)"""
 DELETE_TOPIC = """DELETE FROM topics WHERE topic_id = ?"""
+CHANGE_TOPIC_LOCK_STATUS = """UPDATE Topics SET is_locked = ? WHERE category_id = ?"""
+CHECK_TOPIC_PRIVATE_STATUS = """SELECT is_locked FROM Topics WHERE topic_id = ?"""
+TOPICS_FOR_CATEGORY = """SELECT * FROM topics WHERE category_id = ?"""
 
 GET_TOPICS_WITH_BEST_REPLY = """
         SELECT topic_id, title, content, user_id, category_id, best_reply_id
@@ -112,6 +112,8 @@ CATEGORY_PRIVILEGED_USERS = """SELECT a.category_id, c.category_name, u.username
             WHERE a.category_id = ?"""
 
 # REPLIES QUERIES
+
+REPLIES_FOR_TOPIC = """SELECT * FROM replies WHERE topic_id = ?"""
 VOTE_ON_REPLY = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""
 
 NEW_REPLY = """INSERT INTO replies (content, user_id, topic_id) VALUES (?, ?, ?)"""
