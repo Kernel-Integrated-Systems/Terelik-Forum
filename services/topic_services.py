@@ -9,12 +9,12 @@ def view_topics(search: str = None, page: int = 1, page_size: int = 4):
     # Apply search query
     if search:
         filtered_topics = [
-            Topics.view_topics(*row)
+            Topics.from_query_string(*row)
             for row in topic_data
             if any(word.lower() == search.lower() for word in row[1].split())
         ]
     else:
-        filtered_topics = [Topics.view_topics(*row) for row in topic_data]
+        filtered_topics = [Topics.from_query_string(*row) for row in topic_data]
 
     # Implement pagination
     start_index = (page - 1) * page_size
@@ -40,32 +40,30 @@ def find_topic_by_id(topic_id: int):
     if not topic_data:
         raise ValueError(f'Topic with ID {topic_id} does not exist.')
 
-    topic_by_id = []
-    for row in topic_data:
-        topic_id, title, content, user_id, category_id, is_locked = row
+    topic_id, title, content, user_id, category_id, is_locked = topic_data[0]
 
-        reply_data = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
-        replies = [
-            Reply(
-                reply_id=reply_row[0],
-                content=reply_row[1],
-                user_id=reply_row[2],
-                topic_id=reply_row[3],
-                created_at=reply_row[4]
-            ) for reply_row in reply_data
-        ]
+    reply_data = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
+    replies = [
+        Reply(
+            reply_id=reply_row[0],
+            content=reply_row[1],
+            user_id=reply_row[2],
+            topic_id=reply_row[3],
+            created_at=reply_row[4]
+        ) for reply_row in reply_data
+    ]
 
-        topic = Topic.view_topics(
-            topic_id=topic_id,
-            title=title,
-            content=content,
-            user_id=user_id,
-            category_id=category_id,
-            is_locked=is_locked,
-            replies=replies
-        )
-        topic_by_id.append(topic)
-    return topic_by_id
+    topic = Topic.from_query_string(
+        topic_id=topic_id,
+        title=title,
+        content=content,
+        user_id=user_id,
+        category_id=category_id,
+        is_locked=is_locked,
+        replies=replies
+    )
+
+    return topic
 
 
 def find_topic_by_title(title: str):

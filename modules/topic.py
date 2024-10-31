@@ -11,7 +11,7 @@ class Topics(BaseModel):
     is_locked: int
 
     @classmethod
-    def view_topics(cls, topic_id, title, content, user_id, category_id, is_locked):
+    def from_query_string(cls, topic_id, title, content, user_id, category_id, is_locked):
         return cls(
             topic_id=topic_id,
             title=title,
@@ -33,7 +33,7 @@ class Topic(BaseModel):
 
 
     @classmethod
-    def view_topic(cls, topic_id, title, content, user_id, category_id, is_locked, replies):
+    def from_query_string(cls, topic_id, title, content, user_id, category_id, is_locked, replies):
         return cls(
             topic_id=topic_id,
             title=title,

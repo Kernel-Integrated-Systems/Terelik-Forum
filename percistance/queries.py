@@ -59,6 +59,7 @@ NEW_TOPIC = """INSERT INTO topics (title, content, user_id, category_id)
 DELETE_TOPIC = """DELETE FROM topics WHERE topic_id = ?"""
 CHANGE_TOPIC_LOCK_STATUS = """UPDATE Topics SET is_locked = ? WHERE category_id = ?"""
 CHECK_TOPIC_PRIVATE_STATUS = """SELECT is_locked FROM Topics WHERE topic_id = ?"""
+TOPICS_FOR_CATEGORY = """SELECT * FROM topics WHERE category_id = ?"""
 
 # MESSAGE QUERIES
 
