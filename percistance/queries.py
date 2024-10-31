@@ -95,6 +95,8 @@ CATEGORY_BY_ID = """SELECT category_id, category_name, is_private, is_locked FRO
 CATEGORY_BY_NAME = """SELECT category_id, category_name, is_private, is_locked FROM categories WHERE category_name = ?"""
 
 NEW_CATEGORY = """INSERT INTO categories (category_name) VALUES (?)"""
+NEW_CATEGORY_DETAILS = """UPDATE categories SET is_private = ?, is_locked = ?
+            WHERE category_id = ?"""
 
 DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
 

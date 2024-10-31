@@ -46,12 +46,22 @@ def find_category_by_name(category_name: str):
     return next((Categories.from_query_string(*row) for row in data), None)
 
 
-def create_category(title: str):
+def create_category(
+        title: str,
+        private: int | None = None,
+        locked: int | None = None):
     does_exist = find_category_by_name(title)
     if does_exist:
         raise ValueError(f'Category with name {title} already exists!')
+
     new_id = insert_query(queries.NEW_CATEGORY, (title,))
-    new_category = NewCategory(id=new_id,category_name=title)
+
+    # Update category details if provided
+    private = private if isinstance(private, int) else 0
+    locked = locked if isinstance(locked, int) else 0
+    update_query(queries.NEW_CATEGORY_DETAILS, (private, locked, new_id))
+    new_category = NewCategory(id=new_id,category_name=title, private=private, locked=locked)
+
     return new_category
 
 

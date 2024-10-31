@@ -12,6 +12,11 @@ class Reply(BaseModel):
 
 class Vote(BaseModel):
     reply_id: int
+    vote_type: int # 1 for upvote / 0 for downvote
+
+
+class VoteResponse(BaseModel):
+    reply_id: int
     vote_type: str  # 'upvote' or 'downvote'
     created_at: datetime = datetime.now()
 

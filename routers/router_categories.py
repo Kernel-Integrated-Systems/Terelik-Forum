@@ -34,7 +34,7 @@ def create_new_category(category: NewCategory, token: str | None = Header()):
     if user_role != 2:
         raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
     try:
-        return categories_services.create_category(category.category_name)
+        return categories_services.create_category(category.category_name, category.private, category.locked)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 

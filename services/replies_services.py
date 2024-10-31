@@ -1,19 +1,20 @@
-from modules.replies import Reply
+from datetime import datetime
+from modules.replies import Reply, VoteResponse
 from percistance.connections import read_query, insert_query, update_query
 from percistance import queries
 
 
-def vote_reply(reply_id: int, vote_type: str):
-    user_id = 1
-    if vote_type.lower() == 'upvote':
-        vote_type = 1
-    elif vote_type.lower() == 'downvote':
-        vote_type = 2
+def vote_reply(reply_id: int, vote_type: int, user_id: int):
+    vote_response = ''
+    if vote_type == 1:
+        vote_response = 'upvote'
+    elif vote_type == 2:
+        vote_response = 'downvote'
     else:
         raise ValueError(f'The provided vote type {vote_type} is incorrect!')
     new_vote = insert_query(queries.VOTE_ON_REPLY, (user_id, reply_id, vote_type))
-
-    return {"message":f"{new_vote} new vote added for reply {reply_id}."}
+    stamp = datetime.now()
+    return VoteResponse(reply_id=reply_id, vote_type=vote_response, created_at=stamp)
 
 
 def create_reply(content: str, topic_id: int, user_id: int):
