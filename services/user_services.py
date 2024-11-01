@@ -1,11 +1,10 @@
-import base64
 import datetime
 import jwt
 from fastapi import HTTPException
 from modules.categories import Category
 from modules.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
-from percistance.connections import read_query, insert_query, update_query
+from percistance.connections import read_query, insert_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
     GRANT_WRITE_ACCESS, GRANT_READ_ACCESS, GET_ACCESS_LEVEL, \
     REVOKE_ACCESS, GET_USER_ACCESSIBLE_CATEGORIES
@@ -170,7 +169,7 @@ ALGORITHM = "HS256"
 
 
 def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
-    expiration = datetime.now() + datetime.timedelta(days=1)  # Token valid for 1 day
+    expiration = datetime.datetime.now() + datetime.timedelta(days=1)  # Token valid for 1 day
 
 
     token_data = {
@@ -229,6 +228,5 @@ def authenticate(authorization: str) -> dict:
 
     token = authorization.split(" ")[1]
     decoded_token = decode_jwt_token(token)
-
 
     return decoded_token
