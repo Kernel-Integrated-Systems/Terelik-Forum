@@ -1,4 +1,5 @@
 # USER QUERIES
+REVOKE_ACCESS = """DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ?"""
 
 ALL_USERS = """SELECT user_id, username, email, user_role, is_active FROM users"""
 USER_BY_ID = """SELECT user_id, username, email, user_role, is_active FROM users WHERE user_id = ?"""

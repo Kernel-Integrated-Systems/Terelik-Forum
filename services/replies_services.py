@@ -1,3 +1,4 @@
+from modules import replies
 from modules.replies import Reply, Vote
 from modules.topic import Topic
 from percistance.connections import read_query, insert_query, update_query
@@ -23,8 +24,6 @@ def create_reply(content: str, topic_id: int, user_id: int):
     new_reply_id = insert_query(NEW_REPLY, (content, user_id, topic_id))
     new_reply = Reply(reply_id=new_reply_id, content=content, user_id=user_id, topic_id=topic_id)
     return new_reply
-
-
 
 
 
