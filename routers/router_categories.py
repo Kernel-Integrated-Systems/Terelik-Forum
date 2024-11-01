@@ -15,13 +15,13 @@ def show_categories():
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
+
 @categories_router.get('/{category_id}')
 def get_category_by_id(category_id: int):
     try:
         return find_category_by_id(category_id)
     except ValueError as e:
         return Response(status_code=404, content=str(e))
-
 
 
 @categories_router.post('/')
@@ -34,14 +34,6 @@ def create_new_category(category: NewCategory, authorization: str = Header(...))
         return create_category(category.category_name, category.private, category.locked)
     except ValueError as e:
         return Response(status_code=404, content=str(e))
-
-@categories_router.get('/{category_id}')
-def get_category_by_id(category_id: int):
-    try:
-        return find_category_by_id(category_id)
-    except ValueError as e:
-        return Response(status_code=404, content=str(e))
-
 
 
 @categories_router.delete('/{category_id}')
