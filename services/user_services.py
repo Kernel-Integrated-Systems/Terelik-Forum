@@ -225,7 +225,7 @@ def decode_jwt_token(token: str):
 def authenticate(authorization: str) -> dict:
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
-
+#for Kristin it works with split:
     token = authorization.split(" ")[1]
     decoded_token = decode_jwt_token(token)
 
