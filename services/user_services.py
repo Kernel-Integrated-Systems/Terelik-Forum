@@ -170,7 +170,7 @@ ALGORITHM = "HS256"
 
 
 def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
-    expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)  # Token valid for 1 day
+    expiration = datetime.now() + datetime.timedelta(days=1)  # Token valid for 1 day
 
 
     token_data = {
@@ -183,17 +183,13 @@ def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
     return token
 
 
-
-
 def decode_jwt_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        is_expired = payload['exp'] < datetime.datetime.utcnow().timestamp()
         return {
             "user_id": payload["user_id"],
             "username": payload["sub"],
-            "user_role": payload["user_role"],
-            "is_expired": is_expired
+            "user_role": payload["user_role"]
         }
 
     except jwt.ExpiredSignatureError:
@@ -226,6 +222,7 @@ def decode_jwt_token(token: str):
 
 ####
 
+
 def authenticate(authorization: str) -> dict:
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
@@ -233,7 +230,5 @@ def authenticate(authorization: str) -> dict:
     token = authorization.split(" ")[1]
     decoded_token = decode_jwt_token(token)
 
-    if decoded_token["is_expired"]:
-        raise HTTPException(status_code=401, detail="Token has expired.")
 
     return decoded_token
