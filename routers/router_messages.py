@@ -34,7 +34,7 @@ def get_user_message(user_id: int, target_usr_id: int, authorization: str = Head
 
 # Create New Message
 @messages_router.post("/")
-def create_new_message(msg=NewMessage, authorization: str = Header(...)):
+def create_new_message(msg: NewMessage, authorization: str = Header(...)):
     user_info = authenticate(authorization)
 
     sender = get_user_by_id(user_info["user_id"])

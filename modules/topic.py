@@ -28,7 +28,7 @@ class Topic(BaseModel):
     content: str
     user_id: int
     category_id: int
-    is_locked: int
+    is_locked: int = 0
     replies: List[Reply] = []
 
 
