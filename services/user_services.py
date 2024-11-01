@@ -1,10 +1,10 @@
+import jwt
 from fastapi import HTTPException
 from modules.users import User, UserRegistrationRequest, TokenResponse, UserAccess
 from typing import Optional
-import base64
 from percistance.connections import read_query, insert_query
 from percistance import queries
-from datetime import datetime
+import datetime
 
 
 def get_all_users():
@@ -72,12 +72,12 @@ def authenticate_user(username: str, password: str):
     if user[0][2] != password:
         raise ValueError('The provided password is incorrect! Please try again.')
     # assign user_id, username and user_role
-    token = encode(user[0][0], user[0][1], user[0][3])
+    token = create_jwt_token(user[0][0], user[0][1], user[0][3])
     return TokenResponse(access_token=token)
 
 
 def logout_user(username: str, token: str):
-    token_data = decode(token)
+    token_data = decode_jwt_token(token)
     if token_data["user"] != username:
         raise ValueError(f'User {username} is not logged in.')
 
@@ -85,35 +85,80 @@ def logout_user(username: str, token: str):
     print(session_token)
     return {"message": f"User {username} successfully logged out."}
 
-
-def authenticate(token) -> dict:
-    session_data = decode(token)
-    user = get_user_by_username(session_data["username"])
-    if not user:
-        raise ValueError(f'Username {session_data["username"]} is not registered or token has expired.')
-
-    return session_data
-
-
-def encode(user_id: int, username: str, user_role: int) -> str:
-    now = datetime.now()
-    user_string = f"{user_id}_{username}_{user_role}_{now.strftime("%H:%M:%S")}"
-    encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
-
-    return encoded_bytes.decode('utf-8')
+""" 
+----------------------------------->
+    Аuthentication 
+        Logic 
+    and token JWT 
+----------------------------------->
+"""
 
 
-def decode(encoded_value: str):
-    decoded_string = base64.b64decode(encoded_value).decode('utf-8')
-    user_id, username, user_role, created_at = decoded_string.split('_')
-    result = {
-        "user_id": int(user_id),
-        "username": username,
-        "user_role": int(user_role),
-        "created_at": created_at
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
+
+
+def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
+    expiration = datetime.datetime.now() + datetime.timedelta(days=1)  # Token valid for 1 day
+
+
+    token_data = {
+        "sub": username,
+        "user_id": user_id,
+        "user_role": user_role,
+        "exp": expiration
     }
-    return result
+    token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
+    return token
 
+
+def decode_jwt_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {
+            "user_id": payload["user_id"],
+            "username": payload["sub"],
+            "user_role": payload["user_role"]
+        }
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token.")
+
+
+
+#### COMMENT the functions below and switch the code and comments in encode and decode functions above ^
+
+# def encode(user_id: int, username: str, user_role: int) -> str:
+#     now = datetime.now()
+#     user_string = f"{user_id}_{username}_{user_role}_{now.strftime("%H:%M:%S")}"
+#     encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
+#
+#     return encoded_bytes.decode('utf-8')
+#
+#
+# def decode(encoded_value: str):
+#     decoded_string = base64.b64decode(encoded_value).decode('utf-8')
+#     user_id, username, user_role, created_at = decoded_string.split('_')
+#     result = {
+#         "user_id": int(user_id),
+#         "username": username,
+#         "user_role": int(user_role),
+#         "created_at": created_at
+#     }
+#     return result
+
+####
+
+
+def authenticate(authorization: str) -> dict:
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
+
+    decoded_token = decode_jwt_token(authorization)
+
+    return decoded_token
 
 """
 ----------------------------------->
