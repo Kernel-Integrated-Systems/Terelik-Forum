@@ -1,6 +1,6 @@
 import base64
 from datetime import datetime
-import jwt
+# import jwt
 from fastapi import HTTPException
 from modules.categories import Category
 from modules.users import User, UserRegistrationRequest, UserAccess

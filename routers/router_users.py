@@ -1,6 +1,4 @@
 from fastapi import APIRouter, HTTPException, Response, Header, Body
-
-
 from modules.users import UserRegistrationRequest, UserLoginRequest, UserAccess
 from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, \
     grant_read_access, grant_write_access, revoke_access, \
