@@ -1,9 +1,5 @@
 # USER QUERIES
-#
-# INSERT_BLACKLISTED_TOKEN = """INSERT INTO blacklisted_tokens (token) VALUES (?)"""
-# CHECK_TOKEN_BLACKLISTED = """SELECT COUNT(*) FROM blacklisted_tokens WHERE token = ?"""
-# REMOVE_OLD_TOKENS = """DELETE FROM blacklisted_tokens WHERE blacklisted_at < DATETIME('now', '-30 days')"""
-REVOKE_ACCESS = """DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ?"""
+
 ALL_USERS = """SELECT user_id, username, email, user_role, is_active FROM users"""
 USER_BY_ID = """SELECT user_id, username, email, user_role, is_active FROM users WHERE user_id = ?"""
 USER_BY_EMAIL = """SELECT user_id, username, email, user_role, is_active FROM users WHERE email = ?"""
