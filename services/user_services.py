@@ -227,6 +227,6 @@ def authenticate(authorization: str) -> dict:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
     token = authorization.split(" ")[1]
-    decoded_token = decode_jwt_token(token)
+    decoded_token = decode_jwt_token(authorization)
 
     return decoded_token

@@ -3,7 +3,7 @@ from starlette.responses import Response
 from modules.replies import NewReply, Vote
 from services.replies_services import vote_reply, create_reply
 from services.topic_services import check_topic_lock_status
-from services.user_services import authenticate, decode_jwt_token
+from services.user_services import authenticate
 
 
 
@@ -23,6 +23,7 @@ def create_reply_route(reply: NewReply, authorization: str = Header(...)):
         return create_reply(reply.content, reply.topic_id, user_info["user_id"])
     except ValueError as e:
         return Response(status_code=400, content=str(e))
+
 
 @votes_router.post('/reply/{reply_id}')
 def post_vote_for_reply(reply: Vote, authorization: str = Header(...)):
