@@ -34,6 +34,12 @@ def get_user_by_username(username: str) -> Optional[User]:
     return next((User.from_query_result(*row) for row in data), None)
 
 
+def validate_new_user_credentials(user: str, email: str) -> bool:
+    user_exists = read_query(queries.USER_EXISTS, (user, email))
+    if user_exists[0][0] > 0:
+        return False
+    return True
+
 def create_user(user_data: UserRegistrationRequest):
     new_user_id = insert_query(queries.NEW_USER, (
         user_data.username,
@@ -46,12 +52,9 @@ def create_user(user_data: UserRegistrationRequest):
 
 
 def register_user(username: str, email: str, password: str) -> User:
-    usernm = get_user_by_username(username)
-    userem = get_user_by_email(email)
-    if usernm:
-        raise ValueError(f'Username {username} is already taken!')
-    if userem:
-        raise ValueError(f'Email is {email} already registered!')
+    user_exists = validate_new_user_credentials(username, email)
+    if user_exists:
+        raise ValueError('An user with the same username or password already exists!')
 
     user_data = UserRegistrationRequest(username=username, email=email, password=password)
     new_user_id = create_user(user_data)
@@ -127,36 +130,12 @@ def decode_jwt_token(token: str):
         raise HTTPException(status_code=401, detail="Invalid token.")
 
 
-
-#### COMMENT the functions below and switch the code and comments in encode and decode functions above ^
-
-# def encode(user_id: int, username: str, user_role: int) -> str:
-#     now = datetime.now()
-#     user_string = f"{user_id}_{username}_{user_role}_{now.strftime("%H:%M:%S")}"
-#     encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
-#
-#     return encoded_bytes.decode('utf-8')
-#
-#
-# def decode(encoded_value: str):
-#     decoded_string = base64.b64decode(encoded_value).decode('utf-8')
-#     user_id, username, user_role, created_at = decoded_string.split('_')
-#     result = {
-#         "user_id": int(user_id),
-#         "username": username,
-#         "user_role": int(user_role),
-#         "created_at": created_at
-#     }
-#     return result
-
-####
-
-
 def authenticate(authorization: str) -> dict:
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
-    decoded_token = decode_jwt_token(authorization)
+    token = authorization.split(" ")[1]
+    decoded_token = decode_jwt_token(token)
 
     return decoded_token
 

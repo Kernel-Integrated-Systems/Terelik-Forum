@@ -12,7 +12,10 @@ def vote_reply(reply_id: int, vote_type: int, user_id: int):
         vote_response = 'downvote'
     else:
         raise ValueError(f'The provided vote type {vote_type} is incorrect!')
-    new_vote = insert_query(queries.VOTE_ON_REPLY, (user_id, reply_id, vote_type))
+    vote_exists = read_query(queries.CHECK_VOTE_EXISTS, (user_id, reply_id, vote_type))
+    if vote_exists[0][0] > 0:
+        raise ValueError('You have already voted for this reply')
+    insert_query(queries.VOTE_ON_REPLY, (user_id, reply_id, vote_type))
     stamp = datetime.now()
     return VoteResponse(reply_id=reply_id, vote_type=vote_response, created_at=stamp)
 
@@ -23,24 +26,6 @@ def create_reply(content: str, topic_id: int, user_id: int):
     new_reply = Reply(reply_id=new_reply_id, content=content, user_id=user_id, topic_id=topic_id)
 
     return new_reply
-
-
-# def vote_reply(reply_id: int, user_id: int, vote_type: str):
-#     reply = find_reply_by_id(reply_id)
-#     if not reply:
-#         raise ValueError("Reply not found.")
-#
-#     existing_vote = next((v for v in votes if v.user_id == user_id and v.reply_id == reply_id), None)
-#
-#     if existing_vote:
-#         if existing_vote.vote_type == vote_type:
-#             return "Vote already recorded"
-#         existing_vote.vote_type = vote_type
-#     else:
-#         new_vote = Vote(user_id=user_id, reply_id=reply_id, vote_type=vote_type)
-#         votes.append(new_vote)
-#
-#     return f"Reply {vote_type}d successfully."
 
 
 def get_all_topics_with_best_replies(topic_id: int, reply_id: int):

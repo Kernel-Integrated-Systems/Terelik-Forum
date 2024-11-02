@@ -41,10 +41,12 @@ def get_topic_by_category(category_id: int):
 def create_new_topic(topic: NewTopic, token: str | None = Header()):
     # Check if user is authenticated
     user_data = user_services.authenticate(token)
+    user_id = user_data["user_id"]
+    locked_status = 1 if topic.is_locked else 0
     if not user_data:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
     try:
-        return topic_services.create_topic(topic.title, topic.content, topic.user_id, topic.category_id)
+        return topic_services.create_topic(topic.title, topic.content, user_id, topic.category_id, locked_status)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 

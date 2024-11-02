@@ -57,8 +57,6 @@ def create_category(
     new_id = insert_query(queries.NEW_CATEGORY, (title,))
 
     # Update category details if provided
-    private = private if isinstance(private, int) else 0
-    locked = locked if isinstance(locked, int) else 0
     update_query(queries.NEW_CATEGORY_DETAILS, (private, locked, new_id))
     new_category = NewCategory(id=new_id,category_name=title, private=private, locked=locked)
 

@@ -48,5 +48,5 @@ class Topic(BaseModel):
 class NewTopic(BaseModel):
     title: str
     content: str
-    user_id: int
     category_id: int
+    is_locked: bool

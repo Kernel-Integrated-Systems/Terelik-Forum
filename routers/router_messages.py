@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Response, HTTPException
-
+from fastapi import APIRouter, Response, HTTPException, Header
 from modules.messages import NewMessage
 from services.message_services import get_messages, get_message_by_id, post_new_message, create_message
 from services.user_services import authenticate, get_user_by_id
@@ -9,7 +8,7 @@ messages_router = APIRouter(prefix='/messages', tags=['Messages'])
 
 # View Conversations - regardless of receiver
 @messages_router.get("/{user_id}")
-def get_user_messages(user_id: int, token: str | None = None):
+def get_user_messages(user_id: int, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -21,7 +20,7 @@ def get_user_messages(user_id: int, token: str | None = None):
 
 # View Conversation - to a particular receiver
 @messages_router.get("/{user_id}/{target_usr_id}")
-def get_user_message(user_id: int, target_usr_id: int, token: str | None = None):
+def get_user_message(user_id: int, target_usr_id: int, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -35,7 +34,7 @@ def get_user_message(user_id: int, target_usr_id: int, token: str | None = None)
 
 # Create New Message
 @messages_router.post("/")
-def create_new_message(msg: NewMessage, token: str | None = None):
+def create_new_message(msg: NewMessage, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:

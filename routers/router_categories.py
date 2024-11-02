@@ -33,14 +33,17 @@ def create_new_category(category: NewCategory, token: str | None = Header()):
     user_role = user_data["user_role"]
     if user_role != 2:
         raise HTTPException(status_code=401, detail="Unauthorized access. You need to be admin!")
+    # Check statuses
+    private_status = 1 if category.private else 0
+    locked_status = 1 if category.locked else 0
     try:
-        return categories_services.create_category(category.category_name, category.private, category.locked)
+        return categories_services.create_category(category.category_name, private_status, locked_status)
     except ValueError as e:
         return Response(status_code=400, content=str(e))
 
 
 @categories_router.delete('/{category_id}')
-def delete_category(category_id: int, token: str | None = None):
+def delete_category(category_id: int, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:
@@ -56,7 +59,7 @@ def delete_category(category_id: int, token: str | None = None):
 
 # View Privileged Users
 @categories_router.get('/{category_id}/privileged_users')
-def get_privileged_users_for_category(category_id: int, token: str | None = None):
+def get_privileged_users_for_category(category_id: int, token: str | None = Header()):
     # Check if user is authenticated
     user_data = authenticate(token)
     if not user_data:

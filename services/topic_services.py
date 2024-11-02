@@ -34,14 +34,12 @@ def sort_topics(topics: list[Topics], attribute='title', reverse=False):
 
     return sorted(topics, key=sort_key, reverse=reverse)
 
-# Find Topic by ID
-def find_topic_by_id(topic_id: int):
-    topic_data = read_query(queries.TOPIC_BY_ID, (topic_id,))
-    if not topic_data:
-        raise ValueError(f'Topic with ID {topic_id} does not exist.')
+# Topic Response helper
+def get_topic_with_replies(topic_data):
 
     topic_id, title, content, user_id, category_id, is_locked = topic_data[0]
 
+    # Retrieve replies for the topic
     reply_data = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
     replies = [
         Reply(
@@ -53,6 +51,7 @@ def find_topic_by_id(topic_id: int):
         ) for reply_row in reply_data
     ]
 
+    # Create the Topic instance with replies
     topic = Topic.from_query_string(
         topic_id=topic_id,
         title=title,
@@ -65,24 +64,33 @@ def find_topic_by_id(topic_id: int):
 
     return topic
 
+# Find Topic by ID
+def find_topic_by_id(topic_id: int):
+    topic_data = read_query(queries.TOPIC_BY_ID, (topic_id,))
+    if not topic_data:
+        raise ValueError(f'Topic with ID {topic_id} does not exist.')
+
+    return get_topic_with_replies(topic_data)
 
 def find_topic_by_title(title: str):
-    data = read_query(queries.TOPIC_BY_TITLE, (title,))
-    if not data:
+    topic_data = read_query(queries.TOPIC_BY_TITLE, (title,))
+    if not topic_data:
         raise ValueError(f'Topic with title {title} does not exist.')
-    return next((Topic.view_topics(*row) for row in data), None)
+
+    return get_topic_with_replies(topic_data)
 
 
 def find_topic_by_category(category_id: int):
-    data = read_query(queries.TOPIC_BY_CATEGORY, (category_id,))
-    if not data:
+    topic_data = read_query(queries.TOPIC_BY_CATEGORY, (category_id,))
+    if not topic_data:
         raise ValueError(f'There is no topic with category {category_id}.')
-    return next((Topic.view_topics(*row) for row in data), None)
+
+    return get_topic_with_replies(topic_data)
 
 # Post Topic
-def create_topic(title: str, content: str, user_id: int, category: int):
-    new_topic_id = insert_query(queries.NEW_TOPIC, (title, content, user_id, category))
-    return Topic(topic_id=new_topic_id, title=title, content=content, user_id=user_id, category_id=category)
+def create_topic(title: str, content: str, user_id: int, category: int, is_locked: int):
+    new_topic_id = insert_query(queries.NEW_TOPIC, (title, content, user_id, category, is_locked))
+    return Topic(topic_id=new_topic_id, title=title, content=content, user_id=user_id, category_id=category, is_locked=0)
 
 # Choose Best Reply on Topic
 def choose_best_reply(topic_id: int, reply_id: int, user_id: int):
