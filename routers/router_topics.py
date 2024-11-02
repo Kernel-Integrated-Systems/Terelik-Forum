@@ -4,7 +4,7 @@ from modules.topic import NewTopic
 from services import topic_services, user_services
 
 
-topics_router = APIRouter(prefix='/topics', tags=['Topics'])
+topics_router = APIRouter(prefix='/api/topics', tags=['Topics'])
 
 # View Topics
 @topics_router.get('/')

@@ -4,7 +4,7 @@ from services.user_services import authenticate
 from services import categories_services
 
 
-categories_router = APIRouter(prefix='/categories', tags=["Categories"])
+categories_router = APIRouter(prefix='/api/categories', tags=["Categories"])
 
 # View Categories
 @categories_router.get('/')

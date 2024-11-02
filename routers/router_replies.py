@@ -4,7 +4,7 @@ from modules.replies import NewReply, Vote
 from services import replies_services, user_services, topic_services
 
 
-replies_router = APIRouter(prefix='/replies', tags=["Replies"])
+replies_router = APIRouter(prefix='/api/replies', tags=["Replies"])
 
 
 # Create Reply

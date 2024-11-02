@@ -3,7 +3,7 @@ from modules.messages import NewMessage
 from services.message_services import get_messages, get_message_by_id, post_new_message, create_message
 from services.user_services import authenticate, get_user_by_id
 
-messages_router = APIRouter(prefix='/messages', tags=['Messages'])
+messages_router = APIRouter(prefix='/api/messages', tags=['Messages'])
 
 
 # View Conversations - regardless of receiver

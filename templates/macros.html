@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Macros</title>
+</head>
+<body>
+    {% macro user_greeting(user) %}
+      {% if not user %}
+            <h3></h3>
+        {% else %}
+            <h3>Hello {{ user.username }}</h3>
+        {% endif %}
+    {% endmacro %}
+</body>
+</html>

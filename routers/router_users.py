@@ -3,7 +3,7 @@ from modules.users import UserRegistrationRequest, UserLoginRequest, UserLogoutR
 from services.user_services import get_all_users, get_user_by_id, register_user, authenticate, authenticate_user, \
     logout_user, grant_read_access, grant_write_access, revoke_access
 
-users_router = APIRouter(prefix='/users', tags=['Users'])
+users_router = APIRouter(prefix='/api/users', tags=['Users'])
 
 
 @users_router.get('/')

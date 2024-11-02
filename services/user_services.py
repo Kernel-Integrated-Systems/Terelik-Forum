@@ -6,6 +6,8 @@ from percistance.connections import read_query, insert_query
 from percistance import queries
 import datetime
 
+from web_routers.router_users import users_router
+
 
 def get_all_users():
     data = read_query(queries.ALL_USERS)
@@ -67,16 +69,16 @@ def register_user(username: str, email: str, password: str) -> User:
     )
 
 
-def authenticate_user(username: str, password: str):
+def authenticate_user(username: str, password: str) -> str:
     user = read_query(queries.LOGIN_USERNAME_PASS, (username, password))
     if not user:
-        raise ValueError(f'User with email {username} does not exist.')
+        raise ValueError(f'User with username {username} does not exist.')
 
     if user[0][2] != password:
         raise ValueError('The provided password is incorrect! Please try again.')
-    # assign user_id, username and user_role
+
     token = create_jwt_token(user[0][0], user[0][1], user[0][3])
-    return TokenResponse(access_token=token)
+    return token
 
 
 def logout_user(username: str, token: str):
@@ -139,6 +141,12 @@ def authenticate(authorization: str) -> dict:
 
     return decoded_token
 
+
+def get_token_user(authorization: str) -> User | None:
+    if authorization:
+        user_obj = authenticate(authorization)
+        user = get_user_by_id(user_obj["user_id"])
+        return user
 """
 ----------------------------------->
 Permissions for users ACCESS LEVELS
