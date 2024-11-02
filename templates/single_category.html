@@ -69,16 +69,16 @@
 
             <!-- Right side: List of categories -->
             <div class="col-md-8">
-                {% if selected_category %}
+                {% if category %}
                     <h2>{{ category.category_name }}</h2>
-                    <p><strong>Private:</strong> {{ 'Yes' if selected_category.private else 'No' }}</p>
-                    <p><strong>Locked:</strong> {{ 'Yes' if selected_category.locked else 'No' }}</p>
+                    <p><strong>Private:</strong> {{ 'Yes' if category.private else 'No' }}</p>
+                    <p><strong>Locked:</strong> {{ 'Yes' if category.locked else 'No' }}</p>
 
                     <!-- Display topics if any exist -->
                     <h3>Topics</h3>
                     {% if category.topics %}
                         <ul class="list-group">
-                            {% for topic in selected_category.topics %}
+                            {% for topic in category.topics %}
                                 <li class="list-group-item">
                                     <h5>{{ topic.title }}</h5>
                                     <p>{{ topic.content }}</p>

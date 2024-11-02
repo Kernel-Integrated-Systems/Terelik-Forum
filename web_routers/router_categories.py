@@ -9,19 +9,22 @@ templates = Jinja2Templates(directory='templates')
 def display_categories(request: Request):
     categories = list(cs.view_categories())
     return templates.TemplateResponse(
-        'categories.html',
-        {'request': request,
+        request=request,
+        name='categories.html',
+        context={'request': request,
          'categories': categories}
     )
 
 @categories_router.get('/{category_id}')
 def display_category_details(request: Request, category_id: int):
+    selected_category = cs.find_category_by_id(category_id)
     categories = list(cs.view_categories())
     print(categories)
-    selected_category = cs.find_category_by_id(category_id)
+
     return templates.TemplateResponse(
-        'categories.html',
-        {'request': request,
+        request=request,
+        name='single_category.html',
+        context={'request': request,
          'categories': categories,
          'category': selected_category}
     )

@@ -9,7 +9,9 @@ body {
 
 /* Navbar styling */
 .navbar {
-    border-bottom: 2px solid #ADD8E6;
+    background-color: #0099ff; !important;
+    border-bottom: 2px solid #007acc;
+    color: #ffffff;
 }
 
 .navbar-brand {
@@ -28,6 +30,13 @@ body {
 
 .navbar-nav .nav-link.active {
     color: #00008B;
+}
+
+/* Center the greeting message */
+.mx-auto.text-center h3 {
+    margin: 0;
+    color: #16537e;
+    align: center;
 }
 
 /* Card styling */

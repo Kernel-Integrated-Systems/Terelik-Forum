@@ -9,7 +9,18 @@
       {% if not user %}
             <h3></h3>
         {% else %}
-            <h3>Hello {{ user.username }}</h3>
+            <h3>Hello {{ user.username|capitalize }}</h3>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro auth_buttons(user) %}
+        {% if user %}
+            <!-- Logout Button -->
+            <a href="/users/logout" class="btn btn-outline-primary">Logout</a>
+        {% else %}
+            <!-- Login and Register Buttons -->
+            <a href="/users/login" class="btn btn-outline-primary">Login</a>
+            <a href="/users/register" class="btn btn-outline-secondary">Register</a>
         {% endif %}
     {% endmacro %}
 </body>
