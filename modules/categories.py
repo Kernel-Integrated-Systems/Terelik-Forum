@@ -1,7 +1,5 @@
-from typing import List
-
 from pydantic import BaseModel
-
+from typing import List
 from modules.topic import Topics
 
 
@@ -39,11 +37,10 @@ class Category(BaseModel):
         )
 
 
-
 class NewCategory(BaseModel):
     category_name: str
-    private: int | None = None
-    locked: int | None = None
+    private: bool = False
+    locked: bool = False
 
 
 class CategoryPrivilegedUsersResponse(BaseModel):

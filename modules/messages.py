@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -22,14 +24,22 @@ class Message(BaseModel):
 
 
 class NewMessage(BaseModel):
+    receiver_id: int
+    content: str
+
+
+class CreateMessage(BaseModel):
     sender_id: int
     receiver_id: int
     content: str
 
 class NewMessageRespond(BaseModel):
+    message_id: int | None = None
+    sent_at: datetime | None = None
     sender: str
     receiver: str
     content: str
+
 
     @classmethod
     def from_query_string(cls, sender, receiver, content):
