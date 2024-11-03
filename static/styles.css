@@ -9,7 +9,7 @@ body {
 
 /* Navbar styling */
 .navbar {
-    background-color: #0099ff; !important;
+    background-color: #0099ff;
     border-bottom: 2px solid #007acc;
     color: #ffffff;
 }
@@ -30,6 +30,10 @@ body {
 
 .navbar-nav .nav-link.active {
     color: #00008B;
+}
+
+.navbar-custom {
+    color: #ADD8E6 !important; /* Light Blue */
 }
 
 /* Center the greeting message */
@@ -79,6 +83,16 @@ body {
 
 .card a.btn:active {
     background-color: #000060;
+}
+
+/* Form styling */
+.form-container {
+    min-height: 60vh;
+    padding-bottom: 5rem;
+}
+footer {
+    text-align: center;
+    margin-top: 1rem;
 }
 
 /* Footer styling */

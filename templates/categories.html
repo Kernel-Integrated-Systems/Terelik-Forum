@@ -6,6 +6,7 @@
     <title>KIS Forum - Categories</title>
     <link rel="stylesheet" href="/static/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% from 'macros.html' import user_greeting, auth_buttons, is_admin %}
 </head>
 <body>
 
@@ -68,7 +69,7 @@
             </div>
 
             <!-- Right side: List of categories -->
-            <div class="col-md-8">
+            <div class="col-md-7">
                 {% if selected_category %}
                     <h2>{{ category.category_name }}</h2>
                     <p><strong>Private:</strong> {{ 'Yes' if selected_category.private else 'No' }}</p>
@@ -91,6 +92,9 @@
                 {% else %}
                     <p>Select a category to see details.</p>
                 {% endif %}
+            </div>
+            <div class="col-md-1">
+                {{ is_admin(user) }}
             </div>
         </div>
     </main>

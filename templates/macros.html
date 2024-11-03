@@ -16,12 +16,26 @@
     {% macro auth_buttons(user) %}
         {% if user %}
             <!-- Logout Button -->
-            <a href="/users/logout" class="btn btn-outline-primary">Logout</a>
+            <form action="/users/logout" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-primary">Logout</button>
+            </form>
         {% else %}
             <!-- Login and Register Buttons -->
             <a href="/users/login" class="btn btn-outline-primary">Login</a>
             <a href="/users/register" class="btn btn-outline-secondary">Register</a>
         {% endif %}
     {% endmacro %}
+
+    {% macro is_admin(user) %}
+        {% if user.role == 2 %}
+            <form action="/create/new_category" method="get">
+                <button type="submit" class="btn btn-outline-primary">Create Category</button>
+            </form>
+                <button type="button" class="btn btn-outline-danger">Delete Category</button>
+        {% else %}
+            <h6></h6>
+        {% endif %}
+    {% endmacro %}
+
 </body>
 </html>

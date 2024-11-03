@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% from 'macros.html' import user_greeting, auth_buttons %}
+</head>
+<body>
+
+<!-- Navbar -->
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">KIS Forum</a>
+                <span id="greeting-message" class="navbar-text mx-auto">
+                    {{ user_greeting(user) }}
+                </span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/categories">Categories</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/topics">Topics</a></li>
+                        {{ auth_buttons(user) }}
+                    </ul>
+                </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Registration Form -->
+<div class="container d-flex justify-content-center align-items-center form-container">
+    <div class="col-md-6 col-lg-4">
+        <h2 class="text-center text-info bg-light">Create Category</h2>
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        <form action="/categories" method="post">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="title" class="form-label">Private</label>
+                <input type="text" class="form-control" id="private" name="private" required>
+            </div>
+            <div class="mb-3">
+                <label for="title" class="form-label">Locked</label>
+                <input type="text" class="form-control" id="locked" name="locked" required>
+            </div>
+
+
+            <button type="submit" class="btn btn-primary w-100">Create</button>
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <h5>KIS Forum</h5>
+    <p>Contact us at support@kisforum.com</p>
+</footer>
+
+</body>
+</html>

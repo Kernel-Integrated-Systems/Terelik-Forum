@@ -38,7 +38,7 @@ def get_user_by_username(username: str) -> Optional[User]:
 
 def validate_new_user_credentials(user: str, email: str) -> bool:
     user_exists = read_query(queries.USER_EXISTS, (user, email))
-    if user_exists[0][0] > 0:
+    if len(user_exists) == 0:
         return False
     return True
 
