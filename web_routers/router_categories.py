@@ -9,9 +9,12 @@ templates = Jinja2Templates(directory='templates')
 
 @categories_router.get('')
 def display_categories(request: Request):
-    categories = list(cs.view_categories())
     token = request.cookies.get('token')
     user = us.get_token_user(token)
+    categories = list(cs.view_categories())
+    if not user:
+        categories = [cat for cat in categories if cat.private == 0]
+
     return templates.TemplateResponse(
         request=request,
         name='categories.html',
@@ -25,27 +28,32 @@ def display_categories(request: Request):
 def display_category_details(request: Request, category_id: int):
     selected_category = cs.find_category_by_id(category_id)
     categories = list(cs.view_categories())
-    print(categories)
+
+    token = request.cookies.get('token')
+    print(token)
+    user = us.get_token_user(token)
 
     return templates.TemplateResponse(
         request=request,
         name='single_category.html',
-        context={'request': request,
-         'categories': categories,
-         'category': selected_category}
+        context={
+            'request': request,
+            'categories': categories,
+            'category': selected_category,
+            'user': user}
     )
 
 
 # Utility function
 def _get_new_category_data(
     title: str = Form(...),
-    private: str = Form(...),
-    locked: str = Form(...)
+    private: bool = Form(False),
+    locked: bool = Form(False)
 ):
     return title, private, locked
 
 # Handle submit new category request and redirect Categories page
-@categories_router.post('/')
+@categories_router.post('')
 def create_category(request: Request, form_data: tuple = Depends(_get_new_category_data)):
     categories = list(cs.view_categories())
     title, private, locked = form_data
