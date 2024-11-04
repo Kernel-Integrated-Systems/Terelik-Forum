@@ -45,21 +45,21 @@
         <div class="row">
             <!-- Left side: Single category details -->
             <div class="col-md-4">
-                <h3>Categories</h3>
+                <h3>Topics</h3>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="text-center">Topic</th>
+                                <th class="text-center fw-bolder">Topic</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for topic_item in topics %}
                                 <tr>
                                     <td class="text-center">
-                                        <h2>
-                                            <a href="/categories/{{ category_item.category_id }}">{{ topic_item.title }}</a>
-                                        </h2>
+                                        <h3>
+                                            <a href="/categories/{{ topic_item.topic_id }}">{{ topic_item.title }}</a>
+                                        </h3>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -72,7 +72,6 @@
             <div class="col-md-8">
                 {% if selected_topic %}
                     <h2>{{ topic.title }}</h2>
-                    <p><strong>Private:</strong> {{ 'Yes' if selected_topic.private else 'No' }}</p>
                     <p><strong>Locked:</strong> {{ 'Yes' if selected_topic.locked else 'No' }}</p>
 
                     <!-- Display topics if any exist -->

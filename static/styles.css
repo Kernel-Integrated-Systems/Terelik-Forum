@@ -85,6 +85,11 @@ body {
     background-color: #000060;
 }
 
+/* Table styling */
+th.text-center.fw-bolder {
+    font-size: 1.5em; /* Adjust the size as needed */
+}
+
 /* Form styling */
 .form-container {
     min-height: 60vh;

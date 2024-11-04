@@ -1,7 +1,8 @@
 from modules.categories import Categories, NewCategory, CategoryPrivilegedUsersResponse, Category
-from modules.topic import Topics
+from modules.topic import Topics, Topic
 from percistance.connections import read_query, insert_query, update_query
 from percistance import queries
+from typing import List
 
 
 
@@ -74,3 +75,10 @@ def show_users_on_category(category_id: int):
     if not data:
         raise ValueError(f'The category with ID {category_id} is not private!')
     return (CategoryPrivilegedUsersResponse.from_query_string(*row) for row in data)
+
+
+def show_public_categories():
+    all_categories = view_categories()
+    public_categories = [cat for cat in all_categories if cat.private == 0]
+    return public_categories
+

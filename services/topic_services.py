@@ -3,6 +3,7 @@ from modules.replies import Reply, BestReply
 from percistance.connections import read_query, insert_query, update_query
 from percistance import queries
 
+
 # View Topics
 def view_topics(search: str = None, page: int = 1, page_size: int = 4):
     topic_data = read_query(queries.ALL_TOPICS)

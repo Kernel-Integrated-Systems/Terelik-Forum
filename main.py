@@ -10,7 +10,7 @@ from web_routers.router_home import index_router as web_index_router
 from web_routers.router_users import users_router as web_users_router
 from web_routers.router_categories import categories_router as web_categories_router
 from web_routers.router_create_objects import category_create_router as web_create_router
-
+from web_routers.router_topics import topics_router as web_topics_router
 
 database_init()
 
@@ -28,6 +28,7 @@ app.include_router(web_index_router)
 app.include_router(web_users_router)
 app.include_router(web_categories_router)
 app.include_router(web_create_router)
+app.include_router(web_topics_router)
 
 
 if __name__ == "__main__":

@@ -50,16 +50,16 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="text-center">Category Name</th>
+                                <th class="text-center fw-bolder text-center fw-bolder">Category Name</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for category_item in categories %}
                                 <tr>
-                                    <td class="text-center">
-                                        <h2>
+                                    <td class="text-center fw-bolder">
+                                        <h3>
                                             <a href="/categories/{{ category_item.category_id }}">{{ category_item.category_name }}</a>
-                                        </h2>
+                                        </h3>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -81,7 +81,7 @@
                         <ul class="list-group">
                             {% for topic in category.topics %}
                                 <li class="list-group-item">
-                                    <h5>{{ topic.title }}</h5>
+                                    <a href="/topics/{{ topic.topic_id }}">{{ topic.title }}</a>
                                     <p>{{ topic.content }}</p>
                                 </li>
                             {% endfor %}
@@ -94,7 +94,7 @@
                 {% endif %}
             </div>
             <div class="col-md-1">
-                {{ is_admin(user) }}
+                {{ is_admin(user, category.category_id if category else None) }}
             </div>
         </div>
     </main>

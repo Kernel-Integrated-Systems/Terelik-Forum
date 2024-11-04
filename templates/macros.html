@@ -26,12 +26,16 @@
         {% endif %}
     {% endmacro %}
 
-    {% macro is_admin(user) %}
+    {% macro is_admin(user, category_id=None) %}
         {% if user.role == 2 %}
             <form action="/create/new_category" method="get">
                 <button type="submit" class="btn btn-outline-primary">Create Category</button>
             </form>
-                <button type="button" class="btn btn-outline-danger">Delete Category</button>
+            {% if category_id %}
+                <form action="/categories/{{ category_id }}?action=delete" method="post">
+                    <button type="submit" class="btn btn-outline-danger">Delete Category</button>
+                </form>
+            {% endif %}
         {% else %}
             <h6></h6>
         {% endif %}

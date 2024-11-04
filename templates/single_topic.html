@@ -45,20 +45,20 @@
         <div class="row">
             <!-- Left side: Single category details -->
             <div class="col-md-4">
-                <h3>Categories</h3>
+                <h3>Topics</h3>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="text-center fw-bolder">Category Name</th>
+                                <th class="text-center fw-bolder text-center fw-bolder">Topic</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for category_item in categories %}
+                            {% for topic_item in topics %}
                                 <tr>
-                                    <td class="text-center">
+                                    <td class="text-center fw-bolder">
                                         <h3>
-                                            <a href="/categories/{{ category_item.category_id }}">{{ category_item.category_name }}</a>
+                                            <a href="/categories/{{ topic_item.topic_id }}">{{ topic_item.title }}</a>
                                         </h3>
                                     </td>
                                 </tr>
@@ -70,31 +70,30 @@
 
             <!-- Right side: List of categories -->
             <div class="col-md-7">
-                {% if selected_category %}
-                    <h2>{{ category.category_name }}</h2>
-                    <p><strong>Private:</strong> {{ 'Yes' if selected_category.private else 'No' }}</p>
-                    <p><strong>Locked:</strong> {{ 'Yes' if selected_category.locked else 'No' }}</p>
+                {% if selected_topic %}
+                    <h2>{{ topic.title }}</h2>
+                    <p><strong>Locked:</strong> {{ 'Yes' if selected_topic.locked else 'No' }}</p>
 
                     <!-- Display topics if any exist -->
                     <h3>Topics</h3>
-                    {% if category.topics %}
+                    {% if topic.replies %}
                         <ul class="list-group">
-                            {% for topic in selected_category.topics %}
+                            {% for reply in selected_topic.replies %}
                                 <li class="list-group-item">
-                                    <h5>{{ topic.title }}</h5>
-                                    <p>{{ topic.content }}</p>
+                                    <h5>{{ reply.created_at }}</h5>
+                                    <p>{{ reply.content }}</p>
                                 </li>
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p>No topics available in this category.</p>
+                        <p>There are no replies for this topic.</p>
                     {% endif %}
                 {% else %}
-                    <p>Select a category to see details.</p>
+                    <p>Select a topic to see details.</p>
                 {% endif %}
             </div>
             <div class="col-md-1">
-                {{ is_admin(user) }}
+                <h3>Add category options macro here</h3>
             </div>
         </div>
     </main>
