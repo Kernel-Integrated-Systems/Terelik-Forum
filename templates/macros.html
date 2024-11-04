@@ -41,5 +41,19 @@
         {% endif %}
     {% endmacro %}
 
+    {% macro is_authenticated(user, topic_id=None) %}
+        {% if user %}
+            <form action="/create/new_topic" method="get">
+                <button type="submit" class="btn btn-outline-primary">Create Topic</button>
+            </form>
+            {% if user.id == topic.user_id %}
+                <form action="/topics/{{ topic_id }}?action=delete" method="post">
+                    <button type="submit" class="btn btn-outline-danger">Delete Topic</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <h6></h6>
+        {% endif %}
+    {% endmacro %}
 </body>
 </html>
