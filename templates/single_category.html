@@ -45,20 +45,20 @@
         <div class="row">
             <!-- Left side: Single category details -->
             <div class="col-md-4">
-                <h3>Categories</h3>
+                <h3>Category</h3>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="text-center fw-bolder text-center fw-bolder">Category Name</th>
+                                <th class="text-center fw-bolder text-center fw-bolder">{{ category.category_name }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for category_item in categories %}
+                            {% for topic_item in category.topics %}
                                 <tr>
                                     <td class="text-center fw-bolder">
                                         <h3>
-                                            <a href="/categories/{{ category_item.category_id }}">{{ category_item.category_name }}</a>
+                                            <a href="/topics/{{ topic_item.topic_id }}">{{ topic_item.title }}</a>
                                         </h3>
                                     </td>
                                 </tr>
@@ -81,8 +81,8 @@
                         <ul class="list-group">
                             {% for topic in category.topics %}
                                 <li class="list-group-item">
-                                    <a href="/topics/{{ topic.topic_id }}">{{ topic.title }}</a>
-                                    <p>{{ topic.content }}</p>
+                                    <a href="/topics">{{ topic.title }}</a>
+                                    <h5 class="mt-4">{{ topic.content }}</h5>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -100,7 +100,7 @@
     </main>
 
     <!-- Footer section -->
-    <footer class="bg-light text-center py-4">
+    <footer class="text-center py-4">
         <h5>KIS Forum</h5>
         <p>Contact us at: contact@kisforum.com | Phone: (123) 456-7890</p>
     </footer>

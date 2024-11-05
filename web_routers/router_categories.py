@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Form, Depends, Query
 from starlette import status
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 from starlette.templating import Jinja2Templates
 from services import categories_services as cs
 from services import user_services as us
@@ -35,16 +35,17 @@ def display_category_details(request: Request, category_id: int):
     user = us.get_token_user(token)
     # Filer category data
     selected_category = cs.find_category_by_id(category_id)
-    categories = list(cs.view_categories())
-    if not user:
-        categories = [cat for cat in categories if cat.private == 0]
+    topics = [tpc for tpc in selected_category.topics]
+
+    if not user and selected_category.private == 1:
+        return RedirectResponse(url='/', status_code=302)
 
     return templates.TemplateResponse(
         request=request,
         name='single_category.html',
         context={
             'request': request,
-            'categories': categories,
+            'topics': topics,
             'category': selected_category,
             'user': user}
     )

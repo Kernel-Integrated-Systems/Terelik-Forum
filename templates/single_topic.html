@@ -50,7 +50,7 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th class="text-center fw-bolder text-center fw-bolder">{{ topic_item.content }}</th>
+                                <th class="text-center fw-bolder">Topics</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,6 +60,10 @@
                                         <h3>
                                             <a href="/topics/{{ topic_item.topic_id }}">{{ topic_item.title }}</a>
                                         </h3>
+                                        <!--
+                                        <p class="text-capitalize">
+                                            Author: {{ author_map[topic_item.topic_id].username if author_map[topic_item.topic_id] else 'Unknown' }}
+                                        </p> -->
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -75,7 +79,7 @@
                     <p><strong>Locked:</strong> {{ 'Yes' if topic.locked else 'No' }}</p>
 
                     <!-- Display topics if any exist -->
-                    <h3>Topics</h3>
+                    <h3>Replies in Topic</h3>
                     {% if topic.replies %}
                         <ul class="list-group">
                             {% for reply in topic.replies %}
@@ -83,7 +87,14 @@
                                     <h5 class="text-end" style="font-size: 0.9em; color: #6c757d;">
                                         {{ reply.created_at.strftime('%m/%d/%Y %I:%M %p') }}
                                     </h5>
+                                    <h4 class="text-start fw-bolder">
+                                        {{ topic.content }}
+                                    </h4>
+                                    <p class="text-capitalize text-info-emphasis">
+                                        From: {{ reply_author_map[reply.user_id].username if reply_author_map[reply.user_id] else 'Unknown' }}
+                                    </p>
                                 </li>
+
                             {% endfor %}
                         </ul>
                     {% else %}
@@ -94,13 +105,13 @@
                 {% endif %}
             </div>
             <div class="col-md-1">
-                {{ is_authenticated(user) }}
+                {{ is_authenticated(user, topic=selected_topic) }}
             </div>
         </div>
     </main>
 
     <!-- Footer section -->
-    <footer class="bg-light text-center py-4">
+    <footer class="text-center py-4">
         <h5>KIS Forum</h5>
         <p>Contact us at: contact@kisforum.com | Phone: (123) 456-7890</p>
     </footer>

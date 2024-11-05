@@ -9,9 +9,13 @@ body {
 
 /* Navbar styling */
 .navbar {
-    background-color: #0099ff;
+    background-color: #ADD8E6;
     border-bottom: 2px solid #007acc;
     color: #ffffff;
+}
+
+.navbar-custom {
+    background-color: #ADD8E6;
 }
 
 .navbar-brand {

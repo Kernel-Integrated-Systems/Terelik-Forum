@@ -82,3 +82,6 @@ def show_public_categories():
     public_categories = [cat for cat in all_categories if cat.private == 0]
     return public_categories
 
+
+def find_category_by_topic(topic_id: int):
+    data = 0
