@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Request, Form, Depends, Query
+from fastapi import APIRouter, Request, Form, Depends
 from starlette.templating import Jinja2Templates
+from typing import List, Dict
+from modules.users import User
 from services import user_services as us
 from services import topic_services as ts
 from services import categories_services as cs
@@ -24,6 +26,30 @@ def display_topics(request: Request):
         }
     )
 
+def map_topic_replies_and_authors(topics, users) -> (Dict[int, List], Dict[int, User], Dict[int, User]):
+    # Map user ID to User object
+    user_map = {usr.id: usr for usr in users}
+
+    # Initialize maps
+    topic_replies_map = {}
+    reply_author_map = {}
+    author_map = {}
+
+    for tpc in topics:
+        # Retrieve the topic with replies for each topic ID
+        full_topic = ts.find_topic_by_id(tpc.topic_id)
+        topic_replies_map[tpc.topic_id] = full_topic.replies
+
+        # Map each reply's user_id to User object
+        for reply in full_topic.replies:
+            reply_author_map[reply.user_id] = user_map.get(reply.user_id)
+
+        # Map the topic author using user_map
+        author_map[tpc.topic_id] = user_map.get(tpc.user_id)
+
+    return topic_replies_map, reply_author_map, author_map
+
+
 @topics_router.get('/{topic_id}')
 def display_topic_details(request: Request, topic_id: int):
     # Obtain logged in user
@@ -40,25 +66,7 @@ def display_topic_details(request: Request, topic_id: int):
 
     # Call all topic authors and map usr id with User()
     users = us.get_all_users()
-    user_map = {usr.id: usr for usr in users}
-
-    # Map of topic_id to replies for each topic
-    topic_replies_map = {}
-    reply_author_map = {}
-
-    for tpc in topics:
-        # Retrieve the topic with replies for each topic ID
-        full_topic = ts.find_topic_by_id(tpc.topic_id)
-        topic_replies_map[tpc.topic_id] = full_topic.replies  # Store replies
-
-        # Map each reply's user_id to User object using user_map
-        for reply in full_topic.replies:
-            reply_author_map[reply.user_id] = user_map.get(reply.user_id)
-
-        #    print(reply_author_map[reply.user_id].username if reply_author_map[reply.user_id] else 'Unknown')
-
-    # Create author mapping for topics
-    author_map = {tpc.topic_id: user_map.get(tpc.user_id) for tpc in topics if tpc.user_id in user_map}
+    topic_replies_map, reply_author_map, author_map = map_topic_replies_and_authors(topics, users)
 
     return templates.TemplateResponse(
         request=request,
@@ -95,13 +103,18 @@ def create_topic(request: Request, form_data: tuple = Depends(_get_new_topic_dat
 
     try:
         new_topic = ts.create_topic(title, content, user.id, category_id, is_locked)
+        topics = ts.view_topics()
+        # Call all topic authors and map usr id with User()
+        users = us.get_all_users()
+        topic_replies_map, reply_author_map, author_map = map_topic_replies_and_authors(topics, users)
+
         return templates.TemplateResponse(
             request=request,
             name='single_topic.html',
             context={
                 'request': request,
                 'topics': topics,
-                'topic': selected_topic,
+                'topic': new_topic,
                 'author_map': author_map,
                 'reply_author_map': reply_author_map,
                 'topic_replies_map': topic_replies_map,
