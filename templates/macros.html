@@ -75,7 +75,41 @@
             </ul>
             <input type="hidden" name="category_id" id="selected-category-id">
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const dropdown = document.getElementById('dropdown');
+                const categoryInput = document.getElementById('selected-category-id');
+
+                document.querySelectorAll('.dropdown-item').forEach(item => {
+                    item.addEventListener('click', function(event) {
+                        event.preventDefault();
+
+                        // Update button text with the selected category name
+                        dropdown.textContent = this.textContent;
+
+                        // Update hidden input with the selected category ID
+                        categoryInput.value = this.getAttribute('data-value');
+                    });
+                });
+            });
+        </script>
     {% endmacro %}
+
+    {% macro list_users(category) %}
+        {% for user in category_users %}
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+
+                <div class="card-body">
+                <h5 class="card-title">{{ user.username|capitalize }}</h5>
+                <p class="card-text">Access </p>
+
+                </div>
+            </div>
+        {% endfor %}
+    {% endmacro %}
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function displaySelectedValue() {

@@ -57,7 +57,8 @@ def display_topic_details(request: Request, topic_id: int):
     user = us.get_token_user(token)
     # Filer topic data
     selected_topic = ts.find_topic_by_id(topic_id)
-    topics = ts.view_topics()
+    all_topics = ts.view_topics()
+    topics = [topic for topic in all_topics if topic.category_id == 1]
 
     if not user:
         public_categories = cs.show_public_categories()
