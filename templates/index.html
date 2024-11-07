@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/styles.css">
     <!-- Add Bootstrap for styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    {% from 'macros.html' import user_greeting, auth_buttons %}
+    {% from 'macros.html' import user_greeting, auth_buttons, admin_pane %}
 </head>
 <body>
 
@@ -25,6 +25,7 @@
                 <!-- Navbar items -->
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
+                        {{ admin_pane(user) }}
                         <li class="nav-item">
                             <a class="nav-link" href="/">Home</a>
                         </li>

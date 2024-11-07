@@ -141,3 +141,26 @@ def delete_category(request: Request, category_id: int, action: str = Query(None
             "categories.html",
             {"request": request, "error": error, "user": user}
         )
+
+
+@categories_router.get('/{category_id}/privileged_users')
+def show_privileged_users(request: Request, category_id: int):
+    token = request.cookies.get('token')
+    user = us.get_token_user(token)
+    if not user.role == 1:
+        return RedirectResponse(url='/', status_code=302)
+
+    selected_category = cs.find_category_by_id(category_id)
+
+    user_list = us.get_all_users()
+
+    return templates.TemplateResponse(
+        request=request,
+        name='single_category.html',
+        context={
+            'request': request,
+            'user_lists': user_list,
+            'category': selected_category,
+            'user': user
+        }
+    )

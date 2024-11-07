@@ -28,6 +28,16 @@
         {% endif %}
     {% endmacro %}
 
+    {% macro admin_pane(user) %}
+        {% if user %}
+            {% if user.role == 2 %}
+                <a href="/admin/details" class="btn btn-outline-primary">Admin Pane</a>
+            {% endif %}
+        {% else %}
+            <h5></h5>
+        {% endif %}
+    {% endmacro %}
+
     {% macro is_admin(user, category_id=None) %}
         {% if user.role == 2 %}
             <form action="/create/new_category" method="get">
@@ -40,6 +50,14 @@
             {% endif %}
         {% else %}
             <h6></h6>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro user_role(user) %}
+        {% if user.role == 1 %}
+            <p>Role: User</p>
+        {% elif user.role == 2 %}
+            <p>Role: Admin</p>
         {% endif %}
     {% endmacro %}
 
@@ -96,18 +114,22 @@
         </script>
     {% endmacro %}
 
-    {% macro list_users(category) %}
-        {% for user in category_users %}
-            <div class="card">
-                <img src="..." class="card-img-top" alt="...">
+    {% macro list_users(category=None) %}
+        {% if category %}
+            {% for user in category %}
+                <div class="card">
+                    <img src="..." class="card-img-top" alt="...">
 
-                <div class="card-body">
-                <h5 class="card-title">{{ user.username|capitalize }}</h5>
-                <p class="card-text">Access </p>
+                    <div class="card-body">
+                    <h5 class="card-title">{{ user.username|capitalize }}</h5>
+                    <p class="card-text">Access </p>
 
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <h5></h5>
+        {% endif %}
     {% endmacro %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
