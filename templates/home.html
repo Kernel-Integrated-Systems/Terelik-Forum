@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <img src="/static/images/pic1.svg" alt="Graphic" class="pic1">
+    <img src="/static/images/pic2.png" alt="Graphic" class="pic2">
+    <img src="/static/images/pic3.png" alt="Graphic" class="pic3">
+    <h1>Looking for help?</h1>
+    <p>Find guides, resources, and documentation for support.</p>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search the knowledge base">
+        <button onclick="performSearch()">Search</button>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Recent Categories Section -->
+    <h2 class="section-title">Recent Categories</h2>
+    <div class="recent-categories">
+        {% for category in categories %}
+        <div class="category-card">
+            <h3>{{ category.category_name }}</h3>
+            <p>{{ category.description or "Learn more about this category." }}</p>
+            <a href="/categories/{{ category.category_id }}">
+                <button>Read More</button>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- View More Button for Categories -->
+    <div class="button-container">
+        <a href="/categories/" class="view-more">View More</a>
+    </div>
+
+    <!-- Recent Topics Section -->
+    <h2 class="section-title recent-topics-section">Recent Topics</h2>
+    <div class="recent-topics">
+        {% for topic in topics %}
+        <div class="testimonial-card">
+            <p class="testimonial-text">{{ topic.content[:100] }}...</p>
+            <div class="testimonial-author">
+                <img src="https://via.placeholder.com/40" alt="{{ topic.title }}" class="author-image">
+                <div class="author-details">
+                    <h4>{{ topic.title }}</h4>
+                    <p>{{ topic.author or "Anonymous" }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+</div>
+
+<!-- View More Button for Topics -->
+<div class="button-container">
+    <a href="/topics/" class="view-more">View More</a>
+</div>
+</div>
+<!-- Trusted By Section -->
+<section class="trusted-by-section">
+    <div class="trusted-by-text">
+       <strong>Trusted by:</strong>
+    </div>
+    <img src="/static/images/logo.png" alt="Trusted By Logo" />
+</section>
+{% endblock %}
+<script>
+    function performSearch() {
+        const query = document.getElementById('searchInput').value;
+        alert(`Searching for: ${query}`);
+    }
+</script>
+</body>
+</html>

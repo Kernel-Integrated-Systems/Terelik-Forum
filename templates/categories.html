@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum</title>
+   <link rel="stylesheet" href="/static/categories.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <nav class="navbar">
+        <a href="/" class="logo"><img src="/static/images/kis.png" alt="Logo"></a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/categories/">Categories</a></li>
+            <li><a href="/topics/">Topics</a></li>
+            <li><a href="#">Messages</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="/users/login" class="auth-button login-button"><i class="icon">👤</i> Log In</a>
+            <a href="/users/register" class="auth-button register-button"><i class="icon">👤</i> Register</a>
+        </div>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <img src="/static/images/pic1.svg" alt="Graphic" class="pic1">
+    <img src="/static/images/pic2.png" alt="Graphic" class="pic2">
+    <img src="/static/images/pic3.png" alt="Graphic" class="pic3">
+    <h1>Looking for help?</h1>
+    <p>Find guides, resources, and documentation for support.</p>
+
+</section>
+<!--  Topics Section -->
+<h1>All Categories</h1>
+<div class="container">
+    <div class="forum-section">
+        <div class="question-banner">
+    {% if is_admin %}
+        <p>If you want to create a category, click here:</p>
+        <a href="/categories/new">
+            <button class="ask-button">Create Category</button>
+        </a>
+    {% else %}
+        <p>Can't find an answer? Make use of a qualified tutor to get the answer</p>
+        <button class="ask-button">Ask a Question</button>
+    {% endif %}
+</div>
+
+
+        <h2>Categories</h2>
+        <table class="forum-table">
+            <thead>
+            <tr>
+                <th>Forum</th>
+                <th>Topics</th>
+                <th>Replies</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for category in categories %}
+            <tr>
+                <td>
+                   <a href="/topics/by_category?category_id={{ category.category_id }}" class="forum-title">{{ category.category_name }}</a>
+                    <p class="forum-description">{{ category.description }}</p>
+                    <div class="forum-status">
+                        {% if category.private %}
+                        <span class="status-label status-private">Private</span>
+                        {% endif %}
+                        {% if category.locked %}
+                        <span class="status-label status-locked">Locked</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td>{{ category.topic_count }}</td>
+                <td>{{ category.reply_count }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <h3>Categories</h3>
+            <ul class="sidebar-list">
+                {% for category in categories %}
+                <li><a href="/categories/{{ category.category_id }}">{{ category.category_name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Recent Replies</h3>
+        <ul class="sidebar-list">
+            <li><a href="#">Test topic</a></li>
+            <li><a href="#">How compile SCSS</a></li>
+            <li><a href="#">Demo Import fails AND manual steps fail</a></li>
+        </ul>
+    </div>
+
+    <div class="sidebar-section">
+        <h3>Recent Topics</h3>
+        <ul class="sidebar-list">
+            <li><a href="#">Test topic</a></li>
+            <li><a href="#">How compile SCSS</a></li>
+        </ul>
+    </div>
+
+
+</div>
+</div>
+</div>
+</div>
+<script>
+
+    async function performSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+
+    if (query === "") {
+        document.getElementById('filteredCategories').innerHTML = ""; // Clears results if search is empty
+        return;
+    }
+
+    // Fetch filtered categories from the server
+    const response = await fetch(`/categories?query=${encodeURIComponent(query)}`, {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    });
+
+    if (response.ok) {
+        const data = await response.text();
+        document.getElementById('filteredCategories').innerHTML = data;
+    } else {
+        console.error("Error fetching search results:", response.statusText);
+    }
+}
+
+
+</script>
+
+</body>
+</html>

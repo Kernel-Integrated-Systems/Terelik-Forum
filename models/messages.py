@@ -33,6 +33,7 @@ class CreateMessage(BaseModel):
     receiver_id: int
     content: str
 
+
 class NewMessageRespond(BaseModel):
     message_id: int | None = None
     sent_at: datetime | None = None
@@ -40,10 +41,11 @@ class NewMessageRespond(BaseModel):
     receiver: str
     content: str
 
-
     @classmethod
-    def from_query_string(cls, sender, receiver, content):
+    def from_query_string(cls, message_id, sent_at, sender, receiver, content):
         return cls(
+            message_id=message_id,
+            sent_at=sent_at,
             sender=sender,
             receiver=receiver,
             content=content

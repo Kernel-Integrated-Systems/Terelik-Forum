@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from modules.replies import NewReply, VoteRequest
+from models.replies import NewReply, VoteRequest
 from services import replies_services as service
 
 # Mock data for testing

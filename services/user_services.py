@@ -1,8 +1,8 @@
 import datetime
 import jwt
-from fastapi import HTTPException
-from modules.categories import Category
-from modules.users import User, UserRegistrationRequest, UserAccess
+from fastapi import HTTPException, Response, Request
+from models.categories import Category
+from models.users import User, UserRegistrationRequest, UserAccess
 from typing import Optional
 from percistance.connections import read_query, insert_query
 from percistance.queries import ALL_USERS, USER_BY_ID, USER_BY_EMAIL, USER_BY_USERNAME, NEW_USER, LOGIN_USERNAME_PASS, \
@@ -38,10 +38,12 @@ def get_all_users():
 
 
 def get_user_by_id(user_id: int):
-    data = read_query(USER_BY_ID, (user_id,))
-    if not data:
-        raise ValueError(f'User with ID {id} does not exist.')
-    return next((User.from_query_result(*row) for row in data), None)
+    user_data = read_query("SELECT user_id, username FROM users WHERE user_id = ?", (user_id,))
+
+    if not user_data:
+        return None
+
+    return {"user_id": user_data[0][0], "username": user_data[0][1]}
 
 
 def get_user_by_email(email: str) -> Optional[User]:
@@ -155,6 +157,20 @@ def revoke_access(user_id: int, category_id: int):
         raise ValueError(f"Failed to revoke access for user {user_id} to category {category_id}.")
 
 
+def get_user_by_credentials(username: str, password: str) -> Optional[User]:
+    """Fetches a user based on username and password."""
+    data = read_query(LOGIN_USERNAME_PASS, (username, password))
+
+    if not data:
+        # Return None if no user matches the credentials
+        return None
+
+    # Unpack data with the updated query
+    user_id, username, email, user_role, is_active = data[0]
+    return User(id=user_id, username=username, email=email, role=user_role, is_active=is_active)
+
+
+
 """ 
 ----------------------------------->
     Аuthentication 
@@ -181,7 +197,6 @@ def create_jwt_token(user_id: int, username: str, user_role: int) -> str:
     token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
     return token
 
-
 def decode_jwt_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -190,43 +205,20 @@ def decode_jwt_token(token: str):
             "username": payload["sub"],
             "user_role": payload["user_role"]
         }
-
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired.")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token.")
 
-
-
-#### COMMENT the functions below and switch the code and comments in encode and decode functions above ^
-
-# def encode(user_id: int, username: str, user_role: int) -> str:
-#     now = datetime.now()
-#     user_string = f"{user_id}_{username}_{user_role}_{now.strftime("%H:%M:%S")}"
-#     encoded_bytes = base64.b64encode(user_string.encode('utf-8'))
-#
-#     return encoded_bytes.decode('utf-8')
-#
-#
-# def decode(encoded_value: str):
-#     decoded_string = base64.b64decode(encoded_value).decode('utf-8')
-#     user_id, username, user_role, created_at = decoded_string.split('_')
-#     result = {
-#         "user_id": int(user_id),
-#         "username": username,
-#         "user_role": int(user_role),
-#         "created_at": created_at
-#     }
-#     return result
-
-####
-
-
-def authenticate(authorization: str) -> dict:
-    if not authorization:
+def authenticate(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
         raise HTTPException(status_code=401, detail="Authorization token missing or invalid")
 
-    token = authorization.split(" ")[1]
-    decoded_token = decode_jwt_token(authorization)
+    return decode_jwt_token(token)
 
-    return decoded_token
+def get_current_admin(request: Request):
+    user_data = authenticate(request)
+    if user_data["user_role"] != 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user_data

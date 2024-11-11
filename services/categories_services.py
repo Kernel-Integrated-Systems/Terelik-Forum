@@ -1,14 +1,49 @@
-from modules.categories import Categories, NewCategory, CategoryPrivilegedUsersResponse, Category
-from modules.topic import Topics
+from models.categories import Categories, Category, CategoryPrivilegedUsersResponse, NewCategory
+from models.topic import Topics
 from percistance.connections import read_query, insert_query, update_query
 from percistance import queries
 
 
+def search_categories(query: str):
+    data = read_query("SELECT * FROM categories WHERE category_name LIKE ?", (f"%{query}%",))
+    return [Categories.from_query_string(*row) for row in data]
+def count_topics(category_id: int) -> int:
+    topic_data = read_query(queries.TOPICS_FOR_CATEGORY, (category_id,))
+    return len(topic_data)
+
+def count_replies(category_id: int):
+    topic_data = read_query(queries.TOPICS_FOR_CATEGORY, (category_id,))
+    reply_count = 0
+    for topic in topic_data:
+        topic_id = topic[0]
+        replies = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
+        reply_count += len(replies)
+    return reply_count
 
 def view_categories():
     data = read_query(queries.ALL_CATEGORIES)
-    return (Categories.from_query_string(*row) for row in data)
+    categories = [Categories.from_query_string(*row) for row in data]
+    for category in categories:
+        category.topic_count = count_topics(category.category_id)
+        category.reply_count = count_replies(category.category_id)
+    return categories
 
+
+def count_topics_per_category():
+    topic_counts = read_query("""
+        SELECT category_id, COUNT(topic_id) AS topic_count
+        FROM topics
+        GROUP BY category_id
+    """)
+    return {row[0]: row[1] for row in topic_counts}
+def count_replies_per_category():
+    reply_counts = read_query("""
+        SELECT t.category_id, COUNT(r.reply_id) AS reply_count
+        FROM topics t
+        LEFT JOIN replies r ON t.topic_id = r.topic_id
+        GROUP BY t.category_id
+    """)
+    return {row[0]: row[1] for row in reply_counts}
 
 def find_category_by_id(category_id: int):
     data = read_query(queries.CATEGORY_BY_ID, (category_id,))
@@ -56,7 +91,6 @@ def create_category(
 
     new_id = insert_query(queries.NEW_CATEGORY, (title,))
 
-    # Update category details if provided
     update_query(queries.NEW_CATEGORY_DETAILS, (private, locked, new_id))
     new_category = NewCategory(id=new_id,category_name=title, private=private, locked=locked)
 

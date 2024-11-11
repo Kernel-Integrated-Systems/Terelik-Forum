@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from typing import List
-from modules.topic import Topics
+from typing import List, Optional
+from models.topic import Topics
 
 
 class Categories(BaseModel):
@@ -8,6 +8,8 @@ class Categories(BaseModel):
     category_name: str
     private: int | None = None
     locked: int | None = None
+    topic_count: Optional[int] = 0
+    reply_count: Optional[int] = 0
 
     @classmethod
     def from_query_string(cls, category_id, category_name, private, locked):
@@ -15,8 +17,10 @@ class Categories(BaseModel):
             category_id=category_id,
             category_name=category_name,
             private=private,
-            locked=locked
+            locked=locked,
+
         )
+
 
 
 class Category(BaseModel):
@@ -27,15 +31,14 @@ class Category(BaseModel):
     topics: List[Topics] = []
 
     @classmethod
-    def from_query_string(cls, category_id, category_name, private, locked, topics):
+    def from_query_string(cls, category_id, category_name, private, locked, topics=None):
         return cls(
             category_id=category_id,
             category_name=category_name,
             private=private,
             locked=locked,
-            topics=topics
+            topics=topics if topics else []
         )
-
 
 class NewCategory(BaseModel):
     category_name: str

@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from modules.messages import NewMessage, NewMessageRespond
+from models.messages import NewMessage, NewMessageRespond
 from services import messages_services as service
 
 mock_message_service = Mock(spec='services.message_services')

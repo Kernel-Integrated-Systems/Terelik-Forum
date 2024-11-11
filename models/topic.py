@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List
-from modules.replies import Reply
+from models.replies import Reply
 
 class Topics(BaseModel):
     topic_id: int
@@ -31,9 +31,8 @@ class Topic(BaseModel):
     is_locked: int = 0
     replies: List[Reply] = []
 
-
     @classmethod
-    def from_query_string(cls, topic_id, title, content, user_id, category_id, is_locked, replies):
+    def from_query_string(cls, topic_id, title, content, user_id, category_id, is_locked, replies: Optional[List[Reply]] = None):
         return cls(
             topic_id=topic_id,
             title=title,
@@ -41,9 +40,8 @@ class Topic(BaseModel):
             user_id=user_id,
             category_id=category_id,
             is_locked=is_locked,
-            replies=replies
+            replies=replies or []
         )
-
 
 class NewTopic(BaseModel):
     title: str

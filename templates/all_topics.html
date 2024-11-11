@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Topics<</title>
+    <link rel="stylesheet" href="/static/all_topics.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <nav class="navbar">
+        <a href="/" class="logo"><img src="/static/images/kis.png" alt="Logo"></a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/categories/">Categories</a></li>
+            <li><a href="/topics/">Topics</a></li>
+            <li><a href="#">Messages</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="/users/login" class="auth-button login-button"><i class="icon">👤</i> Log In</a>
+            <a href="/users/register" class="auth-button register-button"><i class="icon">👤</i> Register</a>
+        </div>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <img src="/static/images/pic1.svg" alt="Graphic" class="pic1">
+    <img src="/static/images/pic2.png" alt="Graphic" class="pic2">
+    <img src="/static/images/pic3.png" alt="Graphic" class="pic3">
+    <h1>Looking for help?</h1>
+    <p>Find guides, resources, and documentation for support.</p>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search topic">
+        <button onclick="performSearch()">Search</button>
+    </div>
+</section>
+
+<!--  Topics Section -->
+<h1>All Topics</h1>
+<div class="container">
+    {% for category in categories %}
+    <div class="card">
+        <div class="card-title">{{ category.category_name }}</div>
+        <ul class="topics">
+            {% for topic in category.topics %}
+            <li>
+                <a href="/topics/{{ topic.topic_id }}">{{ topic.title }}</a>
+                <span class="reply-info">({{ topic.reply_count }} replies, <span class="best-replies">{{ topic.best_reply_count }}</span>)</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</div>
+<div class="container">
+    <div class="forum-section">
+        <div class="question-banner">
+        <p>If you want to create a topic, click here:</p>
+        <a href="/topics/new">
+            <button class="ask-button">Create topic</button>
+        </a>
+</div></div>
+</div>
+
+<script>
+    function performSearch() {
+        const query = document.getElementById('searchInput').value;
+        if (query.trim()) {
+            window.location.href = `/categories/search?query=${encodeURIComponent(query)}`;
+        }
+    }
+</script>
+
+</body>
+</html>

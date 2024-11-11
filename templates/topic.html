@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="/static/topic.css">
+    <title>Forum Topic Page</title>
+
+
+</head>
+<body>
+
+<!-- Header (Navigation Bar) -->
+<header class="header">
+   <nav class="navbar">
+        <a href="/" class="logo"><img src="/static/images/kis.png" alt="Logo"></a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/categories/">Categories</a></li>
+            <li><a href="/topics/">Topics</a></li>
+            <li><a href="#">Messages</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="/users/login" class="auth-button login-button"><i class="icon">👤</i> Log In</a>
+            <a href="/users/register" class="auth-button register-button"><i class="icon">👤</i> Register</a>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Question Card -->
+        <div class="question-card">
+            <p class="category-label">Category: {{ topic.category_id }}</p>
+            <h2>{{ topic.title }}</h2>
+            <div class="question-content">
+                <p>{{ topic.content }}</p>
+            </div>
+            <div class="question-footer">
+                <span>Posted by: User {{ topic.user_id }}</span>
+                <span>{{ topic.replies | length }} Comments</span>
+            </div>
+        </div>
+
+        <!-- Comments Header -->
+        <div class="comments-header">
+            <h3>All Comments</h3>
+        </div>
+
+        <!-- Comments Section -->
+        <div id="comments-container">
+            {% for reply in topic.replies %}
+            <div class="comment">
+                <img src="https://via.placeholder.com/50" alt="User">
+                <div class="comment-content">
+                    <p class="user-info">User {{ reply.user_id }}
+                        <span class="date">- {{ reply.created_at.strftime('%d %B, %Y') }}</span>
+                    </p>
+                    <p class="comment-text">{{ reply.content }}</p>
+                    <div class="reply-buttons">
+                        <span class="vote-count" id="vote-count-{{ reply.reply_id }}">
+                            👍 {{ reply.upvotes }} | 👎 {{ reply.downvotes }}
+                        </span>
+                        <button class="vote-button" onclick="vote({{ reply.reply_id }}, 'upvote')">👍</button>
+                        <button class="vote-button" onclick="vote({{ reply.reply_id }}, 'downvote')">👎</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Reply Section (Form) -->
+        <div class="reply-section">
+            <form action="/replies/create_reply" method="post">
+                <input type="hidden" name="topic_id" value="{{ topic.topic_id }}">
+                <input type="text" name="content" placeholder="Write a reply..." class="reply-input" required>
+                <button type="submit" class="reply-submit">Submit</button>
+            </form>
+        </div>
+
+        <!-- Centered Pagination Buttons -->
+        <div class="pagination-buttons">
+            <button class="arrow-button" id="prev-button">← Prev</button>
+            <button class="arrow-button next-button" id="next-button">Next →</button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <h3>Categories</h3>
+            <ul>
+                {% for category in categories %}
+                <li><a href="/topics/category/{{ category.category_id }}">{{ category.category_name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function vote(replyId, voteType) {
+        fetch(`/votes/reply/${replyId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ vote_type: voteType })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const voteCountElement = document.getElementById(`vote-count-${replyId}`);
+            if (data.upvotes !== undefined && data.downvotes !== undefined) {
+                voteCountElement.innerText = `👍 ${data.upvotes} | 👎 ${data.downvotes}`;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+</body>
+</html>

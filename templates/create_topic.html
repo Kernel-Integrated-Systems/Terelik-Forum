@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Topic</title>
+    <link rel="stylesheet" href="/static/home.css">
+</head>
+<body>
+<style>
+    /* Form Section */
+    .form-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem 1rem;
+        background-color: #f8f9fb;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 500px;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container h2 {
+        font-size: 1.8rem;
+        text-align: center;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        outline: none;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        display: block;
+        width: 100%;
+        padding: 0.5rem;
+        background-color: #1cc6b8;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 1.5rem;
+    }
+
+    .btn-primary:hover {
+        background-color: #17a9a2;
+    }
+</style>
+
+<!-- Header -->
+<header class="header">
+    <nav class="navbar">
+        <a href="/" class="logo"><img src="/static/images/kis.png" alt="Logo"></a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/categories/">Categories</a></li>
+            <li><a href="/topics/">Topics</a></li>
+            <li><a href="#">Messages</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="/users/login" class="auth-button login-button"><i class="icon">👤</i> Log In</a>
+            <a href="/users/register" class="auth-button register-button"><i class="icon">👤</i> Register</a>
+        </div>
+    </nav>
+</header>
+
+<!-- Form Section -->
+<section class="form-section">
+    <div class="form-container">
+        <h2>Create a New Topic</h2>
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        <form action="/topics/new" method="post">
+            <div class="form-group">
+                <label for="title" class="form-label">Topic Title</label>
+                <input type="text" class="form-control" id="title" name="title" placeholder="Enter topic title" required>
+            </div>
+            <div class="form-group">
+                <label for="content" class="form-label">Content</label>
+                <textarea class="form-control" id="content" name="content" rows="4" placeholder="Enter topic content" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="category_id" class="form-label">Category</label>
+                <select id="category_id" name="category_id" class="form-control">
+                    {% for category in categories %}
+                    <option value="{{ category.category_id }}">{{ category.category_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Topic</button>
+        </form>
+    </div>
+</section>
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-column">
+            <h3>Company</h3>
+            <ul>
+                <li><a href="#">Home Page 2</a></li>
+                <li><a href="#">404 Error</a></li>
+                <li><a href="#">Feature</a></li>
+                <li><a href="#">Testimonials</a></li>
+                <li><a href="#">Pricing</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Contact</h3>
+            <p class="contact-info">
+                📞 +0897939412 <br>
+                ✉️ <a href="mailto:kristinkaa@gamil.com">kristinkaa@gamil.com</a><br>
+                📍 g.k. Mladost 1AMladost, ul. "Krastyu Rakovski" 30, 1729 Sofia, <br> Sofia, BG
+            </p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        &copy; 2024. All rights reserved to <a href="#">Design Monks</a>
+    </div>
+</footer>
+
+</body>
+</html>

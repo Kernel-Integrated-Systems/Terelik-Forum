@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Topics</title>
+      <link rel="stylesheet" href="/static/topics_per_cat.css">
+
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+   <nav class="navbar">
+        <a href="/" class="logo"><img src="/static/images/kis.png" alt="Logo"></a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/categories/">Categories</a></li>
+            <li><a href="/topics/">Topics</a></li>
+            <li><a href="#">Messages</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="/users/login" class="auth-button login-button"><i class="icon">👤</i> Log In</a>
+            <a href="/users/register" class="auth-button register-button"><i class="icon">👤</i> Register</a>
+        </div>
+    </nav>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <!-- Topics Section -->
+    <div class="topics-section">
+        <div class="filter-bar">
+            <span>576 Open | 2,974 Closed</span>
+            <div>
+                <select>
+                    <option>Popular</option>
+                    <option>Recent</option>
+                    <option>Unanswered</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Topics List or No Topics Message -->
+        <ul class="topics-list">
+            {% if topics %}
+                {% for topic in topics %}
+                <li class="topic-item">
+                    <div class="topic-info">
+                        <div class="topic-avatar">{{ topic.initials }}</div>
+                        <div class="topic-details">
+                            <span class="topic-title">
+                                {{ topic.title }}
+                                {% if topic.is_private %}
+                                <span class="status-label private">Private</span>
+                                {% endif %}
+                            </span>
+                            <span class="topic-meta">{{ topic.meta }}</span>
+                        </div>
+                    </div>
+                    <div class="topic-stats">
+                        <div class="icon-comment">{{ topic.comments }}</div>
+                        <div class="icon-star">{{ topic.stars }}</div>
+                    </div>
+                </li>
+                {% endfor %}
+            {% else %}
+                <p style="padding: 20px; color: #777;">{{ no_topics_message or "There are no topics available in this category." }}</p>
+            {% endif %}
+        </ul>
+
+        <!-- Pagination -->
+        {% if topics %}
+        <div class="pagination">
+            <a href="?category_id={{ category_id }}&page={{ page - 1 }}" class="{% if page == 1 %}disabled{% endif %}">Previous</a>
+            <a href="?category_id={{ category_id }}&page={{ page + 1 }}">Next</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <h3>Ticket Categories</h3>
+            <ul class="sidebar-list">
+                {% for category in categories %}
+                <li><a href="/topics/by_category?category_id={{ category.category_id }}">{{ category.category_name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h3>Tags</h3>
+            <ul class="tags-list">
+                {% for tag in tags %}
+                <li><span class="tag">{{ tag }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -2,7 +2,7 @@ import unittest
 
 import pytest
 from unittest.mock import patch
-from modules.users import User
+from models.users import User
 from services import user_services as service
 
 # Mock Data

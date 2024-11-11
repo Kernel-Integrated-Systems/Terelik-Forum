@@ -1,12 +1,14 @@
-from modules.topic import Topic, Topics
-from modules.replies import Reply, BestReply
+from models.categories import Category
+from models.topic import Topic, Topics
+from models.replies import Reply, BestReply
 from percistance.connections import read_query, insert_query, update_query
 from percistance import queries
+
 
 # View Topics
 def view_topics(search: str = None, page: int = 1, page_size: int = 4):
     topic_data = read_query(queries.ALL_TOPICS)
-    # Apply search query
+
     if search:
         filtered_topics = [
             Topics.from_query_string(*row)
@@ -16,7 +18,6 @@ def view_topics(search: str = None, page: int = 1, page_size: int = 4):
     else:
         filtered_topics = [Topics.from_query_string(*row) for row in topic_data]
 
-    # Implement pagination
     start_index = (page - 1) * page_size
     end_index = start_index + page_size
     paginated_topics = filtered_topics[start_index:end_index]
@@ -34,26 +35,49 @@ def sort_topics(topics: list[Topics], attribute='title', reverse=False):
 
     return sorted(topics, key=sort_key, reverse=reverse)
 
+def view_categories_with_topics():
+    category_data = read_query("SELECT category_id, category_name, is_private, is_locked FROM Categories")
+    categories = [Category.from_query_string(row[0], row[1], row[2], row[3]) for row in category_data]
+
+    for category in categories:
+        topics_data = read_query("SELECT topic_id, title, content, user_id, category_id, is_locked FROM Topics WHERE category_id = ?", (category.category_id,))
+        topics = [Topics(topic_id=row[0], title=row[1], content=row[2], user_id=row[3], category_id=row[4], is_locked=row[5]) for row in topics_data]
+        category.topics = topics
+    return categories
+
+
 # Find Topic by ID
+
+def find_topic_by_category(category_id: int):
+    data = read_query(queries.TOPIC_BY_CATEGORY, (category_id,))
+    if not data:
+        raise ValueError(f'There is no topic with category {category_id}.')
+
+    topics = [Topic.from_query_string(*row) for row in data]
+    return topics
+
 def find_topic_by_id(topic_id: int):
-    topic_data = read_query(queries.TOPIC_BY_ID, (topic_id,))
+    topic_data = read_query(
+        "SELECT topic_id, title, content, user_id, category_id, is_locked FROM topics WHERE topic_id = ?",
+        (topic_id,))
     if not topic_data:
-        raise ValueError(f'Topic with ID {topic_id} does not exist.')
+        raise ValueError("Topic not found.")
 
     topic_id, title, content, user_id, category_id, is_locked = topic_data[0]
 
-    reply_data = read_query(queries.REPLIES_FOR_TOPIC, (topic_id,))
+    replies_data = read_query("SELECT reply_id, content, user_id, topic_id FROM replies WHERE topic_id = ?",
+                              (topic_id,))
     replies = [
         Reply(
-            reply_id=reply_row[0],
-            content=reply_row[1],
-            user_id=reply_row[2],
-            topic_id=reply_row[3],
-            created_at=reply_row[4]
-        ) for reply_row in reply_data
+            reply_id=row[0],
+            content=row[1],
+            user_id=row[2],
+            topic_id=row[3]
+        )
+        for row in replies_data
     ]
 
-    topic = Topic.from_query_string(
+    return Topic(
         topic_id=topic_id,
         title=title,
         content=content,
@@ -63,8 +87,6 @@ def find_topic_by_id(topic_id: int):
         replies=replies
     )
 
-    return topic
-
 
 def find_topic_by_title(title: str):
     data = read_query(queries.TOPIC_BY_TITLE, (title,))
@@ -73,12 +95,6 @@ def find_topic_by_title(title: str):
     return next((Topic.from_query_string(*row) for row in data), None)
 
 
-def find_topic_by_category(category_id: int):
-    data = read_query(queries.TOPIC_BY_CATEGORY, (category_id,))
-    if not data:
-        raise ValueError(f'There is no topic with category {category_id}.')
-
-    return next((Topic.from_query_string(*row) for row in data), None)
 
 # Post Topic
 def create_topic(title: str, content: str, user_id: int, category: int):
@@ -124,7 +140,7 @@ def change_topic_lock_status(topic_id: int):
 
 
 def check_topic_lock_status(topic_id: int):
-    data = read_query(queries.CHECK_TOPIC_PRIVATE_STATUS, (topic_id,))
+    data = read_query("SELECT is_locked FROM topics WHERE topic_id = ?", (topic_id,))
     if not data:
         return None
     return data[0][0]
