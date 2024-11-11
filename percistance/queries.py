@@ -1,5 +1,5 @@
 # USER QUERIES
-
+REVOKE_ACCESS = """DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ?"""
 ALL_USERS = """SELECT user_id, username, email, user_role, is_active FROM users"""
 USER_BY_ID = """SELECT user_id, username, email, user_role, is_active FROM users WHERE user_id = ?"""
 USER_BY_EMAIL = """SELECT user_id, username, email, user_role, is_active FROM users WHERE email = ?"""
@@ -7,8 +7,16 @@ USER_BY_USERNAME = """SELECT user_id, username, email, user_role, is_active FROM
 USER_EXISTS = """SELECT * FROM users WHERE username = ? or email = ?"""
 NEW_USER = """INSERT INTO Users (username, email, password_hash, user_role)
             VALUES (?, ?, ?, ?)"""
-LOGIN_USERNAME_PASS = """SELECT user_id, username, password_hash, user_role FROM users
-            WHERE username = ? AND password_hash = ?"""
+LOGIN_USERNAME_PASS = """
+SELECT user_id, username, email, user_role, is_active FROM users
+WHERE username = ? AND password_hash = ?
+"""
+USER_CONTACTS = """
+SELECT DISTINCT u.user_id, u.username, u.is_active
+FROM users u
+JOIN messages m ON u.user_id = m.sender_id OR u.user_id = m.recipient_id
+WHERE (m.sender_id = ? OR m.recipient_id = ?) AND u.user_id != ?
+"""
 
 INSERT_TOKEN = """INSERT INTO sessions (token_string, expiration_time)
             VALUES (?, ?)"""
@@ -16,6 +24,7 @@ SEARCH_TOKEN = """SELECT * FROM sessions WHERE Token_String = ?"""
 
 # USER ACCESS QUERIES
 
+REVOKE_ACCESS = """DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ?"""
 REMOVE_ACCESS = "DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ? "
 GET_ACCESS_LEVEL = """
         SELECT ca.access_level 
@@ -59,29 +68,25 @@ NEW_TOPIC = """INSERT INTO topics (title, content, user_id, category_id, is_lock
             VALUES (?, ?, ?, ?, ?)"""
 DELETE_TOPIC = """DELETE FROM topics WHERE topic_id = ?"""
 CHANGE_TOPIC_LOCK_STATUS = """UPDATE Topics SET is_locked = ? WHERE category_id = ?"""
-CHECK_TOPIC_PRIVATE_STATUS = """SELECT is_private FROM Topics WHERE topic_id = ?"""
+CHECK_TOPIC_LOCK_STATUS = "SELECT is_locked FROM topics WHERE topic_id = ?"
+
 TOPICS_FOR_CATEGORY = """SELECT * FROM topics WHERE category_id = ?"""
 
 # MESSAGE QUERIES
+ALL_MESSAGES = """
+SELECT message_id, sent_at, sender_id, recipient_id, content
+FROM messages
+WHERE sender_id = ? OR recipient_id = ?
+ORDER BY sent_at ASC;
+"""
+MESSAGE_BY_ID = """
+SELECT message_id, sent_at, sender_id, receiver_id, content
+FROM messages
+WHERE (sender_id = ? AND receiver_id = ?) 
+   OR (sender_id = ? AND receiver_id = ?)
+ORDER BY sent_at ASC;
+"""
 
-ALL_MESSAGES = """SELECT 
-                se.username AS sender, 
-                re.username AS receiver, 
-                GROUP_CONCAT(m.content, ', ') AS messages
-            FROM messages m
-            LEFT JOIN users se ON se.user_id = m.sender_id
-            LEFT JOIN users re ON re.user_id = m.recipient_id
-            WHERE se.user_id = ? OR re.user_id = ?
-            GROUP BY se.username, re.username"""
-
-MESSAGE_BY_ID = """SELECT 
-                se.username AS sender, re.username AS receiver, 
-                GROUP_CONCAT(m.content, ', ') AS messages
-            FROM messages m
-            LEFT JOIN users se ON se.user_id = m.sender_id
-            LEFT JOIN users re ON re.user_id = m.recipient_id
-            WHERE se.user_id = ? AND re.user_id = ?
-            GROUP BY se.username, re.username"""
 
 NEW_MESSAGE = """INSERT INTO messages (sender_id, recipient_id, content) VALUES (?, ?, ?)"""
 
