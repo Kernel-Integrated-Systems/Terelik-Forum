@@ -1,4 +1,5 @@
 # USER QUERIES
+REVOKE_ACCESS = """DELETE FROM CategoryAccess WHERE user_id = ? AND category_id = ?"""
 
 ALL_USERS = """SELECT user_id, username, email, user_role, is_active FROM users"""
 USER_BY_ID = """SELECT user_id, username, email, user_role, is_active FROM users WHERE user_id = ?"""
@@ -59,7 +60,7 @@ NEW_TOPIC = """INSERT INTO topics (title, content, user_id, category_id, is_lock
             VALUES (?, ?, ?, ?, ?)"""
 DELETE_TOPIC = """DELETE FROM topics WHERE topic_id = ?"""
 CHANGE_TOPIC_LOCK_STATUS = """UPDATE Topics SET is_locked = ? WHERE category_id = ?"""
-CHECK_TOPIC_PRIVATE_STATUS = """SELECT is_private FROM Topics WHERE topic_id = ?"""
+CHECK_TOPIC_PRIVATE_STATUS = """SELECT is_locked FROM Topics WHERE topic_id = ?"""
 TOPICS_FOR_CATEGORY = """SELECT * FROM topics WHERE category_id = ?"""
 
 # MESSAGE QUERIES
@@ -87,6 +88,40 @@ NEW_MESSAGE = """INSERT INTO messages (sender_id, recipient_id, content) VALUES 
 
 
 # CATEGORIES QUERIES
+
+ALL_CATEGORIES = """SELECT category_id, category_name, is_private, is_locked FROM categories"""
+
+CATEGORY_BY_ID = """SELECT category_id, category_name, is_private, is_locked FROM categories
+            WHERE category_id = ?"""
+
+CATEGORY_BY_NAME = """SELECT category_id, category_name, is_private, is_locked FROM categories WHERE category_name = ?"""
+
+NEW_CATEGORY = """INSERT INTO categories (category_name) VALUES (?)"""
+NEW_CATEGORY_DETAILS = """UPDATE categories SET is_private = ?, is_locked = ?
+            WHERE category_id = ?"""
+
+DELETE_CATEGORY = """DELETE FROM categories WHERE category_id = ?"""
+
+CATEGORY_PRIVILEGED_USERS = """SELECT a.category_id, c.category_name, u.username, ac.access_level FROM categoryaccess a
+            LEFT JOIN categories c on a.category_id = c.category_id
+            LEFT JOIN users u on a.user_id = u.user_id
+            LEFT JOIN useraccesslevel ac on a.access_level = ac.user_access_id
+            WHERE a.category_id = ?"""
+
+# REPLIES QUERIES
+
+REPLIES_FOR_TOPIC = """SELECT * FROM replies WHERE topic_id = ?"""
+CHECK_VOTE_EXISTS = """SELECT COUNT(*) FROM votes 
+            WHERE user_id = ? AND reply_id = ? AND vote_type= ?"""
+VOTE_ON_REPLY = """INSERT INTO votes (user_id, reply_id, vote_type) VALUES (?, ?, ?)"""
+
+NEW_REPLY = """INSERT INTO replies (content, user_id, topic_id) VALUES (?, ?, ?)"""
+
+CHOOSE_BEST_REPLY_ID = """SELECT reply_id FROM replies
+            WHERE user_id = ? AND topic_id = ? AND reply_id = ?"""
+
+ADD_BEST_REPLY_ON_TOPIC = """UPDATE topics SET best_reply_id = ?
+            WHERE topic_id = ?"""
 
 ALL_CATEGORIES = """SELECT category_id, category_name, is_private, is_locked FROM categories"""
 
